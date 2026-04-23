@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --brand-black: #000000;
+  --brand-green: #00a651;
+  --brand-red: #e02828;
+  --brand-white: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-brand-black: var(--brand-black);
+  --color-brand-green: var(--brand-green);
+  --color-brand-red: var(--brand-red);
+  --color-brand-white: var(--brand-white);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-poppins), "Avenir Next", "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.coming-soon__grain {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.18) 0,
+    rgb(255 255 255 / 0.18) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
