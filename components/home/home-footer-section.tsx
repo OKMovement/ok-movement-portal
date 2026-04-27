@@ -15,7 +15,7 @@ function CampaignFooterLogo() {
           className="object-cover"
         />
       </span>
-      <span className="mt-4 text-3xl font-black leading-none tracking-tight sm:text-4xl">
+      <span className="mt-4 text-3xl font-medium leading-none tracking-tight sm:text-4xl">
         {homeFooterSection.logoTitle}
       </span>
       <span className="mt-2 text-lg font-medium uppercase tracking-[0.08em] text-white/90 sm:text-xl">
@@ -27,15 +27,15 @@ function CampaignFooterLogo() {
 
 function socialIcon(label: HomeFooterSocial["label"]) {
   if (label === "Facebook") {
-    return <span aria-hidden="true" className="text-2xl font-semibold leading-none">f</span>;
+    return <span aria-hidden="true" className="text-2xl font-medium leading-none">f</span>;
   }
   if (label === "YouTube") {
-    return <span aria-hidden="true" className="text-sm font-bold leading-none">YT</span>;
+    return <span aria-hidden="true" className="text-sm font-medium leading-none">YT</span>;
   }
   if (label === "Instagram") {
-    return <span aria-hidden="true" className="text-sm font-bold leading-none">IG</span>;
+    return <span aria-hidden="true" className="text-sm font-medium leading-none">IG</span>;
   }
-  return <span aria-hidden="true" className="text-2xl font-semibold leading-none">X</span>;
+  return <span aria-hidden="true" className="text-2xl font-medium leading-none">X</span>;
 }
 
 export default function HomeFooterSection() {
@@ -51,7 +51,7 @@ export default function HomeFooterSection() {
                 <Link
                   key={action.label}
                   href={action.href}
-                  className={`flex min-h-12 w-full items-center justify-center text-base font-black uppercase tracking-[0.12em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:text-lg ${action.tone === "light" ? "bg-white text-brand-green hover:bg-white/90" : "bg-brand-red text-white hover:bg-brand-black"}`}
+                  className={`flex min-h-12 w-full items-center justify-center text-base font-medium uppercase tracking-[0.12em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:text-lg ${action.tone === "light" ? "bg-white text-brand-green hover:bg-white/90" : "bg-brand-red text-white hover:bg-brand-black"}`}
                 >
                   {action.label}
                 </Link>
@@ -75,7 +75,7 @@ export default function HomeFooterSection() {
 
         <section className="bg-brand-black px-6 py-12 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
           <div className="mx-auto flex max-w-[52rem] flex-col items-center text-center">
-            <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-base font-black sm:gap-x-7 sm:text-lg">
+            <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-base font-medium sm:gap-x-7 sm:text-lg">
               {homeFooterSection.navLinks.map((link) => (
                 <Link key={link.label} href={link.href} className="text-white/90 transition hover:text-white">
                   {link.label}
@@ -102,7 +102,7 @@ export default function HomeFooterSection() {
               {homeFooterSection.disclaimer}
             </div>
 
-            <p className="mt-8 text-xs font-black uppercase tracking-[0.16em] text-white/70 sm:text-sm">
+            <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-white/70 sm:text-sm">
               {homeFooterSection.poweredBy}
             </p>
           </div>

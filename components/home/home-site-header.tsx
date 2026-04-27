@@ -27,8 +27,8 @@ function CampaignLogo() {
         />
       </span>
       <span className="flex flex-col leading-none">
-        <span className="text-xl font-black tracking-tight sm:text-2xl">OK Movement</span>
-        <span className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand-green">
+        <span className="text-xl font-medium tracking-tight sm:text-2xl">OK Movement</span>
+        <span className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-brand-green">
           Obi/Kwankwaso 2027
         </span>
       </span>
@@ -40,7 +40,7 @@ function PrincipalDropdown({ compact = false }: { compact?: boolean }) {
   return (
     <details className={compact ? "group" : "group relative"}>
       <summary
-        className={`flex cursor-pointer list-none items-center gap-1 font-black transition hover:text-brand-red [&::-webkit-details-marker]:hidden ${
+        className={`flex cursor-pointer list-none items-center gap-1 font-medium transition hover:text-brand-green [&::-webkit-details-marker]:hidden ${
           compact ? "justify-between px-6 py-4" : ""
         }`}
       >
@@ -61,7 +61,7 @@ function PrincipalDropdown({ compact = false }: { compact?: boolean }) {
           <Link
             key={link.href}
             href={link.href}
-            className={`block font-black transition hover:bg-brand-green hover:text-white ${
+            className={`block font-medium transition hover:bg-brand-green hover:text-white ${
               compact ? "px-8 py-4 text-sm" : "px-4 py-3 text-sm"
             }`}
           >
@@ -78,7 +78,7 @@ export default function HomeSiteHeader() {
     <header className="relative z-50 bg-white text-brand-black shadow-[0_6px_20px_rgb(0_0_0/0.08)]">
       <Link
         href="/home#get-involved"
-        className="flex min-h-12 items-center justify-center bg-brand-green px-4 text-center text-xs font-bold uppercase tracking-[0.28em] text-white sm:tracking-[0.55em]"
+        className="flex min-h-12 items-center justify-center bg-brand-green px-4 text-center text-xs font-medium uppercase tracking-[0.28em] text-white sm:tracking-[0.55em]"
       >
         Official Launch Coming Soon <ArrowRight aria-hidden="true" className="ml-2 h-3.5 w-3.5" />
       </Link>
@@ -86,23 +86,23 @@ export default function HomeSiteHeader() {
       <div className="flex min-h-20 items-center justify-between gap-5 px-4 sm:px-6 lg:min-h-24">
         <CampaignLogo />
 
-        <nav className="hidden items-center gap-7 text-sm font-black lg:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium lg:flex">
           {navItems.map((item) => (
-            <Link href={item.href} key={item.label} className="transition hover:text-brand-red">
+            <Link href={item.href} key={item.label} className="transition hover:text-brand-green">
               {item.label}
             </Link>
           ))}
           <PrincipalDropdown />
           <Link
             href="https://www.facebook.com/share/1CYctYbA2m/?mibextid=wwXIfr"
-            className="text-2xl leading-none transition hover:text-brand-red"
+            className="text-2xl leading-none transition hover:text-brand-green"
             aria-label="Facebook"
           >
             f
           </Link>
           <Link
             href="https://x.com/OK2027movement"
-            className="text-2xl leading-none transition hover:text-brand-red"
+            className="text-2xl leading-none transition hover:text-brand-green"
             aria-label="X"
           >
             X
@@ -111,9 +111,9 @@ export default function HomeSiteHeader() {
 
         <Link
           href="/home#get-involved"
-          className="hidden min-h-14 w-full max-w-80 items-center justify-center bg-brand-red px-8 text-xl font-black uppercase tracking-wide text-white shadow-[0_10px_22px_rgb(224_40_40/0.24)] transition hover:bg-black md:flex"
+          className="hidden min-h-14 w-full max-w-80 items-center justify-center rounded-[10px] bg-brand-green px-8 text-xl font-medium uppercase tracking-wide text-white shadow-[0_10px_22px_rgb(224_40_40/0.24)] transition hover:bg-black md:flex"
         >
-          Join
+          Join Us
         </Link>
 
         <details className="relative lg:hidden">
@@ -126,7 +126,7 @@ export default function HomeSiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="block border-t border-black/10 px-6 py-4 font-black transition hover:bg-brand-green hover:text-white"
+                className="block border-t border-black/10 px-6 py-4 font-medium transition hover:bg-brand-green hover:text-white"
               >
                 {item.label}
               </Link>

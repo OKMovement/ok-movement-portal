@@ -15,7 +15,7 @@ export default function HomeGetInvolvedSection() {
         <div className="flex justify-center sm:justify-start">
           <Link
             href={homeGetInvolvedSection.topCtaHref}
-            className="inline-flex min-h-12 w-full items-center justify-center border-[3px] border-brand-green bg-white px-6 text-sm font-black uppercase tracking-[0.14em] text-brand-green transition hover:bg-brand-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:min-h-14 sm:w-auto sm:min-w-[16rem] sm:px-8 sm:text-base lg:min-h-16 lg:min-w-[19rem] lg:border-4 lg:px-10 lg:text-lg"
+            className="inline-flex min-h-12 w-full items-center justify-center border-[3px] border-brand-green bg-white px-6 text-sm font-medium uppercase tracking-[0.14em] text-brand-green transition hover:bg-brand-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:min-h-14 sm:w-auto sm:min-w-[16rem] sm:px-8 sm:text-base lg:min-h-16 lg:min-w-[19rem] lg:border-4 lg:px-10 lg:text-lg"
           >
             {homeGetInvolvedSection.topCtaLabel} <span aria-hidden="true" className="ml-2">→</span>
           </Link>
@@ -34,10 +34,10 @@ export default function HomeGetInvolvedSection() {
 
         <div className="relative z-10 mx-auto flex min-h-[30rem] w-[min(100%-1.5rem,70rem)] items-center py-12 sm:min-h-[36rem] sm:py-14 lg:min-h-[42rem] lg:py-16">
           <article className="w-full max-w-[34rem] text-white">
-            <p className="text-sm font-bold uppercase tracking-[0.45em] text-white/75">
+            <p className="text-sm font-medium uppercase tracking-[0.45em] text-white/75">
               {homeGetInvolvedSection.eyebrow}
             </p>
-            <h2 id="get-involved-heading" className="mt-3 text-5xl font-black leading-[0.95] sm:mt-4 sm:text-6xl lg:text-7xl">
+            <h2 id="get-involved-heading" className="mt-3 text-5xl font-medium leading-[0.95] sm:mt-4 sm:text-6xl lg:text-7xl">
               {homeGetInvolvedSection.title}
             </h2>
 

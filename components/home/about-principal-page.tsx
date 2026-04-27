@@ -37,7 +37,7 @@ function TextBlock({
   return (
     <article className="mx-auto w-[min(100%-2rem,42rem)] py-6 text-lg font-medium leading-[1.55] text-black/68 sm:text-xl">
       {heading ? (
-        <h2 className="mb-6 text-3xl font-black leading-tight text-brand-green sm:text-4xl">
+        <h2 className="mb-6 text-3xl font-medium leading-tight text-brand-green sm:text-4xl">
           {heading}
         </h2>
       ) : null}
@@ -69,10 +69,10 @@ export default function AboutPrincipalPage({ principal }: AboutPrincipalPageProp
 
         <div className="relative z-10 mx-auto flex min-h-[31rem] w-[min(100%-2rem,75rem)] items-end pb-16 pt-20 sm:min-h-[36rem] sm:pb-20 lg:min-h-[42rem]">
           <div className="max-w-3xl">
-            <p className="text-base font-bold uppercase tracking-[0.48em] text-white/75">
+            <p className="text-base font-medium uppercase tracking-[0.48em] text-white/75">
               {principal.eyebrow}
             </p>
-            <h1 className="mt-4 text-5xl font-black leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mt-4 text-5xl font-medium leading-[0.95] text-white sm:text-6xl lg:text-7xl">
               {principal.title}
             </h1>
           </div>
@@ -88,11 +88,11 @@ export default function AboutPrincipalPage({ principal }: AboutPrincipalPageProp
 
       <section className="mt-16 bg-brand-green/10 px-4 py-20 text-center sm:mt-20 sm:py-24 lg:py-28">
         <div className="mx-auto max-w-4xl">
-          <p className="text-6xl font-black leading-none text-brand-red">&ldquo;</p>
-          <blockquote className="mt-5 text-3xl font-black leading-tight text-brand-green sm:text-4xl lg:text-5xl">
+          <p className="text-6xl font-medium leading-none text-brand-red">&ldquo;</p>
+          <blockquote className="mt-5 text-3xl font-medium leading-tight text-brand-green sm:text-4xl lg:text-5xl">
             {principal.quote}
           </blockquote>
-          <p className="mt-5 text-6xl font-black leading-none text-brand-red">&rdquo;</p>
+          <p className="mt-5 text-6xl font-medium leading-none text-brand-red">&rdquo;</p>
         </div>
       </section>
 
@@ -123,22 +123,22 @@ export default function AboutPrincipalPage({ principal }: AboutPrincipalPageProp
       </div>
 
       <section className="bg-brand-green/10 px-4 py-16 text-center sm:py-20 lg:py-24">
-        <p className="text-sm font-bold uppercase tracking-[0.45em] text-brand-red">
+        <p className="text-sm font-medium uppercase tracking-[0.45em] text-brand-red">
           Get Involved
         </p>
-        <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black leading-tight text-brand-green sm:text-5xl">
+        <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-medium leading-tight text-brand-green sm:text-5xl">
           Our movement is powered by working people
         </h2>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/home#get-involved"
-            className="inline-flex min-h-14 w-full items-center justify-center bg-brand-red px-8 text-base font-black uppercase tracking-wide text-white transition hover:bg-brand-black sm:w-auto"
+            className="inline-flex min-h-14 w-full items-center justify-center bg-brand-red px-8 text-base font-medium uppercase tracking-wide text-white transition hover:bg-brand-black sm:w-auto"
           >
             Join the Movement
           </Link>
           <Link
             href={principal.ctaHref}
-            className="inline-flex min-h-14 w-full items-center justify-center border-2 border-brand-green px-8 text-base font-black uppercase tracking-wide text-brand-green transition hover:bg-brand-green hover:text-white sm:w-auto"
+            className="inline-flex min-h-14 w-full items-center justify-center border-2 border-brand-green px-8 text-base font-medium uppercase tracking-wide text-brand-green transition hover:bg-brand-green hover:text-white sm:w-auto"
           >
             {principal.ctaLabel}
           </Link>

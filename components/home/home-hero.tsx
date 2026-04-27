@@ -16,6 +16,7 @@ function SignupForm() {
       submitLabel="Get Involved"
       ariaLabel="Get involved"
       className="mt-6 w-full max-w-[31rem]"
+      buttonClassName="bg-brand-green hover:bg-brand-green"
     />
   );
 }
@@ -33,7 +34,7 @@ function BottomActions() {
         <Link
           key={action.label}
           href={action.href}
-          className={`${action.className} flex min-h-14 items-center justify-center px-5 text-sm font-black uppercase tracking-wide text-white sm:min-h-16 sm:px-6 sm:text-base lg:min-h-24 lg:text-lg`}
+          className={`${action.className} flex min-h-14 items-center justify-center px-5 text-sm font-medium uppercase tracking-wide text-white sm:min-h-16 sm:px-6 sm:text-base lg:min-h-24 lg:text-lg`}
         >
           {action.label}
         </Link>
@@ -57,19 +58,17 @@ export default function HomeHero() {
             className="object-cover object-[70%_center]"
           />
         </div>
-        <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,#000_0%,rgb(0_0_0_/_0.92)_28%,rgb(0_166_81_/_0.5)_48%,rgb(0_166_81_/_0.12)_70%,rgb(0_0_0_/_0)_100%)]" />
-        <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_84%,rgb(224_40_40_/_0.5),transparent_34%)]" />
-        <div className="relative z-20 flex min-h-[42rem] items-center px-4 py-16 sm:px-8 sm:py-18 lg:min-h-[50rem] lg:px-24 lg:py-20">
-          <div className="mx-auto w-full max-w-[38rem] text-center lg:mx-0 lg:ml-[13%]">
-            <p className="text-base font-semibold uppercase tracking-[0.38em] text-brand-red sm:tracking-[0.48em]">
-              Obi/Kwankwaso 2027
-            </p>
-            <h1 className="mt-4 text-4xl font-black leading-[0.95] tracking-normal sm:text-5xl lg:text-7xl">
-              A New Dawn
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,#000_0%,rgb(0_0_0/0.92)_28%,rgb(0_166_81/0.5)_48%,rgb(0_166_81/0.12)_70%,rgb(0_0_0/0)_100%)]" />
+        <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_84%,rgb(224_40_40/0.5),transparent_34%)]" />
+        <div className="relative z-20 flex min-h-168 items-center px-4 py-16 sm:px-8 sm:py-18 lg:min-h-[50rem] lg:px-24 lg:py-20">
+          <div className="mx-auto w-full max-w-152 text-center lg:mx-0 lg:ml-[13%]">
+          
+            <h1 className="mt-4 text-left text-4xl font-medium leading-[0.95] tracking-normal sm:text-5xl lg:text-7xl">
+              A <br /> New Dawn
               <br />
               in Nigeria
             </h1>
-            <p className="mx-auto mt-5 max-w-[34rem] text-base font-medium leading-relaxed text-white/85 sm:text-lg lg:text-xl">
+            <p className="italic mt-5 text-left max-w-136 text-base leading-relaxed text-white/85 sm:text-lg lg:text-xl">
               The OK Movement unveils national and state structures to unite Nigerians, restore accountable leadership, and drive national rebirth.
             </p>
             <SignupForm />

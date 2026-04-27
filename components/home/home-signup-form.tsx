@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/role-supports-aria-props */
 "use client";
 
 import { ChevronDown } from "lucide-react";
@@ -96,7 +97,7 @@ function NigerianStateDropdown({
       className={`relative min-h-16 border-l border-black/10 bg-white max-[430px]:border-l-0 ${className ?? ""}`}
     >
       <input type="hidden" name="state" value={selectedState} />
-      <div className="relative flex min-h-16 items-center bg-white">
+      <div className="relative  flex min-h-16 items-center bg-white">
         <input
           id={`${formIdPrefix}-state`}
           type="text"
@@ -135,7 +136,7 @@ function NigerianStateDropdown({
         <ul
           role="listbox"
           aria-labelledby={`${formIdPrefix}-state`}
-          className="absolute left-0 top-full z-200 mt-2 max-h-64 w-full overflow-y-auto border border-black/10 bg-white py-1 shadow-[0_16px_28px_rgb(0_0_0/0.14)]"
+          className="absolute min-h-[500px] left-0 top-full z-[30000] mt-2 max-h-64 w-full overflow-y-auto border border-black/10 bg-white py-1 shadow-[0_16px_28px_rgb(0_0_0/0.14)]"
         >
           {visibleStates.length > 0 ? (
             visibleStates.map((state) => (
@@ -179,7 +180,7 @@ export default function HomeSignupForm({
   return (
     <form className={className} aria-label={ariaLabel}>
       <div
-        className={`grid grid-cols-[minmax(0,1fr)_14rem] bg-white shadow-[0_20px_38px_rgb(0_0_0/0.2)] max-[430px]:grid-cols-1 ${gridClassName ?? ""}`}
+        className={`grid rounded-[10px] grid-cols-[minmax(0,1fr)_14rem] bg-white shadow-[0_20px_38px_rgb(0_0_0/0.2)] max-[430px]:grid-cols-1 ${gridClassName ?? ""}`}
       >
         <label className="sr-only" htmlFor={`${formIdPrefix}-email`}>
           Email address
@@ -189,7 +190,7 @@ export default function HomeSignupForm({
           name="email"
           type="email"
           placeholder="Email address"
-          className={`min-h-16 border-0 px-6 text-lg text-brand-black outline-none placeholder:text-black/45 max-[430px]:border-b max-[430px]:border-black/10 ${emailInputClassName ?? ""}`}
+          className={`min-h-16 rounded-[10px] border-0 px-6 text-lg text-brand-black outline-none placeholder:text-black/45 max-[430px]:border-b max-[430px]:border-black/10 ${emailInputClassName ?? ""}`}
         />
         <label className="sr-only" htmlFor={`${formIdPrefix}-state`}>
           State
@@ -201,7 +202,7 @@ export default function HomeSignupForm({
       </div>
       <button
         type="submit"
-        className={`min-h-16 w-full bg-brand-red px-6 text-base font-black uppercase tracking-wide text-white shadow-[0_20px_38px_rgb(0_0_0/0.18)] transition hover:bg-brand-green focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${buttonClassName ?? ""}`}
+        className={`min-h-16 mt-4 rounded-[10px] shadow-2xl w-full hover:bg-black cursor-pointer bg-brand-green px-6 text-base font-medium uppercase tracking-wide text-white shadow-[0_20px_38px_rgb(0_0_0/0.18)] transition  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${buttonClassName ?? ""}`}
       >
         {submitLabel}
       </button>

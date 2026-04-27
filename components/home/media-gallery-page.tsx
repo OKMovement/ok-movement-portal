@@ -151,7 +151,7 @@ function TabButton({
     <button
       type="button"
       onClick={() => onChange(tab.key)}
-      className={`min-h-14 px-4 text-xs font-black uppercase tracking-[0.22em] transition sm:text-sm ${
+      className={`min-h-14 px-4 text-xs font-medium uppercase tracking-[0.22em] transition sm:text-sm ${
         isActive
           ? "bg-white text-brand-green"
           : "bg-brand-black/85 text-white hover:bg-brand-black"
@@ -170,7 +170,7 @@ function ImagesTab() {
           <div className="relative aspect-4/3">
             <Image src={image.src} alt={image.alt} fill sizes="(max-width: 1024px) 50vw, 33vw" className="object-cover" />
           </div>
-          <p className="px-4 py-3 text-sm font-semibold text-brand-black/80">{image.caption}</p>
+          <p className="px-4 py-3 text-sm font-medium text-brand-black/80">{image.caption}</p>
         </article>
       ))}
     </section>
@@ -182,10 +182,10 @@ function NewsTab() {
     <section className="mx-auto max-w-4xl space-y-6" aria-label="News and press">
       {newsItems.map((item) => (
         <article key={item.id} className="bg-white px-6 py-8 text-center shadow-[0_20px_42px_rgb(0_0_0/0.1)] sm:px-10 sm:py-10">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-green/60 sm:text-sm">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-brand-green/60 sm:text-sm">
             {item.date} / {item.category}
           </p>
-          <h2 className="mt-5 text-3xl font-black uppercase leading-tight text-brand-green sm:text-4xl">
+          <h2 className="mt-5 text-3xl font-medium uppercase leading-tight text-brand-green sm:text-4xl">
             {item.title}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-brand-black/60 sm:text-lg">
@@ -193,7 +193,7 @@ function NewsTab() {
           </p>
           <Link
             href={item.href}
-            className="mt-7 inline-flex min-h-12 items-center justify-center bg-brand-red px-8 text-sm font-black uppercase tracking-[0.2em] text-white transition hover:bg-brand-black"
+            className="mt-7 inline-flex min-h-12 items-center justify-center bg-brand-red px-8 text-sm font-medium uppercase tracking-[0.2em] text-white transition hover:bg-brand-black"
           >
             Read More
           </Link>
@@ -223,7 +223,7 @@ function VideosTab() {
               </span>
             </div>
           </div>
-          <p className="px-4 py-3 text-sm font-black uppercase tracking-[0.08em] text-brand-black/85">{video.title}</p>
+          <p className="px-4 py-3 text-sm font-medium uppercase tracking-[0.08em] text-brand-black/85">{video.title}</p>
         </article>
       ))}
     </section>
@@ -249,8 +249,8 @@ export default function MediaGalleryPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_20%,rgb(224_40_40/0.26),transparent_34%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_84%,rgb(255_255_255/0.15),transparent_36%)]" />
         <div className="relative mx-auto flex min-h-88 w-[min(100%-1.5rem,72rem)] flex-col items-center justify-center pb-24 pt-18 text-center sm:min-h-96 sm:pb-28 sm:pt-20">
-          <p className="text-sm font-semibold uppercase tracking-[0.52em] text-white/70">The Latest</p>
-          <h1 className="mt-4 text-5xl font-black leading-none tracking-tight sm:text-6xl lg:text-7xl">{heading}</h1>
+          <p className="text-sm font-medium uppercase tracking-[0.52em] text-white/70">The Latest</p>
+          <h1 className="mt-4 text-5xl font-medium leading-none tracking-tight sm:text-6xl lg:text-7xl">{heading}</h1>
         </div>
 
         <div className="relative mx-auto grid w-[min(100%-1.5rem,44rem)] translate-y-1/2 grid-cols-3 overflow-hidden shadow-[0_16px_34px_rgb(0_0_0/0.25)]">

@@ -34,10 +34,10 @@ export default function HomeIssuesSection() {
 
       <article className="flex min-h-[22rem] items-center px-6 py-10 sm:px-10 sm:py-12 lg:min-h-[30rem] lg:px-16 lg:py-14">
         <div className="w-full max-w-xl">
-          <p className="text-sm font-bold uppercase tracking-[0.45em] text-white/75">
+          <p className="text-sm font-medium uppercase tracking-[0.45em] text-white/75">
             {homeIssuesSection.eyebrow}
           </p>
-          <h2 id="issues-heading" className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h2 id="issues-heading" className="mt-4 text-4xl font-medium tracking-tight text-white sm:text-5xl lg:text-6xl">
             {homeIssuesSection.title}
           </h2>
           <p className="mt-6 max-w-lg text-lg leading-[1.4] text-white/88 sm:text-xl lg:mt-8 lg:text-2xl">
@@ -46,7 +46,7 @@ export default function HomeIssuesSection() {
 
           <Link
             href={homeIssuesSection.ctaHref}
-            className="mt-8 inline-flex min-h-12 min-w-[12rem] items-center justify-center bg-brand-red px-6 text-sm font-black uppercase tracking-[0.16em] text-white transition hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:min-w-[14rem] sm:px-8 sm:text-base"
+            className="mt-8 inline-flex min-h-12 min-w-[12rem] items-center justify-center bg-brand-red px-6 text-sm font-medium uppercase tracking-[0.16em] text-white transition hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:min-w-[14rem] sm:px-8 sm:text-base"
           >
             {homeIssuesSection.ctaLabel}
           </Link>
