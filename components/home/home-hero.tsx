@@ -8,6 +8,7 @@ import HomeIssuesSection from "@/components/home/home-issues-section";
 import HomeMovementSection from "@/components/home/home-movement-section";
 import HomeSignupForm from "@/components/home/home-signup-form";
 import HomeSiteHeader from "@/components/home/home-site-header";
+import GreenHomeMovementSection from "./green-home-movement-section";
 
 function SignupForm() {
   return (
@@ -69,7 +70,7 @@ export default function HomeHero() {
         <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgb(0_166_81/0.48)_0%,rgb(0_166_81/0.34)_18%,rgb(0_166_81/0.22)_34%,rgb(0_166_81/0.12)_50%,rgb(0_166_81/0.06)_64%,rgb(0_166_81/0.02)_76%,rgb(0_166_81/0)_88%)]" />
         <div className="relative z-20 flex min-h-168 items-center px-4 py-16 sm:px-8 sm:py-18 lg:min-h-[50rem] lg:px-24 lg:py-20">
           <div className="mx-auto w-full max-w-152 text-center lg:mx-0 lg:ml-[13%]">
-          
+
             <h1 className="mt-4 text-left text-4xl font-medium leading-[0.95] tracking-normal sm:text-5xl lg:text-7xl">
               A <br /> New Dawn
               <br />
@@ -86,7 +87,9 @@ export default function HomeHero() {
       <HomeMovementSection />
       <HomeIssuesSection />
       <HomeCampaignSection />
-      <HomeGetInvolvedSection />
+
+      <GreenHomeMovementSection />
+      {/* <HomeGetInvolvedSection /> */}
       <HomeFooterSection />
     </main>
   );

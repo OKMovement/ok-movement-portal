@@ -24,11 +24,11 @@ export type AboutPrincipal = {
 export const aboutPrincipals = {
   "peter-obi": {
     slug: "peter-obi",
-    eyebrow: "About Peter Obi",
+    eyebrow: "Meet",
     name: "Peter Obi",
-    title: "Meet Peter Obi",
-    heroImage: "/images/bg-1.jpeg",
-    heroAlt: "Peter Obi arriving at a public political gathering",
+    title: "Peter Obi",
+    heroImage: "/images/peter-new-bg.png",
+    heroAlt: "Peter Obi portrait on green background",
     gallery: [
       {
         src: "/images/bg-2.jpeg",
@@ -60,11 +60,11 @@ export const aboutPrincipals = {
   },
   "rabiu-kwankwaso": {
     slug: "rabiu-kwankwaso",
-    eyebrow: "About Rabiu Kwankwaso",
+    eyebrow: "Meet",
     name: "Rabiu Kwankwaso",
-    title: "Meet Rabiu Kwankwaso",
-    heroImage: "/images/bg-4.jpeg",
-    heroAlt: "Rabiu Kwankwaso speaking at a public political gathering",
+    title: "Rabiu Kwankwaso",
+    heroImage: "/images/rabiu-new-bg.png",
+    heroAlt: "Rabiu Kwankwaso speaking on green background",
     gallery: [
       {
         src: "/images/bg-5.jpeg",

@@ -37,7 +37,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
   }
 
   return (
-    <div className="relative left-1/2 mt-8 w-[min(100vw-1.5rem,96rem)] -translate-x-1/2 md:mt-10 xl:mt-12">
+    <div className="relative left-1/2 mt-8 w-[min(100vw-1.5rem,112rem)] -translate-x-1/2 md:mt-10 xl:mt-12">
       <div className="relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white to-transparent sm:w-14" />
         <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-white to-transparent sm:w-14" />
@@ -54,7 +54,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                 key={cardKey}
                 type="button"
                 data-flipped={flippedCardKey === cardKey}
-                className="answer-card group relative h-[20rem] w-[18rem] shrink-0 rounded-[4px] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="answer-card group relative h-[24rem] w-[21rem] shrink-0 rounded-[4px] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
                 aria-label={`Flip testimonial card: ${card.alt}`}
                 onClick={() => {
                   setFlippedCardKey((current) => (current === cardKey ? null : cardKey));
@@ -67,7 +67,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       alt={card.alt}
                       fill
                       loading={index === 0 ? "eager" : "lazy"}
-                      sizes="18rem"
+                      sizes="21rem"
                       className="object-cover"
                     />
                   </div>
@@ -76,7 +76,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       src={card.backSrc}
                       alt={`${card.alt} (back)`}
                       fill
-                      sizes="18rem"
+                      sizes="21rem"
                       className="object-cover"
                     />
                   </div>
@@ -114,7 +114,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                 key={cardKey}
                 type="button"
                 data-flipped={flippedCardKey === cardKey}
-                className="answer-card group relative h-[26rem] w-[22rem] shrink-0 rounded-[4px] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                className="answer-card group relative h-[32rem] w-[27rem] shrink-0 rounded-[4px] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
                 aria-label={`Flip testimonial card: ${card.alt}`}
                 onClick={() => {
                   setFlippedCardKey((current) => (current === cardKey ? null : cardKey));
@@ -127,7 +127,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       alt={card.alt}
                       fill
                       loading={index === 0 ? "eager" : "lazy"}
-                      sizes="22rem"
+                      sizes="27rem"
                       className="object-cover"
                     />
                   </div>
@@ -136,7 +136,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       src={card.backSrc}
                       alt={`${card.alt} (back)`}
                       fill
-                      sizes="22rem"
+                      sizes="27rem"
                       className="object-cover"
                     />
                   </div>

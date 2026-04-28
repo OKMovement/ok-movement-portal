@@ -8,6 +8,7 @@ const navItems = [
   { label: "Our Movement", href: "/home#movement" },
   { label: "Media Gallery", href: "/home/media-gallery" },
   { label: "Get Involved", href: "/home#get-involved" },
+  { label: "Contact Us", href: "/home#home-footer" },
 ] as const;
 
 function CampaignLogo() {
@@ -75,7 +76,7 @@ function PrincipalDropdown({ compact = false }: { compact?: boolean }) {
 
 export default function HomeSiteHeader() {
   return (
-    <header className="relative z-50 bg-white text-brand-black shadow-[0_6px_20px_rgb(0_0_0/0.08)]">
+    <header className="sticky top-0 z-50 bg-white text-brand-black shadow-[0_6px_20px_rgb(0_0_0/0.08)]">
       <Link
         href="/home#get-involved"
         className="flex min-h-12 items-center justify-center bg-brand-green px-4 text-center text-xs font-medium uppercase tracking-[0.28em] text-white sm:tracking-[0.55em]"
@@ -111,7 +112,7 @@ export default function HomeSiteHeader() {
 
         <Link
           href="/home#get-involved"
-          className="hidden min-h-14 w-full max-w-80 items-center justify-center rounded-[10px] bg-brand-green px-8 text-xl font-medium uppercase tracking-wide text-white shadow-[0_10px_22px_rgb(224_40_40/0.24)] transition hover:bg-black md:flex"
+          className="hidden min-h-14 w-full max-w-48 items-center justify-center rounded-[10px] bg-brand-green px-8 text-xl font-medium uppercase tracking-wide text-white shadow-[0_10px_22px_rgb(224_40_40/0.24)] transition hover:bg-black md:flex"
         >
           Join Us
         </Link>
