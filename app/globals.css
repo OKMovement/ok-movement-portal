@@ -37,3 +37,58 @@ body {
   mix-blend-mode: soft-light;
   opacity: 0.55;
 }
+
+@keyframes answers-marquee {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.answers-marquee {
+  animation: answers-marquee 42s linear infinite;
+  will-change: transform;
+}
+
+.answers-marquee:hover {
+  animation-play-state: paused;
+}
+
+.answer-card {
+  perspective: 1200px;
+}
+
+.answer-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 650ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.answer-card:hover .answer-card-inner,
+.answer-card:focus-visible .answer-card-inner,
+.answer-card[data-flipped="true"] .answer-card-inner {
+  transform: rotateY(180deg);
+}
+
+.answer-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.answer-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answers-marquee {
+    animation: none;
+    transform: none;
+  }
+
+  .answer-card-inner {
+    transition: none;
+  }
+}
