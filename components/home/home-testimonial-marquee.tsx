@@ -66,6 +66,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       src={card.frontSrc}
                       alt={card.alt}
                       fill
+                      loading={index === 0 ? "eager" : "lazy"}
                       sizes="18rem"
                       className="object-cover"
                     />
@@ -125,6 +126,7 @@ export default function HomeTestimonialMarquee({ cards }: HomeTestimonialMarquee
                       src={card.frontSrc}
                       alt={card.alt}
                       fill
+                      loading={index === 0 ? "eager" : "lazy"}
                       sizes="22rem"
                       className="object-cover"
                     />
