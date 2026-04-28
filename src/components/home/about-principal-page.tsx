@@ -54,10 +54,10 @@ export default function AboutPrincipalPage({ principal }: AboutPrincipalPageProp
                 {principal.eyebrow} the Principal
               </p>
             </div>
-            <h1 className="mt-5 text-5xl font-medium leading-[0.95] text-white sm:text-6xl lg:text-8xl">
+            <h1 className="mt-5 text-2xl font-medium leading-[0.95] text-white sm:text-6xl lg:text-8xl">
               {principal.title}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/80 sm:text-lg">
               {principal.introHeading}.
             </p>
           </div>

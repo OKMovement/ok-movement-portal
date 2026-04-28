@@ -103,7 +103,7 @@ function PrincipalDropdown() {
   return (
     <details className="group relative">
       <summary className="flex cursor-pointer list-none items-center gap-1.5 whitespace-nowrap py-2 text-[13px] font-medium tracking-wide text-brand-black transition hover:text-brand-green [&::-webkit-details-marker]:hidden">
-        Meet Your Principals
+        Meet our Principals
         <ChevronDown
           aria-hidden="true"
           className="h-3.5 w-3.5 transition group-open:rotate-180"
@@ -197,7 +197,7 @@ export default function HomeSiteHeader() {
             ))}
           </div>
           <a
-            href="/home#get-involved"
+            href="/home/get-involved"
             className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-brand-green px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_12px_28px_-10px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
           >
             Join Us
@@ -333,7 +333,7 @@ export default function HomeSiteHeader() {
                   </span>
                   <span className="flex flex-1 flex-col leading-tight">
                     <span className="text-[15px] font-semibold tracking-tight">
-                      Meet Your Principals
+                      Meet our Principals
                     </span>
                     <span className="mt-0.5 text-[12px] text-brand-black/55">
                       Peter Obi & Rabiu Kwankwaso
@@ -399,10 +399,10 @@ export default function HomeSiteHeader() {
                   Be part of a New Dawn in Nigeria.
                 </h3>
                 <p className="mt-1.5 text-[12px] leading-relaxed text-white/85">
-                  Add your voice to a people-powered movement for 2027.
+                  Add our voice to a people-powered movement for 2027.
                 </p>
                 <a
-                  href="/home#get-involved"
+                  href="/home/get-involved"
                   onClick={() => setMobileOpen(false)}
                   className="group mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-green shadow-[0_10px_24px_-10px_rgb(0_0_0/0.35)] transition hover:bg-brand-black hover:text-white"
                 >

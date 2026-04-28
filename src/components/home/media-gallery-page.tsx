@@ -223,7 +223,7 @@ function TabNav({
     <div
       role="tablist"
       aria-label="Media gallery sections"
-      className="flex flex-wrap items-center gap-2 rounded-full border border-black/8 bg-white p-1.5 shadow-[0_18px_36px_-22px_rgb(0_0_0/0.4)] sm:gap-2"
+      className="flex flex-wrap items-center gap-2 rounded-[20px] border border-black/8 bg-white p-1.5 shadow-[0_18px_36px_-22px_rgb(0_0_0/0.4)] sm:gap-2"
     >
       {tabs.map(({ key, label, icon: Icon, count }) => {
         const isActive = activeTab === key;
