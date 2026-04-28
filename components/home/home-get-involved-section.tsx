@@ -11,7 +11,7 @@ export default function HomeGetInvolvedSection() {
       className="relative overflow-hidden bg-white"
       aria-labelledby="get-involved-heading"
     >
-      <div className="relative z-20 mx-auto w-[min(100%-1.5rem,72rem)] py-6 sm:py-8 lg:py-10">
+      {/* <div className="relative z-20 mx-auto w-[min(100%-1.5rem,72rem)] py-6 sm:py-8 lg:py-10">
         <div className="flex justify-center sm:justify-start">
           <Link
             href={homeGetInvolvedSection.topCtaHref}
@@ -20,7 +20,7 @@ export default function HomeGetInvolvedSection() {
             {homeGetInvolvedSection.topCtaLabel} <span aria-hidden="true" className="ml-2">→</span>
           </Link>
         </div>
-      </div>
+      </div> */}
 
       <div className="relative min-h-[30rem] sm:min-h-[36rem] lg:min-h-[42rem]">
         <Image
@@ -34,9 +34,9 @@ export default function HomeGetInvolvedSection() {
 
         <div className="relative z-10 mx-auto flex min-h-[30rem] w-[min(100%-1.5rem,70rem)] items-center py-12 sm:min-h-[36rem] sm:py-14 lg:min-h-[42rem] lg:py-16">
           <article className="w-full max-w-[34rem] text-white">
-            <p className="text-sm font-medium uppercase tracking-[0.45em] text-white/75">
+            {/* <p className="text-sm font-medium uppercase tracking-[0.45em] text-white/75">
               {homeGetInvolvedSection.eyebrow}
-            </p>
+            </p> */}
             <h2 id="get-involved-heading" className="mt-3 text-5xl font-medium leading-[0.95] sm:mt-4 sm:text-6xl lg:text-7xl">
               {homeGetInvolvedSection.title}
             </h2>

@@ -46,7 +46,7 @@ export default function HomeIssuesSection() {
 
           <Link
             href={homeIssuesSection.ctaHref}
-            className="mt-8 inline-flex min-h-12 min-w-[12rem] items-center justify-center bg-brand-red px-6 text-sm font-medium uppercase tracking-[0.16em] text-white transition hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:min-w-[14rem] sm:px-8 sm:text-base"
+            className="mt-8 rounded-[10px] inline-flex min-h-12 min-w-[12rem] items-center justify-center bg-brand-red px-6 text-sm font-medium uppercase tracking-[0.16em] text-white transition hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-14 sm:min-w-[14rem] sm:px-8 sm:text-base"
           >
             {homeIssuesSection.ctaLabel}
           </Link>

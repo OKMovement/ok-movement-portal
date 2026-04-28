@@ -94,7 +94,7 @@ function NigerianStateDropdown({
   return (
     <div
       ref={containerRef}
-      className={`relative min-h-16 border-l border-black/10 bg-white max-[430px]:border-l-0 ${className ?? ""}`}
+      className={`relative min-h-16 overflow-hidden rounded-r-[10px] border-l border-black/10 bg-white max-[430px]:rounded-b-[10px] max-[430px]:rounded-t-none max-[430px]:border-l-0 ${className ?? ""}`}
     >
       <input type="hidden" name="state" value={selectedState} />
       <div className="relative  flex min-h-16 items-center bg-white">
@@ -117,7 +117,7 @@ function NigerianStateDropdown({
               setIsOpen(true);
             }
           }}
-          className="min-h-16 w-full bg-white px-6 pr-12 text-base text-brand-black outline-none placeholder:text-black/45"
+          className="min-h-16 w-full rounded-r-[10px] bg-white px-6 pr-12 text-base text-brand-black outline-none placeholder:text-black/45 max-[430px]:rounded-b-[10px] max-[430px]:rounded-t-none"
         />
         <button
           type="button"
@@ -190,7 +190,7 @@ export default function HomeSignupForm({
           name="email"
           type="email"
           placeholder="Email address"
-          className={`min-h-16 rounded-[10px] border-0 px-6 text-lg text-brand-black outline-none placeholder:text-black/45 max-[430px]:border-b max-[430px]:border-black/10 ${emailInputClassName ?? ""}`}
+          className={`min-h-16 rounded-l-[10px] border-0 px-6 text-lg text-brand-black outline-none placeholder:text-black/45 max-[430px]:rounded-b-none max-[430px]:rounded-t-[10px] max-[430px]:border-b max-[430px]:border-black/10 ${emailInputClassName ?? ""}`}
         />
         <label className="sr-only" htmlFor={`${formIdPrefix}-state`}>
           State

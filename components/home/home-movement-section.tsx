@@ -1,7 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { homeMovementSection } from "@/components/home/home-data";
-import HomeWaveAccent from "@/components/home/home-wave-accent";
 
 export default function HomeMovementSection() {
   return (
@@ -10,9 +10,23 @@ export default function HomeMovementSection() {
       className="relative overflow-hidden bg-white py-14 text-brand-black sm:py-20 lg:py-24"
       aria-labelledby="movement-heading"
     >
-      <HomeWaveAccent side="left" widthClassName="w-56" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 z-0 flex translate-x-3 select-none opacity-[0.08] sm:translate-x-12"
+      >
+        <Image
+          src="/images/new-logo.png"
+          alt=""
+          width={620}
+          height={1240}
+          sizes="(max-width: 640px) 9rem, (max-width: 768px) 12rem, (max-width: 1024px) 16rem, 20rem"
+          className="h-full w-auto max-w-none object-contain object-right"
+        />
+      </div>
 
-      <div className="relative mx-auto flex w-[min(100%-1.5rem,70rem)] justify-center md:pl-20 lg:pl-24">
+      {/* <HomeWaveAccent side="left" widthClassName="w-56" /> */}
+
+      <div className="relative z-10 mx-auto flex w-[min(100%-1.5rem,70rem)] justify-center md:pl-20 lg:pl-24">
         <article className="w-full max-w-4xl bg-transparent text-center">
           <p className="text-sm font-medium uppercase tracking-[0.35em] text-brand-red">
             {homeMovementSection.eyebrow}
@@ -24,14 +38,14 @@ export default function HomeMovementSection() {
             {homeMovementSection.description}
           </p>
 
-          <div className="mx-auto mt-8 flex w-full max-w-[28rem] justify-center bg-white shadow-[0_14px_30px_rgb(0_0_0_/_0.1)] sm:mt-10 sm:max-w-[32rem]">
+          <div className="mx-auto mt-8 flex w-full max-w-[28rem] justify-center bg-white  sm:mt-10">
             <Link
               href={homeMovementSection.ctaHref}
-              className="inline-flex min-h-12 w-[13.5rem] items-center justify-center border-2 border-brand-green px-6 text-sm font-medium uppercase tracking-[0.15em] text-brand-green transition hover:bg-brand-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:min-h-14 sm:w-[16rem] sm:px-8 sm:text-base"
+              className="inline-flex shadow-2xl rounded-[10px] min-h-12 w-[13.5rem] items-center justify-center border-2 border-brand-green px-6 text-sm font-medium uppercase tracking-[0.15em] text-brand-green transition hover:bg-brand-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:min-h-14 sm:w-[16rem] sm:px-8 sm:text-base"
             >
               {homeMovementSection.ctaLabel} <span aria-hidden="true" className="ml-2">→</span>
             </Link>
-            <div aria-hidden="true" className="hidden flex-1 bg-white sm:block" />
+            {/* <div aria-hidden="true" className="hidden flex-1 bg-white sm:block" /> */}
           </div>
         </article>
       </div>

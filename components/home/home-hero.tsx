@@ -29,12 +29,12 @@ function BottomActions() {
   ];
 
   return (
-    <div className="relative z-20 mx-auto -mt-6 grid w-[min(100%-1.5rem,64rem)] grid-cols-1 overflow-hidden shadow-[0_24px_46px_rgb(0_0_0_/_0.24)] sm:-mt-8 sm:grid-cols-3 lg:-mt-10 lg:translate-x-24">
+    <div className="relative z-20 mx-auto   -mt-6 grid w-[min(100%-1.5rem,64rem)] grid-cols-1 overflow-hidden sm:-mt-8 sm:grid-cols-3 lg:-mt-10 lg:translate-x-24">
       {actions.map((action) => (
         <Link
           key={action.label}
           href={action.href}
-          className={`${action.className} flex min-h-14 items-center justify-center px-5 text-sm font-medium uppercase tracking-wide text-white sm:min-h-16 sm:px-6 sm:text-base lg:min-h-24 lg:text-lg`}
+          className={`${action.className}  flex min-h-2 items-center justify-center px-5 text-sm font-medium uppercase tracking-wide text-white sm:min-h-16 sm:px-6 sm:text-base lg:min-h-24 lg:text-lg`}
         >
           {action.label}
         </Link>
@@ -48,18 +48,25 @@ export default function HomeHero() {
     <main className="min-h-screen bg-white text-white">
       <HomeSiteHeader />
       <section className="relative isolate min-h-[42rem] overflow-hidden bg-brand-black lg:min-h-[50rem]">
-        <div className="absolute inset-y-0 right-0 z-0 h-full w-full md:w-[66%] lg:w-[62%]">
+        <div className="absolute inset-0 z-0 h-full w-full">
           <Image
-            src="/images/bg-1.jpeg"
+            src="/images/home/home-hero-bg-mobile.jpeg.jpeg"
+            alt="OK Movement supporters at a public event"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[72%_center] md:hidden"
+          />
+          <Image
+            src="/images/home/home-hero-bg-desktop.jpeg"
             alt="OK Movement supporters at a public event"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 68vw"
-            className="object-cover object-[70%_center]"
+            className="hidden object-cover object-center md:block"
           />
         </div>
-        <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,#000_0%,rgb(0_0_0/0.92)_28%,rgb(0_166_81/0.5)_48%,rgb(0_166_81/0.12)_70%,rgb(0_0_0/0)_100%)]" />
-        <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_84%,rgb(224_40_40/0.5),transparent_34%)]" />
+        <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgb(0_166_81/0.48)_0%,rgb(0_166_81/0.34)_18%,rgb(0_166_81/0.22)_34%,rgb(0_166_81/0.12)_50%,rgb(0_166_81/0.06)_64%,rgb(0_166_81/0.02)_76%,rgb(0_166_81/0)_88%)]" />
         <div className="relative z-20 flex min-h-168 items-center px-4 py-16 sm:px-8 sm:py-18 lg:min-h-[50rem] lg:px-24 lg:py-20">
           <div className="mx-auto w-full max-w-152 text-center lg:mx-0 lg:ml-[13%]">
           
@@ -75,7 +82,7 @@ export default function HomeHero() {
           </div>
         </div>
       </section>
-      <BottomActions />
+      {/* <BottomActions /> */}
       <HomeMovementSection />
       <HomeIssuesSection />
       <HomeCampaignSection />

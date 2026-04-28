@@ -17,7 +17,7 @@ function CampaignLogo() {
       className="inline-flex items-center gap-3 text-brand-black"
       aria-label="OK Movement home"
     >
-      <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-brand-green bg-white sm:h-16 sm:w-16">
+      <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full  bg-white sm:h-16 sm:w-16">
         <Image
           src="/images/new-logo.png"
           alt=""
