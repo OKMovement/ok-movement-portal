@@ -65,7 +65,6 @@ body {
   transition: transform 650ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.answer-card:hover .answer-card-inner,
 .answer-card:focus-visible .answer-card-inner,
 .answer-card[data-flipped="true"] .answer-card-inner {
   transform: rotateY(180deg);
