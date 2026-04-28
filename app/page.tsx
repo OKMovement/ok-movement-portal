@@ -1,6 +1,5 @@
-import ComingSoonPage from "../components/coming-soon/coming-soon-page";
-import { SLIDES } from "../components/coming-soon/coming-soon-constants";
+import HomeHero from "@/components/home/home-hero";
 
-export default function Home() {
-  return <ComingSoonPage slides={SLIDES} />;
+export default function Page() {
+  return <HomeHero />;
 }

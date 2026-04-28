@@ -1,0 +1,8 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="36" fill="#000000"/>
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="Poppins, 'Avenir Next', 'Segoe UI', sans-serif" font-weight="800" font-size="68" fill="#FFFFFF" letter-spacing="-2">OK</text>
+  <circle cx="142" cy="48" r="9" fill="#00A651"/>
+  <rect x="28" y="138" width="38" height="6" rx="2" fill="#00A651"/>
+  <rect x="71" y="138" width="38" height="6" rx="2" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="114" y="138" width="38" height="6" rx="2" fill="#E02828"/>
+</svg>

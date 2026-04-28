@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OK Movement — Next.js
 
-## Getting Started
+This is the public OK Movement site exported from Replit as a stand-alone Next.js 15 (App Router) project.
 
-First, run the development server:
+It is the same React/TypeScript/Tailwind v4 codebase as the original Vite version, restructured to run on Next.js so it can be deployed to Vercel, Netlify, or any Node.js host.
+
+## What's inside
+
+- **Next.js 15** with the App Router (`app/`)
+- **React 19** + **TypeScript**
+- **Tailwind CSS v4** (via `@tailwindcss/postcss`)
+- **shadcn/ui** components (`src/components/ui/`)
+- **Framer Motion**, **lucide-react**, **react-pdf**, **embla-carousel**, **react-hook-form + zod**, etc.
+- **Poppins** font loaded via `next/font/google`
+
+## Routes
+
+| URL                        | Source                                       |
+| -------------------------- | -------------------------------------------- |
+| `/`                        | `app/page.tsx` → `<HomeHero />`              |
+| `/home`                    | `app/home/page.tsx`                          |
+| `/home/our-movement`       | `app/home/our-movement/page.tsx`             |
+| `/home/media-gallery`      | `app/home/media-gallery/page.tsx`            |
+| `/home/get-involved`       | `app/home/get-involved/page.tsx`             |
+| `/home/upcoming-events`    | `app/home/upcoming-events/page.tsx`          |
+| `/home/contact`            | `app/home/contact/page.tsx`                  |
+| `/home/about/[slug]`       | `app/home/about/[slug]/page.tsx`             |
+| 404                        | `app/not-found.tsx`                          |
+
+The Wouter `<Switch>`/`<Route>` setup was replaced by Next.js file-system routing. The dynamic route `/home/about/[slug]` uses Next.js `notFound()` if the slug isn't in `aboutPrincipals`.
+
+## Getting started
 
 ```bash
+# 1. Install dependencies (npm, pnpm, or yarn — pick one)
+npm install
+
+# 2. Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
+
+# 3. Production build & run
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy to Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Push this folder to a new Git repository.
+2. In Vercel, import the repo — it'll auto-detect Next.js, no extra configuration needed.
+3. Click **Deploy**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+That's it. No env vars are required for the public site.
 
-## Learn More
+## Notes on the migration from Vite
 
-To learn more about Next.js, take a look at the following resources:
+- All client-only components (everything in `src/components/` and `src/hooks/`) are marked with `"use client"` because they use React state, effects, refs, or browser APIs. Page wrappers in `app/` remain server components and import the client components.
+- `import.meta.env.BASE_URL` is no longer used. If you need to host under a subpath, set `basePath` in `next.config.ts`.
+- Three image imports that used the `@assets/` Vite alias (`For_Hero_Section.png`, `Peter.png`, `Kwankwaso.png`) were copied into `public/` and the imports were swapped for plain string paths.
+- Wouter was removed. The single `useParams()` call in the about-principal route was replaced by Next.js dynamic-route `params`.
+- All Replit-specific Vite plugins (`@replit/vite-plugin-cartographer`, `@replit/vite-plugin-dev-banner`, `@replit/vite-plugin-runtime-error-modal`) were dropped.
+- The workspace dependency `@workspace/api-client-react` was unused in `ok-movement` and was dropped from the dependency list.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+ok-movement-nextjs/
+├── app/
+│   ├── globals.css           # Tailwind v4 + theme tokens + custom keyframes
+│   ├── layout.tsx            # Root layout (Poppins font, metadata, viewport)
+│   ├── page.tsx              # Home (/)
+│   ├── not-found.tsx
+│   └── home/
+│       ├── page.tsx
+│       ├── about/[slug]/page.tsx
+│       ├── contact/page.tsx
+│       ├── get-involved/page.tsx
+│       ├── media-gallery/page.tsx
+│       ├── our-movement/page.tsx
+│       └── upcoming-events/page.tsx
+├── public/                   # Static assets (favicon, images, PDFs, logos…)
+├── src/
+│   ├── components/
+│   │   ├── coming-soon/      # Coming-soon screen + PDF preview modal
+│   │   ├── home/             # All home/landing-page sections
+│   │   ├── ui/               # shadcn/ui primitives
+│   │   └── social-icons.tsx
+│   ├── hooks/
+│   │   ├── use-mobile.tsx
+│   │   └── use-toast.ts
+│   └── lib/
+│       └── utils.ts          # cn() helper
+├── next.config.ts
+├── postcss.config.mjs        # @tailwindcss/postcss
+├── tsconfig.json             # @/* → ./src/*
+├── package.json
+└── README.md
+```
