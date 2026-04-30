@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Loader2, LockKeyhole } from "lucide-react";
 
-export default function AdminResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
@@ -136,5 +137,32 @@ export default function AdminResetPasswordPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function ResetPasswordFallback() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#f7f7f4] px-4 py-8">
+      <div className="w-full max-w-lg overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
+        <span aria-hidden="true" className="flex h-[3px]">
+          <span className="h-full flex-1 bg-brand-green" />
+          <span className="h-full flex-1 bg-brand-black" />
+          <span className="h-full flex-1 bg-brand-red" />
+        </span>
+        <div className="px-6 py-8 sm:px-8 sm:py-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-red">Admin</p>
+          <h1 className="mt-3 text-3xl font-semibold text-brand-black">Reset your password</h1>
+          <p className="mt-2 text-sm text-black/60">Preparing reset form...</p>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function AdminResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
