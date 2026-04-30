@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -22,6 +23,8 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import { SocialIcon, SOCIAL_PROFILES } from "@/components/social-icons";
@@ -241,27 +244,86 @@ function TricolorRule({ light = false }: { light?: boolean }) {
   );
 }
 
-export default function ContactPage() {
-  const [selectedRequest, setSelectedRequest] = useState<RequestType>("suggestion");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
-  const [name, setName] = useState("");
+const contactSchema = z.object({
+  requestType: z.enum([
+    "suggestion",
+    "feedback",
+    "information",
+    "support",
+    "donation",
+    "volunteer",
+    "press",
+    "partnership",
+    "other",
+  ]),
+  name: z.string().trim().min(1, "Full name is required."),
+  email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
+  phone: z.string().trim().optional(),
+  region: z.string().trim().optional(),
+  subject: z.string().trim().min(1, "Subject is required."),
+  message: z.string().trim().min(20, "Message must be at least 20 characters."),
+  newsletter: z.boolean(),
+});
 
+type ContactFormValues = z.infer<typeof contactSchema>;
+
+const defaultContactValues: ContactFormValues = {
+  requestType: "suggestion",
+  name: "",
+  email: "",
+  phone: "",
+  region: "",
+  subject: "",
+  message: "",
+  newsletter: true,
+};
+
+export default function ContactPage() {
+  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [submitError, setSubmitError] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: defaultContactValues,
+  });
+
+  const selectedRequest = watch("requestType");
   const selected = useMemo(
-    () => requestOptions.find((option) => option.key === selectedRequest)!,
+    () => requestOptions.find((option) => option.key === selectedRequest) ?? requestOptions[0],
     [selectedRequest],
   );
+  const requestTypeField = register("requestType");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setStatus("sending");
-    // Simulated submit — in production this would POST to an API.
-    window.setTimeout(() => setStatus("sent"), 900);
+  const onSubmit = async (values: ContactFormValues) => {
+    setSubmitError("");
+
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const data = (await response.json().catch(() => null)) as { error?: string } | null;
+
+    if (!response.ok) {
+      setSubmitError(data?.error ?? "Unable to submit your message right now.");
+      return;
+    }
+
+    setSubmittedName(values.name.trim());
+    setStatus("sent");
   };
 
   const handleReset = () => {
     setStatus("idle");
-    setName("");
-    setSelectedRequest("suggestion");
+    setSubmitError("");
+    setSubmittedName("");
+    reset(defaultContactValues);
   };
 
   return (
@@ -455,8 +517,8 @@ export default function ContactPage() {
                     <CheckCircle2 aria-hidden="true" className="h-8 w-8" />
                   </span>
                   <h3 className="mt-6 text-2xl font-medium leading-tight text-brand-black sm:text-3xl">
-                    Thank you{name ? `, ${name.split(" ")[0]}` : ""} — we've received your
-                    message.
+                    Thank you{submittedName ? `, ${submittedName.split(" ")[0]}` : ""} —
+                    we've received your message.
                   </h3>
                   <p className="mt-4 max-w-md text-base leading-relaxed text-black/65">
                     A member of the OK Movement team will respond by email within 1–2 business
@@ -480,7 +542,11 @@ export default function ContactPage() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="px-6 py-10 sm:px-10 sm:py-12">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  noValidate
+                  className="px-6 py-10 sm:px-10 sm:py-12"
+                >
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">
                       Send a message
@@ -513,10 +579,9 @@ export default function ContactPage() {
                           >
                             <input
                               type="radio"
-                              name="requestType"
-                              value={key}
+                              {...requestTypeField}
                               checked={isActive}
-                              onChange={() => setSelectedRequest(key)}
+                              value={key}
                               className="sr-only"
                             />
                             <span
@@ -539,6 +604,9 @@ export default function ContactPage() {
                       </span>{" "}
                       {selected.description}
                     </p>
+                    {errors.requestType?.message ? (
+                      <p className="mt-2 text-xs text-brand-red">{errors.requestType.message}</p>
+                    ) : null}
                   </fieldset>
 
                   {/* Form fields */}
@@ -549,13 +617,13 @@ export default function ContactPage() {
                       </span>
                       <input
                         type="text"
-                        name="name"
-                        required
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
+                        {...register("name")}
                         placeholder="Adaeze Okeke"
                         className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.name?.message ? (
+                        <span className="text-xs text-brand-red">{errors.name.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5">
@@ -564,11 +632,13 @@ export default function ContactPage() {
                       </span>
                       <input
                         type="email"
-                        name="email"
-                        required
+                        {...register("email")}
                         placeholder="you@example.com"
                         className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.email?.message ? (
+                        <span className="text-xs text-brand-red">{errors.email.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5">
@@ -577,10 +647,13 @@ export default function ContactPage() {
                       </span>
                       <input
                         type="tel"
-                        name="phone"
+                        {...register("phone")}
                         placeholder="+234 …"
                         className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.phone?.message ? (
+                        <span className="text-xs text-brand-red">{errors.phone.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5">
@@ -589,10 +662,13 @@ export default function ContactPage() {
                       </span>
                       <input
                         type="text"
-                        name="region"
+                        {...register("region")}
                         placeholder="e.g. Lagos, FCT, Kano"
                         className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.region?.message ? (
+                        <span className="text-xs text-brand-red">{errors.region.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5 sm:col-span-2">
@@ -601,11 +677,13 @@ export default function ContactPage() {
                       </span>
                       <input
                         type="text"
-                        name="subject"
-                        required
+                        {...register("subject")}
                         placeholder="A short summary"
                         className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.subject?.message ? (
+                        <span className="text-xs text-brand-red">{errors.subject.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5 sm:col-span-2">
@@ -618,21 +696,21 @@ export default function ContactPage() {
                         </span>
                       </span>
                       <textarea
-                        name="message"
-                        required
-                        minLength={20}
+                        {...register("message")}
                         rows={6}
                         placeholder="Tell us a bit more about your request — context, timing, and how we can best help."
                         className="rounded-[10px] border border-black/12 bg-white p-4 text-sm leading-relaxed text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                       />
+                      {errors.message?.message ? (
+                        <span className="text-xs text-brand-red">{errors.message.message}</span>
+                      ) : null}
                     </label>
                   </div>
 
                   <label className="mt-6 flex items-start gap-3 text-sm text-black/70">
                     <input
                       type="checkbox"
-                      name="newsletter"
-                      defaultChecked
+                      {...register("newsletter")}
                       className="mt-1 h-4 w-4 rounded border-black/20 text-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green/50"
                     />
                     <span>
@@ -648,10 +726,10 @@ export default function ContactPage() {
                     </p>
                     <button
                       type="submit"
-                      disabled={status === "sending"}
+                      disabled={isSubmitting}
                       className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      {status === "sending" ? (
+                      {isSubmitting ? (
                         <>
                           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                           Sending…
@@ -664,6 +742,11 @@ export default function ContactPage() {
                       )}
                     </button>
                   </div>
+                  {submitError ? (
+                    <p className="mt-4 rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
+                      {submitError}
+                    </p>
+                  ) : null}
                 </form>
               )}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -17,6 +18,8 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import {
@@ -26,9 +29,12 @@ import {
   involveFaqs,
   involveStats,
   nextSteps,
-  nigerianStates,
-  type EngagementType,
 } from "./get-involved-data";
+import {
+  getLgaOptionsByState,
+  getWardOptionsByStateAndLga,
+  nigeriaStateOptions,
+} from "@/lib/nigeria-locations";
 
 function TricolorRule({ light = false, wide = false }: { light?: boolean; wide?: boolean }) {
   return (
@@ -68,30 +74,147 @@ function pillarTone(tone: "green" | "red" | "black") {
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
-export default function GetInvolvedPage() {
-  const [engagement, setEngagement] = useState<EngagementType>("volunteer-individual");
-  const [isDiaspora, setIsDiaspora] = useState(false);
-  const [name, setName] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+const getInvolvedSchema = z
+  .object({
+    engagement: z.enum([
+      "volunteer-individual",
+      "volunteer-organisation",
+      "volunteer-support-group",
+      "donate",
+    ]),
+    name: z.string().trim().min(1, "Full name is required."),
+    email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
+    phone: z.string().trim().min(1, "Telephone / WhatsApp number is required."),
+    isDiaspora: z.boolean(),
+    country: z.string().trim(),
+    votingState: z.string().trim(),
+    votingLga: z.string().trim(),
+    votingWard: z.string().trim(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.isDiaspora) {
+      if (!values.country) {
+        ctx.addIssue({
+          path: ["country"],
+          code: z.ZodIssueCode.custom,
+          message: "Country of residence is required.",
+        });
+      }
+      return;
+    }
 
+    if (!values.votingState) {
+      ctx.addIssue({
+        path: ["votingState"],
+        code: z.ZodIssueCode.custom,
+        message: "Voting state is required.",
+      });
+    }
+    if (!values.votingLga) {
+      ctx.addIssue({
+        path: ["votingLga"],
+        code: z.ZodIssueCode.custom,
+        message: "Voting LGA is required.",
+      });
+    }
+    if (!values.votingWard) {
+      ctx.addIssue({
+        path: ["votingWard"],
+        code: z.ZodIssueCode.custom,
+        message: "Voting ward is required.",
+      });
+    }
+  });
+
+type GetInvolvedFormValues = z.infer<typeof getInvolvedSchema>;
+
+const defaultFormValues: GetInvolvedFormValues = {
+  engagement: "volunteer-individual",
+  name: "",
+  email: "",
+  phone: "",
+  isDiaspora: false,
+  country: "",
+  votingState: "",
+  votingLga: "",
+  votingWard: "",
+};
+
+export default function GetInvolvedPage() {
+  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [submitError, setSubmitError] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<GetInvolvedFormValues>({
+    resolver: zodResolver(getInvolvedSchema),
+    defaultValues: defaultFormValues,
+  });
+
+  const engagement = watch("engagement");
+  const isDiaspora = watch("isDiaspora");
+  const votingState = watch("votingState");
+  const votingLga = watch("votingLga");
+  const votingWard = watch("votingWard");
   const selected = useMemo(
-    () => engagementOptions.find((option) => option.key === engagement)!,
+    () => engagementOptions.find((option) => option.key === engagement) ?? engagementOptions[0],
     [engagement],
   );
-  const isDonate = engagement === "donate";
+  const engagementField = register("engagement");
+  const diasporaField = register("isDiaspora");
+  const votingStateField = register("votingState");
+  const votingLgaField = register("votingLga");
+  const votingWardField = register("votingWard");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setStatus("sending");
-    // Simulated submit — in production this would POST to an API.
-    window.setTimeout(() => setStatus("sent"), 900);
+  const isDonate = engagement === "donate";
+  const lgaOptions = useMemo(() => getLgaOptionsByState(votingState), [votingState]);
+  const wardOptions = useMemo(
+    () => getWardOptionsByStateAndLga(votingState, votingLga),
+    [votingState, votingLga],
+  );
+
+  const onSubmit = async (values: GetInvolvedFormValues) => {
+    setSubmitError("");
+
+    const payload = {
+      engagement: selected.label,
+      name: values.name.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      isDiaspora: values.isDiaspora,
+      country: values.isDiaspora ? values.country.trim() : "",
+      votingState: values.isDiaspora ? "" : values.votingState.trim(),
+      votingLga: values.isDiaspora ? "" : values.votingLga.trim(),
+      votingWard: values.isDiaspora ? "" : values.votingWard.trim(),
+    };
+
+    const response = await fetch("/api/get-involved", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await response.json().catch(() => null)) as { error?: string } | null;
+
+    if (!response.ok) {
+      setSubmitError(data?.error ?? "Unable to submit your registration at this time.");
+      return;
+    }
+
+    setStatus("sent");
+    setSubmittedName(values.name.trim());
   };
 
   const handleReset = () => {
     setStatus("idle");
-    setName("");
-    setEngagement("volunteer-individual");
-    setIsDiaspora(false);
+    setSubmitError("");
+    setSubmittedName("");
+    reset(defaultFormValues);
   };
 
   return (
@@ -344,7 +467,8 @@ export default function GetInvolvedPage() {
                     <CheckCircle2 aria-hidden="true" className="h-8 w-8" />
                   </span>
                   <h3 className="mt-6 text-2xl font-medium leading-tight text-brand-black sm:text-3xl">
-                    Welcome aboard{name ? `, ${name.split(" ")[0]}` : ""} — you&apos;re in.
+                    Welcome aboard
+                    {submittedName ? `, ${submittedName.split(" ")[0]}` : ""} — you&apos;re in.
                   </h3>
                   <p className="mt-4 max-w-md text-base leading-relaxed text-black/65">
                     A confirmation email is on its way. The right coordinator from the OK
@@ -368,7 +492,11 @@ export default function GetInvolvedPage() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="px-6 py-10 sm:px-10 sm:py-12">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  noValidate
+                  className="px-6 py-10 sm:px-10 sm:py-12"
+                >
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">
                       Registration
@@ -401,10 +529,9 @@ export default function GetInvolvedPage() {
                           >
                             <input
                               type="radio"
-                              name="engagement"
-                              value={key}
+                              {...engagementField}
                               checked={isActive}
-                              onChange={() => setEngagement(key)}
+                              value={key}
                               className="sr-only"
                             />
                             <span
@@ -427,6 +554,9 @@ export default function GetInvolvedPage() {
                       </span>{" "}
                       {selected.description}
                     </p>
+                    {errors.engagement?.message ? (
+                      <p className="mt-2 text-xs text-brand-red">{errors.engagement.message}</p>
+                    ) : null}
                   </fieldset>
 
                   {/* Contact details */}
@@ -437,14 +567,14 @@ export default function GetInvolvedPage() {
                       </span>
                       <input
                         type="text"
-                        name="name"
-                        required
+                        {...register("name")}
                         autoComplete="name"
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
                         placeholder="Adaeze Okeke"
                         className={inputClass}
                       />
+                      {errors.name?.message ? (
+                        <span className="text-xs text-brand-red">{errors.name.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5">
@@ -453,12 +583,14 @@ export default function GetInvolvedPage() {
                       </span>
                       <input
                         type="email"
-                        name="email"
-                        required
+                        {...register("email")}
                         autoComplete="email"
                         placeholder="you@example.com"
                         className={inputClass}
                       />
+                      {errors.email?.message ? (
+                        <span className="text-xs text-brand-red">{errors.email.message}</span>
+                      ) : null}
                     </label>
 
                     <label className="flex flex-col gap-1.5 sm:col-span-2">
@@ -468,12 +600,14 @@ export default function GetInvolvedPage() {
                       </span>
                       <input
                         type="tel"
-                        name="phone"
-                        required
+                        {...register("phone")}
                         autoComplete="tel"
                         placeholder="+234 …"
                         className={inputClass}
                       />
+                      {errors.phone?.message ? (
+                        <span className="text-xs text-brand-red">{errors.phone.message}</span>
+                      ) : null}
                     </label>
                   </div>
 
@@ -482,8 +616,19 @@ export default function GetInvolvedPage() {
                     <input
                       id="diaspora-toggle"
                       type="checkbox"
+                      {...diasporaField}
                       checked={isDiaspora}
-                      onChange={(event) => setIsDiaspora(event.target.checked)}
+                      onChange={(event) => {
+                        diasporaField.onChange(event);
+                        const checked = event.target.checked;
+                        if (checked) {
+                          setValue("votingState", "", { shouldValidate: true });
+                          setValue("votingLga", "", { shouldValidate: true });
+                          setValue("votingWard", "", { shouldValidate: true });
+                          return;
+                        }
+                        setValue("country", "", { shouldValidate: true });
+                      }}
                       className="mt-1 h-4 w-4 rounded border-black/20 text-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green/50"
                     />
                     <label htmlFor="diaspora-toggle" className="cursor-pointer text-sm">
@@ -512,13 +657,15 @@ export default function GetInvolvedPage() {
                           />
                           <input
                             type="text"
-                            name="country"
-                            required
+                            {...register("country")}
                             autoComplete="country-name"
                             placeholder="e.g. United Kingdom, United States, Canada"
                             className={`${inputClass} w-full pl-11`}
                           />
                         </span>
+                        {errors.country?.message ? (
+                          <span className="text-xs text-brand-red">{errors.country.message}</span>
+                        ) : null}
                       </label>
                     </div>
                   ) : (
@@ -528,46 +675,80 @@ export default function GetInvolvedPage() {
                           Voting state <span className="text-brand-red">*</span>
                         </span>
                         <select
-                          name="votingState"
-                          required
-                          defaultValue=""
+                          {...votingStateField}
+                          value={votingState}
+                          onChange={(event) => {
+                            votingStateField.onChange(event);
+                            setValue("votingLga", "", { shouldValidate: true });
+                            setValue("votingWard", "", { shouldValidate: true });
+                          }}
                           className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
                         >
                           <option value="" disabled>
                             Select a state
                           </option>
-                          {nigerianStates.map((state) => (
-                            <option key={state} value={state}>
-                              {state}
+                          {nigeriaStateOptions.map((state) => (
+                            <option key={state.value} value={state.value}>
+                              {state.label}
                             </option>
                           ))}
                         </select>
+                        {errors.votingState?.message ? (
+                          <span className="text-xs text-brand-red">{errors.votingState.message}</span>
+                        ) : null}
                       </label>
 
                       <label className="flex flex-col gap-1.5">
                         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                           Voting LGA <span className="text-brand-red">*</span>
                         </span>
-                        <input
-                          type="text"
-                          name="votingLga"
-                          required
-                          placeholder="e.g. Ikeja, Municipal"
-                          className={inputClass}
-                        />
+                        <select
+                          {...votingLgaField}
+                          value={votingLga}
+                          onChange={(event) => {
+                            votingLgaField.onChange(event);
+                            setValue("votingWard", "", { shouldValidate: true });
+                          }}
+                          disabled={!votingState}
+                          className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 disabled:cursor-not-allowed disabled:opacity-60`}
+                        >
+                          <option value="" disabled>
+                            {votingState ? "Select an LGA" : "Select state first"}
+                          </option>
+                          {lgaOptions.map((lga) => (
+                            <option key={lga.value} value={lga.value}>
+                              {lga.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.votingLga?.message ? (
+                          <span className="text-xs text-brand-red">{errors.votingLga.message}</span>
+                        ) : null}
                       </label>
 
                       <label className="flex flex-col gap-1.5">
                         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                           Voting ward <span className="text-brand-red">*</span>
                         </span>
-                        <input
-                          type="text"
-                          name="votingWard"
-                          required
-                          placeholder="Your registered ward"
-                          className={inputClass}
-                        />
+                        <select
+                          {...votingWardField}
+                          value={votingWard}
+                          onChange={votingWardField.onChange}
+                          disabled={!votingLga}
+                          className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 disabled:cursor-not-allowed disabled:opacity-60`}
+                        >
+                          <option value="" disabled>
+                            {votingLga ? "Select a ward" : "Select LGA first"}
+                          </option>
+                          {wardOptions.map((ward) => (
+                            <option key={ward.value} value={ward.value}>
+                              {ward.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.votingWard?.message ? (
+                          <span className="text-xs text-brand-red">{errors.votingWard.message}</span>
+                        ) : null}
                       </label>
                     </div>
                   )}
@@ -580,10 +761,10 @@ export default function GetInvolvedPage() {
                     </p>
                     <button
                       type="submit"
-                      disabled={status === "sending"}
+                      disabled={isSubmitting}
                       className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      {status === "sending" ? (
+                      {isSubmitting ? (
                         <>
                           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                           Submitting…
@@ -596,6 +777,11 @@ export default function GetInvolvedPage() {
                       )}
                     </button>
                   </div>
+                  {submitError ? (
+                    <p className="mt-4 rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
+                      {submitError}
+                    </p>
+                  ) : null}
 
                   {isDonate && (
                     <p className="mt-4 rounded-[10px] border border-brand-red/20 bg-brand-red/5 px-4 py-3 text-xs leading-relaxed text-brand-black/75">

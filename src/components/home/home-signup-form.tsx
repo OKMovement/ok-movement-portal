@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { nigeriaStateOptions } from "@/lib/nigeria-locations";
 
 type HomeSignupFormProps = {
   formIdPrefix: string;
@@ -14,14 +15,6 @@ type HomeSignupFormProps = {
   buttonClassName?: string;
 };
 
-const nigerianStates = [
-  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",
-  "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu",
-  "Federal Capital Territory", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano",
-  "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun",
-  "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
-] as const;
-
 function NigerianStateDropdown({ formIdPrefix, className }: { formIdPrefix: string; className?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedState, setSelectedState] = useState("");
@@ -30,8 +23,8 @@ function NigerianStateDropdown({ formIdPrefix, className }: { formIdPrefix: stri
 
   const visibleStates = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    if (!query) return nigerianStates;
-    return nigerianStates.filter((state) => state.toLowerCase().includes(query));
+    if (!query) return nigeriaStateOptions;
+    return nigeriaStateOptions.filter((state) => state.label.toLowerCase().includes(query));
   }, [searchTerm]);
 
   useEffect(() => {
@@ -86,15 +79,19 @@ function NigerianStateDropdown({ formIdPrefix, className }: { formIdPrefix: stri
         >
           {visibleStates.length > 0 ? (
             visibleStates.map((state) => (
-              <li key={state}>
+              <li key={state.value}>
                 <button
                   type="button"
                   role="option"
-                  aria-selected={selectedState === state}
-                  onClick={() => { setSelectedState(state); setSearchTerm(state); setIsOpen(false); }}
-                  className={`w-full px-6 py-3 text-left text-sm transition hover:bg-brand-green hover:text-white ${selectedState === state ? "bg-brand-green text-white" : "text-brand-black"}`}
+                  aria-selected={selectedState === state.label}
+                  onClick={() => {
+                    setSelectedState(state.label);
+                    setSearchTerm(state.label);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full px-6 py-3 text-left text-sm transition hover:bg-brand-green hover:text-white ${selectedState === state.label ? "bg-brand-green text-white" : "text-brand-black"}`}
                 >
-                  {state}
+                  {state.label}
                 </button>
               </li>
             ))
