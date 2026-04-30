@@ -80,9 +80,84 @@ export default function MembersManager() {
     setDeleting(false);
   }
 
+  function csvCell(value: string | number | boolean | null | undefined) {
+    const raw = value == null ? "" : String(value);
+    const escaped = raw.replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
+
+  function resolveLocation(member: MemberItem) {
+    if (member.isDiaspora) {
+      return member.country ?? "Diaspora";
+    }
+    return [member.votingState, member.votingLga, member.votingWard].filter(Boolean).join(", ");
+  }
+
+  function handleExportCsv() {
+    if (members.length === 0) {
+      setError("No members to export yet.");
+      return;
+    }
+
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Engagement",
+      "Diaspora",
+      "Country",
+      "Voting State",
+      "Voting LGA",
+      "Voting Ward",
+      "Location",
+      "Submitted At",
+    ];
+
+    const rows = members.map((member) => [
+      member.name,
+      member.email,
+      member.phone,
+      member.engagement,
+      member.isDiaspora ? "Yes" : "No",
+      member.country ?? "",
+      member.votingState ?? "",
+      member.votingLga ?? "",
+      member.votingWard ?? "",
+      resolveLocation(member),
+      member.createdAt ? new Date(member.createdAt).toISOString() : "",
+    ]);
+
+    const csv = [
+      headers.map(csvCell).join(","),
+      ...rows.map((row) => row.map(csvCell).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const dateLabel = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `ok-movement-members-${dateLabel}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <>
       <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
+          <h3 className="text-lg font-semibold text-brand-black">Members</h3>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={loading || members.length === 0}
+            className="inline-flex min-h-10 items-center justify-center rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            Export CSV
+          </button>
+        </div>
         {error ? <p className="px-4 pt-4 text-sm text-brand-red">{error}</p> : null}
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
@@ -105,11 +180,7 @@ export default function MembersManager() {
                 </tr>
               ) : members.length > 0 ? (
                 members.map((member) => {
-                  const location = member.isDiaspora
-                    ? member.country ?? "Diaspora"
-                    : [member.votingState, member.votingLga, member.votingWard]
-                        .filter(Boolean)
-                        .join(", ");
+                  const location = resolveLocation(member);
 
                   return (
                     <tr
