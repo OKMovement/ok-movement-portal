@@ -23,8 +23,10 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import PhoneInput from "@/components/ui/phone-input";
+import { isPhoneValid } from "@/lib/phone-validation";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import { SocialIcon, SOCIAL_PROFILES } from "@/components/social-icons";
@@ -258,7 +260,11 @@ const contactSchema = z.object({
   ]),
   name: z.string().trim().min(1, "Full name is required."),
   email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
-  phone: z.string().trim().optional(),
+  phone: z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value || isPhoneValid(value), "Enter a valid phone number."),
   region: z.string().trim().optional(),
   subject: z.string().trim().min(1, "Subject is required."),
   message: z.string().trim().min(20, "Message must be at least 20 characters."),
@@ -284,6 +290,7 @@ export default function ContactPage() {
   const [submittedName, setSubmittedName] = useState("");
   const {
     register,
+    control,
     handleSubmit,
     reset,
     watch,
@@ -645,11 +652,18 @@ export default function ContactPage() {
                       <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                         Phone <span className="text-black/40">(optional)</span>
                       </span>
-                      <input
-                        type="tel"
-                        {...register("phone")}
-                        placeholder="+234 …"
-                        className="min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                      <Controller
+                        control={control}
+                        name="phone"
+                        render={({ field }) => (
+                          <PhoneInput
+                            id="contact-phone"
+                            value={field.value ?? ""}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder="e.g. 8012345678"
+                          />
+                        )}
                       />
                       {errors.phone?.message ? (
                         <span className="text-xs text-brand-red">{errors.phone.message}</span>

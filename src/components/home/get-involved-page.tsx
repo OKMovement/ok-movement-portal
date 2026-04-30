@@ -18,8 +18,10 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import PhoneInput from "@/components/ui/phone-input";
+import { isPhoneValid } from "@/lib/phone-validation";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import {
@@ -74,8 +76,6 @@ function pillarTone(tone: "green" | "red" | "black") {
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
-const phoneValidationRegex = /^\+?[0-9]{10,15}$/;
-
 const getInvolvedSchema = z
   .object({
     engagement: z.enum([
@@ -90,10 +90,7 @@ const getInvolvedSchema = z
       .string()
       .trim()
       .min(1, "Telephone / WhatsApp number is required.")
-      .refine(
-        (value) => phoneValidationRegex.test(value.replace(/[()\s.-]/g, "")),
-        "Enter a valid phone number (10-15 digits).",
-      ),
+      .refine((value) => isPhoneValid(value), "Enter a valid phone number."),
     isDiaspora: z.boolean(),
     country: z.string().trim(),
     votingState: z.string().trim(),
@@ -155,6 +152,7 @@ export default function GetInvolvedPage() {
   const [submittedName, setSubmittedName] = useState("");
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     reset,
@@ -607,12 +605,19 @@ export default function GetInvolvedPage() {
                         Telephone / WhatsApp number{" "}
                         <span className="text-brand-red">*</span>
                       </span>
-                      <input
-                        type="tel"
-                        {...register("phone")}
-                        autoComplete="tel"
-                        placeholder="+234 …"
-                        className={inputClass}
+                      <Controller
+                        control={control}
+                        name="phone"
+                        render={({ field }) => (
+                          <PhoneInput
+                            id="get-involved-phone"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            required
+                            placeholder="e.g. 8012345678"
+                          />
+                        )}
                       />
                       {errors.phone?.message ? (
                         <span className="text-xs text-brand-red">{errors.phone.message}</span>

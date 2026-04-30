@@ -929,7 +929,7 @@ function RsvpModal({
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                     Phone number{" "}
-                    <span className="text-black/40">(optional · for SMS reminders)</span>
+                    {/* <span className="text-black/40">(optional · for SMS reminders)</span> */}
                   </span>
                   <input
                     type="tel"

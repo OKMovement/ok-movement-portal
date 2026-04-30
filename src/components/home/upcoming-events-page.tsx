@@ -37,6 +37,7 @@ import {
   type EventType,
   type UpcomingEvent,
 } from "./upcoming-events-data";
+import PhoneInput from "@/components/ui/phone-input";
 
 /* ----------------------------------------------------------------- */
 /* Helpers                                                            */
@@ -1021,15 +1022,13 @@ function RsvpModal({
                 <label className="flex flex-col gap-1.5">
                   <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                     Phone number{" "}
-                    <span className="text-black/40">(optional · for SMS reminders)</span>
+                    {/* <span className="text-black/40">(optional · for SMS reminders)</span> */}
                   </span>
-                  <input
-                    type="tel"
-                    autoComplete="tel"
+                  <PhoneInput
+                    id="event-rsvp-phone"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="0803 000 0000"
-                    className={inputClass}
+                    onChange={setPhone}
+                    placeholder="e.g. 8012345678"
                   />
                 </label>
                 <label className="flex flex-col gap-1.5">
