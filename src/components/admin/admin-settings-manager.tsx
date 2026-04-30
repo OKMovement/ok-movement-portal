@@ -130,7 +130,7 @@ export default function AdminSettingsManager() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-[18px] border border-black/10 bg-white px-6 py-5 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="rounded-[8px] border border-black/10 bg-white px-6 py-5 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Settings</p>
@@ -139,7 +139,7 @@ export default function AdminSettingsManager() {
           <button
             type="button"
             onClick={() => setIsInviteModalOpen(true)}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-brand-green"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-brand-green"
           >
             <Plus className="h-4 w-4" />
             Invite Admin
@@ -147,7 +147,7 @@ export default function AdminSettingsManager() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="border-b border-black/8 px-6 py-4">
           <h3 className="text-lg font-semibold text-brand-black">Admin users</h3>
           <p className="mt-1 text-sm text-black/60">
@@ -187,7 +187,7 @@ export default function AdminSettingsManager() {
                       <td className="px-4 py-3 text-black/70">{admin.email}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold ${
                             admin.role === "super" ? "bg-brand-green/10 text-brand-green" : "bg-black/8 text-black/65"
                           }`}
                         >
@@ -236,7 +236,7 @@ export default function AdminSettingsManager() {
 
       {editingAdmin ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
-          <div className="w-full max-w-xl rounded-[18px] border border-black/10 bg-white p-6 shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
+          <div className="w-full max-w-xl rounded-[8px] border border-black/10 bg-white p-6 shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Edit Admin</p>
@@ -245,7 +245,7 @@ export default function AdminSettingsManager() {
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black/60 transition hover:bg-black/5"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-black/10 text-black/60 transition hover:bg-black/5"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function AdminSettingsManager() {
                 <input
                   value={editingAdmin.name}
                   disabled
-                  className="min-h-11 rounded-[10px] border border-black/12 bg-[#f7f7f4] px-3 text-sm text-brand-black/70"
+                  className="min-h-11 rounded-[8px] border border-black/12 bg-[#f7f7f4] px-3 text-sm text-brand-black/70"
                 />
               </label>
 
@@ -267,7 +267,7 @@ export default function AdminSettingsManager() {
                 <input
                   value={editingAdmin.email}
                   disabled
-                  className="min-h-11 rounded-[10px] border border-black/12 bg-[#f7f7f4] px-3 text-sm text-brand-black/70"
+                  className="min-h-11 rounded-[8px] border border-black/12 bg-[#f7f7f4] px-3 text-sm text-brand-black/70"
                 />
               </label>
 
@@ -277,7 +277,7 @@ export default function AdminSettingsManager() {
                   value={editingRole}
                   onChange={(event) => setEditingRole(event.target.value as AdminRole)}
                   disabled={!isSuperAdmin || editingSelf}
-                  className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black disabled:cursor-not-allowed disabled:bg-[#f7f7f4] disabled:text-black/60"
+                  className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black disabled:cursor-not-allowed disabled:bg-[#f7f7f4] disabled:text-black/60"
                 >
                   <option value="admin">Admin</option>
                   <option value="super">Super Admin</option>
@@ -297,7 +297,7 @@ export default function AdminSettingsManager() {
                 type="button"
                 onClick={handleEditSave}
                 disabled={!canSaveEdit || savingEdit}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Save changes
@@ -306,7 +306,7 @@ export default function AdminSettingsManager() {
                 type="button"
                 onClick={closeEditModal}
                 disabled={savingEdit}
-                className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
               >
                 Cancel
               </button>
@@ -317,12 +317,12 @@ export default function AdminSettingsManager() {
 
       {isInviteModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
-          <div className="w-full max-w-2xl rounded-[18px] border border-black/10 bg-white p-6 shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
+          <div className="w-full max-w-2xl rounded-[8px] border border-black/10 bg-white p-6 shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
             <div className="mb-4 flex items-start justify-end">
               <button
                 type="button"
                 onClick={() => setIsInviteModalOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black/60 transition hover:bg-black/5"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-black/10 text-black/60 transition hover:bg-black/5"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />

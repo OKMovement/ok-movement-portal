@@ -3,7 +3,7 @@ import SupportSubmissionsManager from "@/components/admin/support-submissions-ma
 export default async function AdminSupportPage() {
   return (
     <>
-      <header className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
+      <header className="rounded-[8px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">
           Support
         </p>

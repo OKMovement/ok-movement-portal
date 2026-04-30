@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
+import { AdminUserModel } from "@/lib/models/admin-user";
 import { MemberModel } from "@/lib/models/member";
-import { sendMemberWelcomeEmail } from "@/lib/server/mailer";
+import {
+  sendDonationAdminNotificationEmail,
+  sendMemberWelcomeEmail,
+} from "@/lib/server/mailer";
 
 export async function POST(request: Request) {
   try {
@@ -66,6 +70,33 @@ export async function POST(request: Request) {
     } catch (emailError) {
       // Email delivery should not block successful registration persistence.
       console.error("Failed to send get involved welcome email:", emailError);
+    }
+
+    if (/donate/i.test(engagement)) {
+      try {
+        const admins = await AdminUserModel.find({})
+          .select("email")
+          .lean();
+
+        const adminEmails = admins
+          .map((admin) => String(admin.email ?? "").trim().toLowerCase())
+          .filter(Boolean);
+
+        await sendDonationAdminNotificationEmail({
+          adminEmails,
+          name,
+          email,
+          phone,
+          engagement,
+          isDiaspora,
+          country,
+          votingState,
+          votingLga,
+          votingWard,
+        });
+      } catch (adminEmailError) {
+        console.error("Failed to send donation admin notification email:", adminEmailError);
+      }
     }
 
     return NextResponse.json({ ok: true });

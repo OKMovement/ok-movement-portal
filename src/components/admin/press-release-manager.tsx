@@ -8,6 +8,7 @@ type PressRelease = {
   title: string;
   slug: string;
   imageUrl: string;
+  fileUrl: string;
   excerpt: string;
   body: string;
   published: boolean;
@@ -17,15 +18,16 @@ type PressRelease = {
 };
 
 const inputClass =
-  "min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
 const textareaClass =
-  "rounded-[10px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
-  const initialForm = {
+const initialForm = {
   id: "",
   title: "",
   imageUrl: "",
+  fileUrl: "",
   excerpt: "",
   body: "",
   published: false,
@@ -36,6 +38,7 @@ export default function PressReleaseManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState(initialForm);
   const [viewMode, setViewMode] = useState<"list" | "form">("list");
@@ -65,6 +68,7 @@ export default function PressReleaseManager() {
     const payload = {
       title: form.title,
       imageUrl: form.imageUrl,
+      fileUrl: form.fileUrl,
       excerpt: form.excerpt,
       body: form.body,
       published: form.published,
@@ -110,10 +114,8 @@ export default function PressReleaseManager() {
         body: payload,
       });
 
-      const data = (await response.json().catch(() => null)) as
-        | { image?: { url?: string }; error?: string }
-        | null;
-      const uploadedUrl = data?.image?.url;
+      const data = (await response.json().catch(() => null)) as { asset?: { url?: string }; error?: string } | null;
+      const uploadedUrl = data?.asset?.url;
 
       if (!response.ok || !uploadedUrl) {
         setError(data?.error ?? "Unable to upload press release image.");
@@ -123,6 +125,38 @@ export default function PressReleaseManager() {
       setForm((prev) => ({ ...prev, imageUrl: uploadedUrl }));
     } finally {
       setUploadingImage(false);
+      event.target.value = "";
+    }
+  }
+
+  async function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    setError("");
+
+    try {
+      const payload = new FormData();
+      payload.append("file", file);
+      payload.append("context", "media-file");
+
+      const response = await fetch("/api/admin/uploads/image", {
+        method: "POST",
+        body: payload,
+      });
+
+      const data = (await response.json().catch(() => null)) as { asset?: { url?: string }; error?: string } | null;
+      const uploadedUrl = data?.asset?.url;
+
+      if (!response.ok || !uploadedUrl) {
+        setError(data?.error ?? "Unable to upload attachment.");
+        return;
+      }
+
+      setForm((prev) => ({ ...prev, fileUrl: uploadedUrl }));
+    } finally {
+      setUploadingFile(false);
       event.target.value = "";
     }
   }
@@ -140,11 +174,27 @@ export default function PressReleaseManager() {
     await loadPressReleases();
   }
 
+  async function handleTogglePublished(item: PressRelease) {
+    const response = await fetch(`/api/admin/press-releases/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: !item.published }),
+    });
+
+    if (!response.ok) {
+      setError("Unable to update publish status.");
+      return;
+    }
+
+    await loadPressReleases();
+  }
+
   function handleEdit(item: PressRelease) {
     setForm({
       id: item.id,
       title: item.title,
       imageUrl: item.imageUrl ?? "",
+      fileUrl: item.fileUrl ?? "",
       excerpt: item.excerpt,
       body: item.body,
       published: item.published,
@@ -159,13 +209,13 @@ export default function PressReleaseManager() {
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-6 py-4">
           <h3 className="text-lg font-semibold text-brand-black">All press releases</h3>
           <button
             type="button"
             onClick={handleCreateNew}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
           >
             <Plus className="h-4 w-4" />
             Create new
@@ -189,10 +239,11 @@ export default function PressReleaseManager() {
                     <h4 className="text-base font-semibold text-brand-black">{item.title}</h4>
                     <p className="mt-1 text-xs uppercase tracking-[0.15em] text-black/55">/{item.slug}</p>
                     {item.imageUrl ? <p className="mt-1 text-xs text-black/50">Image attached</p> : null}
+                    {item.fileUrl ? <p className="mt-1 text-xs text-black/50">File attached</p> : null}
                     <p className="mt-2 max-w-3xl text-sm text-black/70">{item.excerpt}</p>
                   </div>
                   <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold ${
                       item.published
                         ? "bg-brand-green/10 text-brand-green"
                         : "bg-black/8 text-black/65"
@@ -202,6 +253,17 @@ export default function PressReleaseManager() {
                   </span>
                 </div>
                 <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePublished(item)}
+                    className={`inline-flex items-center gap-1 rounded-[8px] border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
+                      item.published
+                        ? "border-brand-red/25 text-brand-red hover:bg-brand-red hover:text-white"
+                        : "border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white"
+                    }`}
+                  >
+                    {item.published ? "Unpublish" : "Publish"}
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleEdit(item)}
@@ -226,7 +288,7 @@ export default function PressReleaseManager() {
       </section>
 
       {viewMode === "form" ? (
-        <section className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+        <section className="rounded-[8px] border border-black/10 bg-white px-6 py-6 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Press Releases</p>
           <h2 className="mt-3 text-3xl font-semibold text-brand-black">
             {form.id ? "Edit press release" : "Create press release"}
@@ -248,14 +310,13 @@ export default function PressReleaseManager() {
                 Cover Image
               </span>
               <input
-                required
                 value={form.imageUrl}
                 onChange={(event) => setForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
                 className={inputClass}
                 placeholder="https://..."
               />
               <div className="flex flex-wrap items-center gap-3">
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-[8px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
                   {uploadingImage ? "Uploading..." : "Upload from device"}
                   <input
                     type="file"
@@ -271,8 +332,43 @@ export default function PressReleaseManager() {
                 <img
                   src={form.imageUrl}
                   alt="Press release image preview"
-                  className="mt-1 h-40 w-full rounded-[10px] border border-black/10 object-cover sm:w-64"
+                  className="mt-1 h-40 w-full rounded-[8px] border border-black/10 object-cover sm:w-64"
                 />
+              ) : null}
+            </label>
+
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">
+                Attachment (Optional PDF / DOC)
+              </span>
+              <input
+                value={form.fileUrl}
+                onChange={(event) => setForm((prev) => ({ ...prev, fileUrl: event.target.value }))}
+                className={inputClass}
+                placeholder="https://..."
+              />
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-[8px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
+                  {uploadingFile ? "Uploading..." : "Upload file"}
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,.ppt,.pptx"
+                    onChange={handleFileUpload}
+                    disabled={uploadingFile}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-xs text-black/55">PDF, DOC, DOCX, TXT, PPT up to 20MB</span>
+              </div>
+              {form.fileUrl ? (
+                <a
+                  href={form.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 inline-flex w-fit text-xs font-semibold text-brand-green underline-offset-4 hover:underline"
+                >
+                  Preview attachment
+                </a>
               ) : null}
             </label>
 
@@ -303,7 +399,7 @@ export default function PressReleaseManager() {
                 type="checkbox"
                 checked={form.published}
                 onChange={(event) => setForm((prev) => ({ ...prev, published: event.target.checked }))}
-                className="h-4 w-4 rounded border-black/20 text-brand-green"
+                className="h-4 w-4 rounded-[8px] border-black/20 text-brand-green"
               />
               Publish immediately
             </label>
@@ -314,7 +410,7 @@ export default function PressReleaseManager() {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {form.id ? "Update" : "Create"}
@@ -325,7 +421,7 @@ export default function PressReleaseManager() {
                   setForm(initialForm);
                   setViewMode("list");
                 }}
-                className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
               >
                 Cancel
               </button>

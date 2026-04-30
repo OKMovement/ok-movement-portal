@@ -18,6 +18,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const body = (await request.json()) as {
     title?: string;
     imageUrl?: string;
+    fileUrl?: string;
     excerpt?: string;
     body?: string;
     published?: boolean;
@@ -53,6 +54,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     release.imageUrl = body.imageUrl.trim();
   }
 
+  if (typeof body.fileUrl === "string") {
+    release.fileUrl = body.fileUrl.trim() || undefined;
+  }
+
   if (typeof body.body === "string") {
     release.body = body.body.trim();
   }
@@ -71,6 +76,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       title: release.title,
       slug: release.slug,
       imageUrl: release.imageUrl ?? "",
+      fileUrl: release.fileUrl ?? "",
       excerpt: release.excerpt,
       body: release.body,
       published: release.published,

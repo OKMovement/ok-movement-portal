@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   const releases = await PressReleaseModel.find({})
     .sort({ createdAt: -1 })
-    .select("_id title slug imageUrl excerpt body published publishedAt createdAt updatedAt")
+    .select("_id title slug imageUrl fileUrl excerpt body published publishedAt createdAt updatedAt")
     .lean();
 
   return NextResponse.json({
@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
       title: release.title,
       slug: release.slug,
       imageUrl: release.imageUrl ?? "",
+      fileUrl: release.fileUrl ?? "",
       excerpt: release.excerpt,
       body: release.body,
       published: release.published,
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
   const body = (await request.json()) as {
     title?: string;
     imageUrl?: string;
+    fileUrl?: string;
     excerpt?: string;
     body?: string;
     published?: boolean;
@@ -49,13 +51,14 @@ export async function POST(request: NextRequest) {
 
   const title = body.title?.trim() ?? "";
   const imageUrl = body.imageUrl?.trim() ?? "";
+  const fileUrl = body.fileUrl?.trim() ?? "";
   const excerpt = body.excerpt?.trim() ?? "";
   const content = body.body?.trim() ?? "";
   const published = Boolean(body.published);
 
-  if (!title || !imageUrl || !excerpt || !content) {
+  if (!title || !excerpt || !content) {
     return NextResponse.json(
-      { error: "Title, image, excerpt and body are required." },
+      { error: "Title, excerpt and body are required." },
       { status: 400 },
     );
   }
@@ -74,7 +77,8 @@ export async function POST(request: NextRequest) {
   const release = await PressReleaseModel.create({
     title,
     slug,
-    imageUrl,
+    imageUrl: imageUrl || undefined,
+    fileUrl: fileUrl || undefined,
     excerpt,
     body: content,
     published,
@@ -89,6 +93,7 @@ export async function POST(request: NextRequest) {
       title: release.title,
       slug: release.slug,
       imageUrl: release.imageUrl ?? "",
+      fileUrl: release.fileUrl ?? "",
       excerpt: release.excerpt,
       body: release.body,
       published: release.published,

@@ -42,7 +42,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f7f4] px-4 py-8">
-        <div className="w-full max-w-lg rounded-[18px] border border-black/10 bg-white p-8 text-center shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
+        <div className="w-full max-w-lg rounded-[8px] border border-black/10 bg-white p-8 text-center shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
           <h1 className="text-2xl font-semibold text-brand-black">Invalid reset link</h1>
           <p className="mt-2 text-sm text-black/65">This password reset link is missing a token.</p>
           <Link href="/admin/forgot-password" className="mt-5 inline-block text-sm font-semibold text-brand-green underline">
@@ -55,7 +55,7 @@ function ResetPasswordForm() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f7f4] px-4 py-8">
-      <div className="w-full max-w-lg overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
+      <div className="w-full max-w-lg overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
         <span aria-hidden="true" className="flex h-[3px]">
           <span className="h-full flex-1 bg-brand-green" />
           <span className="h-full flex-1 bg-brand-black" />
@@ -78,7 +78,7 @@ function ResetPasswordForm() {
                   required
                   minLength={8}
                   autoComplete="new-password"
-                  className="min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                  className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                   placeholder="At least 8 characters"
                 />
               </span>
@@ -94,7 +94,7 @@ function ResetPasswordForm() {
                   required
                   minLength={8}
                   autoComplete="new-password"
-                  className="min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                  className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                   placeholder="Repeat password"
                 />
               </span>
@@ -102,7 +102,7 @@ function ResetPasswordForm() {
 
             {message ? (
               <p
-                className={`rounded-[10px] px-3 py-2 text-sm ${
+                className={`rounded-[8px] px-3 py-2 text-sm ${
                   status === "done"
                     ? "border border-brand-green/25 bg-brand-green/8 text-brand-green"
                     : "border border-brand-red/25 bg-brand-red/5 text-brand-red"
@@ -115,7 +115,7 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={status === "loading" || status === "done"}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
             >
               {status === "loading" ? (
                 <>
@@ -143,7 +143,7 @@ function ResetPasswordForm() {
 function ResetPasswordFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f7f4] px-4 py-8">
-      <div className="w-full max-w-lg overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
+      <div className="w-full max-w-lg overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
         <span aria-hidden="true" className="flex h-[3px]">
           <span className="h-full flex-1 bg-brand-green" />
           <span className="h-full flex-1 bg-brand-black" />

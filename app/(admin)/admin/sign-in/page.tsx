@@ -40,7 +40,7 @@ export default function AdminSignInPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f7f4] px-4 py-8">
-      <div className="w-full max-w-lg overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
+      <div className="w-full max-w-lg overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_26px_50px_-28px_rgb(0_0_0/0.35)]">
         <span aria-hidden="true" className="flex h-[3px]">
           <span className="h-full flex-1 bg-brand-green" />
           <span className="h-full flex-1 bg-brand-black" />
@@ -62,7 +62,7 @@ export default function AdminSignInPage() {
                   type="email"
                   required
                   autoComplete="email"
-                  className="min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                  className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                   placeholder="admin@okmovement.ng"
                 />
               </span>
@@ -77,14 +77,14 @@ export default function AdminSignInPage() {
                   type="password"
                   required
                   autoComplete="current-password"
-                  className="min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                  className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                   placeholder="••••••••"
                 />
               </span>
             </label>
 
             {error ? (
-              <p className="rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-3 py-2 text-sm text-brand-red">
+              <p className="rounded-[8px] border border-brand-red/25 bg-brand-red/5 px-3 py-2 text-sm text-brand-red">
                 {error}
               </p>
             ) : null}
@@ -92,7 +92,7 @@ export default function AdminSignInPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>

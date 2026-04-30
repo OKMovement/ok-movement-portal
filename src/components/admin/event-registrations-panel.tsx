@@ -97,7 +97,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
 
   return (
     <div className="space-y-5">
-      <header className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
+      <header className="rounded-[8px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Event Details</p>
         <h2 className="mt-3 text-3xl font-semibold text-brand-black">{event?.title ?? "Event"}</h2>
         <p className="mt-2 text-sm text-black/65">
@@ -105,7 +105,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
         </p>
       </header>
 
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="border-b border-black/8 px-6 py-5">
           <h3 className="text-lg font-semibold text-brand-black">Add registrant</h3>
           <form
@@ -121,7 +121,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
               value={addForm.name}
               onChange={(event) => setAddForm((prev) => ({ ...prev, name: event.target.value }))}
               placeholder="Full name"
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             />
             <input
               name="email"
@@ -130,14 +130,14 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
               value={addForm.email}
               onChange={(event) => setAddForm((prev) => ({ ...prev, email: event.target.value }))}
               placeholder="Email"
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             />
             <input
               name="phone"
               value={addForm.phone}
               onChange={(event) => setAddForm((prev) => ({ ...prev, phone: event.target.value }))}
               placeholder="Phone (optional)"
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             />
             <select
               name="state"
@@ -145,7 +145,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
               onChange={(event) =>
                 setAddForm((prev) => ({ ...prev, state: event.target.value, lga: "" }))
               }
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 pr-10 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 pr-10 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             >
               <option value="">State (optional)</option>
               {nigeriaStateOptions.map((state) => (
@@ -159,7 +159,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
               value={addForm.lga}
               onChange={(event) => setAddForm((prev) => ({ ...prev, lga: event.target.value }))}
               disabled={!addForm.state}
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 pr-10 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 pr-10 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="">{addForm.state ? "LGA (optional)" : "Select state first"}</option>
               {addLgaOptions.map((lga) => (
@@ -173,14 +173,14 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
               value={addForm.notes}
               onChange={(event) => setAddForm((prev) => ({ ...prev, notes: event.target.value }))}
               placeholder="Notes (optional)"
-              className="min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              className="min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             />
             {addError ? <p className="text-sm text-brand-red md:col-span-2">{addError}</p> : null}
             <div className="md:col-span-2">
               <button
                 type="submit"
                 disabled={addStatus === "loading"}
-                className="inline-flex min-h-11 items-center justify-center rounded-[10px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex min-h-11 items-center justify-center rounded-[8px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {addStatus === "loading" ? "Adding..." : "Add registrant"}
               </button>

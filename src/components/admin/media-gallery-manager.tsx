@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import type { ChangeEvent } from "react";
+import { Eye, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 
 type MediaKind = "image" | "news" | "video";
 
@@ -21,9 +22,9 @@ type MediaItem = {
 };
 
 const inputClass =
-  "min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 const textareaClass =
-  "rounded-[10px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
 const initialForm = {
   id: "",
@@ -46,14 +47,21 @@ const kindLabels: Record<MediaKind, string> = {
   video: "Video",
 };
 
+const PAGE_SIZE = 10;
+
 export default function MediaGalleryManager() {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [togglingPublish, setTogglingPublish] = useState(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState(initialForm);
   const [filter, setFilter] = useState<MediaKind | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "form">("list");
+  const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   async function loadItems() {
     setLoading(true);
@@ -81,6 +89,26 @@ export default function MediaGalleryManager() {
     if (filter === "all") return items;
     return items.filter((item) => item.kind === filter);
   }, [items, filter]);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE)),
+    [filteredItems.length],
+  );
+
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -144,11 +172,13 @@ export default function MediaGalleryManager() {
     setViewMode("form");
   }
 
-  async function handleDelete(id: string) {
-    const confirmed = window.confirm("Delete this media item?");
+  async function handleDelete(item: MediaItem) {
+    const confirmed = window.confirm(
+      `Delete "${item.title}"? This action cannot be undone.`,
+    );
     if (!confirmed) return;
 
-    const response = await fetch(`/api/admin/media/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/admin/media/${item.id}`, { method: "DELETE" });
     if (!response.ok) {
       setError("Unable to delete media item.");
       return;
@@ -157,16 +187,85 @@ export default function MediaGalleryManager() {
     await loadItems();
   }
 
+  function getUploadContext(
+    kind: MediaKind,
+    target: "imageUrl" | "linkUrl",
+  ): "media-image" | "media-video" | "media-file" {
+    if (target === "imageUrl") return "media-image";
+    if (kind === "video") return "media-video";
+    if (kind === "news") return "media-file";
+    return "media-image";
+  }
+
+  async function uploadAndSetUrl(event: ChangeEvent<HTMLInputElement>, target: "imageUrl" | "linkUrl") {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const setUploading = target === "imageUrl" ? setUploadingThumbnail : setUploadingMedia;
+    setUploading(true);
+    setError("");
+
+    try {
+      const payload = new FormData();
+      payload.append("file", file);
+      payload.append("context", getUploadContext(form.kind, target));
+
+      const response = await fetch("/api/admin/uploads/image", {
+        method: "POST",
+        body: payload,
+      });
+
+      const data = (await response.json().catch(() => null)) as { asset?: { url?: string }; error?: string } | null;
+      const uploadedUrl = data?.asset?.url;
+
+      if (!response.ok || !uploadedUrl) {
+        setError(data?.error ?? "Unable to upload file.");
+        return;
+      }
+
+      setForm((prev) => ({ ...prev, [target]: uploadedUrl }));
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  function handlePreview(item: MediaItem) {
+    if (item.kind === "news") return;
+    setPreviewItem(item);
+  }
+
+  async function handleTogglePublishedFromModal() {
+    if (!form.id) return;
+
+    setTogglingPublish(true);
+    const response = await fetch(`/api/admin/media/${form.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPublished: !form.isPublished }),
+    });
+
+    if (!response.ok) {
+      setError("Unable to update publish status.");
+      setTogglingPublish(false);
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, isPublished: !prev.isPublished }));
+    await loadItems();
+    setTogglingPublish(false);
+  }
+
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-6 py-4">
           <h3 className="text-lg font-semibold text-brand-black">All media items</h3>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
+              className={`rounded-[8px] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
                 filter === "all" ? "bg-brand-black text-white" : "bg-black/8 text-black/65"
               }`}
             >
@@ -175,7 +274,7 @@ export default function MediaGalleryManager() {
             <button
               type="button"
               onClick={() => setFilter("image")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
+              className={`rounded-[8px] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
                 filter === "image" ? "bg-brand-black text-white" : "bg-black/8 text-black/65"
               }`}
             >
@@ -184,7 +283,7 @@ export default function MediaGalleryManager() {
             <button
               type="button"
               onClick={() => setFilter("news")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
+              className={`rounded-[8px] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
                 filter === "news" ? "bg-brand-black text-white" : "bg-black/8 text-black/65"
               }`}
             >
@@ -193,7 +292,7 @@ export default function MediaGalleryManager() {
             <button
               type="button"
               onClick={() => setFilter("video")}
-              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
+              className={`rounded-[8px] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${
                 filter === "video" ? "bg-brand-black text-white" : "bg-black/8 text-black/65"
               }`}
             >
@@ -202,7 +301,7 @@ export default function MediaGalleryManager() {
             <button
               type="button"
               onClick={handleCreateNew}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
             >
               <Plus className="h-4 w-4" />
               Create new
@@ -217,58 +316,142 @@ export default function MediaGalleryManager() {
         ) : filteredItems.length === 0 ? (
           <div className="px-6 py-8 text-sm text-black/60">No media items yet.</div>
         ) : (
-          <div className="divide-y divide-black/8">
-            {filteredItems.map((item) => (
-              <article key={item.id} className="px-6 py-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/55">
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse text-left">
+              <thead className="bg-black/[0.03]">
+                <tr className="text-[11px] uppercase tracking-[0.12em] text-black/60">
+                  <th className="px-6 py-3 font-semibold">Media</th>
+                  <th className="px-6 py-3 font-semibold">Type</th>
+                  <th className="px-6 py-3 font-semibold">Category</th>
+                  <th className="px-6 py-3 font-semibold">Status</th>
+                  <th className="px-6 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/8">
+                {paginatedItems.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="h-16 w-24 rounded-[8px] border border-black/10 object-cover"
+                          loading="lazy"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-brand-black">{item.title}</p>
+                          {item.excerpt ? (
+                            <p className="mt-1 max-w-md truncate text-xs text-black/60">{item.excerpt}</p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-semibold uppercase tracking-[0.12em] text-black/65">
                       {kindLabels[item.kind]}
-                    </p>
-                    <h4 className="mt-1 text-base font-semibold text-brand-black">{item.title}</h4>
-                    <p className="mt-1 text-xs text-black/60">{item.imageUrl}</p>
-                    {item.excerpt ? <p className="mt-2 text-sm text-black/70">{item.excerpt}</p> : null}
-                  </div>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      item.isPublished ? "bg-brand-green/10 text-brand-green" : "bg-black/8 text-black/65"
-                    }`}
-                  >
-                    {item.isPublished ? "Published" : "Draft"}
-                  </span>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(item)}
-                    className="inline-flex items-center gap-1 rounded-[8px] border border-black/12 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/70 transition hover:border-brand-green hover:text-brand-green"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    className="inline-flex items-center gap-1 rounded-[8px] border border-brand-red/25 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-red transition hover:bg-brand-red hover:text-white"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-black/70">{item.category || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold ${
+                          item.isPublished ? "bg-brand-green/10 text-brand-green" : "bg-black/8 text-black/65"
+                        }`}
+                      >
+                        {item.isPublished ? "Published" : "Draft"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handlePreview(item)}
+                          disabled={item.kind === "news"}
+                          className="inline-flex items-center gap-1 rounded-[8px] border border-black/12 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          Preview
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(item)}
+                          className="inline-flex items-center gap-1 rounded-[8px] border border-black/12 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/70 transition hover:border-brand-green hover:text-brand-green"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          className="inline-flex items-center gap-1 rounded-[8px] border border-brand-red/25 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-red transition hover:bg-brand-red hover:text-white"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/8 px-6 py-4">
+              <p className="text-xs text-black/60">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredItems.length)} of{" "}
+                {filteredItems.length}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Prev
+                </button>
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-black/65">
+                  Page {currentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </section>
 
       {viewMode === "form" ? (
-        <section className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Media Gallery</p>
-          <h2 className="mt-3 text-3xl font-semibold text-brand-black">
-            {form.id ? "Edit media item" : "Create media item"}
-          </h2>
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-5xl overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
+            <div className="flex items-center justify-between border-b border-black/8 px-6 py-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Media Gallery</p>
+                <h2 className="mt-2 text-2xl font-semibold text-brand-black">
+                  {form.id ? "Edit media item" : "Create media item"}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(initialForm);
+                  setViewMode("list");
+                }}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-black/12 text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                aria-label="Close media form"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="max-h-[78vh] overflow-y-auto px-6 py-6">
+              <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-1.5">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">Type</span>
               <select
@@ -311,6 +494,26 @@ export default function MediaGalleryManager() {
                 className={inputClass}
                 placeholder="https://..."
               />
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-[8px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
+                  {uploadingThumbnail ? "Uploading..." : "Upload thumbnail"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => uploadAndSetUrl(event, "imageUrl")}
+                    disabled={uploadingThumbnail}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-xs text-black/55">PNG, JPG, WEBP up to 20MB</span>
+              </div>
+              {form.imageUrl ? (
+                <img
+                  src={form.imageUrl}
+                  alt="Media preview"
+                  className="mt-1 h-40 w-full rounded-[8px] border border-black/10 object-cover sm:w-64"
+                />
+              ) : null}
             </label>
 
             <label className="grid gap-1.5 md:col-span-2">
@@ -356,13 +559,30 @@ export default function MediaGalleryManager() {
             </label>
 
             <label className="grid gap-1.5 md:col-span-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">External Link URL</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">
+                {form.kind === "video" ? "Video URL" : form.kind === "news" ? "Article / File URL" : "External Link URL"}
+              </span>
               <input
                 value={form.linkUrl}
                 onChange={(event) => setForm((prev) => ({ ...prev, linkUrl: event.target.value }))}
                 className={inputClass}
                 placeholder="https://..."
               />
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-[8px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
+                  {uploadingMedia ? "Uploading..." : form.kind === "video" ? "Upload video" : "Upload file"}
+                  <input
+                    type="file"
+                    accept={form.kind === "video" ? "video/*" : ".pdf,.doc,.docx,.txt,.ppt,.pptx"}
+                    onChange={(event) => uploadAndSetUrl(event, "linkUrl")}
+                    disabled={uploadingMedia}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-xs text-black/55">
+                  {form.kind === "video" ? "MP4/MOV up to 100MB" : "PDF, DOC, DOCX, TXT, PPT up to 20MB"}
+                </span>
+              </div>
             </label>
 
             <label className="grid gap-1.5">
@@ -380,7 +600,7 @@ export default function MediaGalleryManager() {
                 type="checkbox"
                 checked={form.isPublished}
                 onChange={(event) => setForm((prev) => ({ ...prev, isPublished: event.target.checked }))}
-                className="h-4 w-4 rounded border-black/20 text-brand-green"
+                className="h-4 w-4 rounded-[8px] border-black/20 text-brand-green"
               />
               Published
             </label>
@@ -388,10 +608,25 @@ export default function MediaGalleryManager() {
             {error ? <p className="text-sm text-brand-red md:col-span-2">{error}</p> : null}
 
             <div className="flex flex-wrap gap-3 md:col-span-2">
+              {form.id ? (
+                <button
+                  type="button"
+                  onClick={handleTogglePublishedFromModal}
+                  disabled={togglingPublish}
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] border px-5 text-sm font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-70 ${
+                    form.isPublished
+                      ? "border-brand-red/25 text-brand-red hover:bg-brand-red hover:text-white"
+                      : "border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white"
+                  }`}
+                >
+                  {togglingPublish ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {form.isPublished ? "Unpublish" : "Publish"}
+                </button>
+              ) : null}
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {form.id ? "Update" : "Create"}
@@ -402,13 +637,58 @@ export default function MediaGalleryManager() {
                   setForm(initialForm);
                   setViewMode("list");
                 }}
-                className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
               >
                 Cancel
               </button>
             </div>
-          </form>
-        </section>
+              </form>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {previewItem ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-4xl rounded-[8px] border border-black/10 bg-white p-4 shadow-[0_30px_60px_-24px_rgb(0_0_0/0.5)]">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/55">
+                  {kindLabels[previewItem.kind]}
+                </p>
+                <h3 className="text-base font-semibold text-brand-black">{previewItem.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewItem(null)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-black/12 text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                aria-label="Close preview"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {previewItem.kind === "video" ? (
+              previewItem.linkUrl ? (
+                <video
+                  src={previewItem.linkUrl}
+                  controls
+                  className="h-auto max-h-[70vh] w-full rounded-[8px] border border-black/10 bg-black"
+                />
+              ) : (
+                <p className="rounded-[8px] border border-black/10 bg-black/5 p-4 text-sm text-black/65">
+                  No video URL attached for this item.
+                </p>
+              )
+            ) : (
+              <img
+                src={previewItem.imageUrl}
+                alt={previewItem.title}
+                className="h-auto max-h-[70vh] w-full rounded-[8px] border border-black/10 object-contain"
+              />
+            )}
+          </div>
+        </div>
       ) : null}
     </div>
   );

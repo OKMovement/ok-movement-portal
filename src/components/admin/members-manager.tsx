@@ -146,14 +146,14 @@ export default function MembersManager() {
 
   return (
     <>
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
           <h3 className="text-lg font-semibold text-brand-black">Members</h3>
           <button
             type="button"
             onClick={handleExportCsv}
             disabled={loading || members.length === 0}
-            className="inline-flex min-h-10 items-center justify-center rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
           >
             Export CSV
           </button>
@@ -195,7 +195,7 @@ export default function MembersManager() {
                       <td className="px-4 py-3 text-black/70">{member.email}</td>
                       <td className="px-4 py-3 text-black/70">{member.phone}</td>
                       <td className="px-4 py-3">
-                        <span className="rounded-full bg-brand-green/10 px-2.5 py-1 text-xs font-semibold text-brand-green">
+                        <span className="rounded-[8px] bg-brand-green/10 px-2.5 py-1 text-xs font-semibold text-brand-green">
                           {member.engagement}
                         </span>
                       </td>
@@ -220,7 +220,7 @@ export default function MembersManager() {
 
       {selected ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
-          <div className="w-full max-w-lg rounded-[16px] border border-black/10 bg-white p-5 shadow-[0_26px_46px_-24px_rgb(0_0_0/0.5)]">
+          <div className="w-full max-w-lg rounded-[8px] border border-black/10 bg-white p-5 shadow-[0_26px_46px_-24px_rgb(0_0_0/0.5)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-red">
@@ -268,7 +268,7 @@ export default function MembersManager() {
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="inline-flex min-h-10 items-center justify-center rounded-[10px] border border-black/15 px-4 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-black/30"
+                className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-black/15 px-4 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-black/30"
               >
                 Close
               </button>
@@ -276,7 +276,7 @@ export default function MembersManager() {
                 type="button"
                 onClick={handleDeleteMember}
                 disabled={deleting}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-red px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-red px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
               >
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Delete member

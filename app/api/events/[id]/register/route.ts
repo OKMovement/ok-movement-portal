@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { EventModel } from "@/lib/models/event";
 import { EventRegistrationModel } from "@/lib/models/event-registration";
+import { sendEventRegistrationConfirmationEmail } from "@/lib/server/mailer";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -52,6 +53,19 @@ export async function POST(request: NextRequest, { params }: Params) {
       state: body.state?.trim() || undefined,
       lga: body.lga?.trim() || undefined,
       notes: body.notes?.trim() || undefined,
+    });
+
+    const eventTime = [event.startTime, event.endTime].filter(Boolean).join(" - ");
+    const venueOrLink = event.address?.trim() || event.venue?.trim() || "To be announced";
+    sendEventRegistrationConfirmationEmail({
+      name,
+      email,
+      eventName: event.title,
+      eventDate: event.date,
+      eventTime: eventTime || "To be announced",
+      venueOrLink,
+    }).catch((mailError) => {
+      console.error("Failed to send event registration confirmation email:", mailError);
     });
 
     return NextResponse.json({

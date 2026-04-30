@@ -25,9 +25,9 @@ type EventItem = {
 };
 
 const inputClass =
-  "min-h-11 rounded-[10px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "min-h-11 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 const textareaClass =
-  "rounded-[10px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+  "rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
 const initialForm = {
   id: "",
@@ -179,13 +179,13 @@ export default function EventsManager() {
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+      <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-6 py-4">
           <h3 className="text-lg font-semibold text-brand-black">All events</h3>
           <button
             type="button"
             onClick={handleCreateNew}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green"
           >
             <Plus className="h-4 w-4" />
             Create new
@@ -215,7 +215,7 @@ export default function EventsManager() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold ${
                         item.registrationOpen
                           ? "bg-brand-green/10 text-brand-green"
                           : "bg-brand-red/10 text-brand-red"
@@ -261,7 +261,7 @@ export default function EventsManager() {
       </section>
 
       {viewMode === "form" ? (
-        <section className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
+        <section className="rounded-[8px] border border-black/10 bg-white px-6 py-6 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Events</p>
           <h2 className="mt-3 text-3xl font-semibold text-brand-black">{form.id ? "Edit event" : "Create event"}</h2>
 
@@ -418,7 +418,7 @@ export default function EventsManager() {
                 placeholder="https://..."
               />
               <div className="flex flex-wrap items-center gap-3">
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-[10px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-[8px] border border-black/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-brand-green hover:text-brand-green">
                   {uploadingFlier ? "Uploading..." : "Upload from device"}
                   <input
                     type="file"
@@ -434,7 +434,7 @@ export default function EventsManager() {
                 <img
                   src={form.flierImageUrl}
                   alt="Event flier preview"
-                  className="mt-1 h-40 w-full rounded-[10px] border border-black/10 object-cover sm:w-64"
+                  className="mt-1 h-40 w-full rounded-[8px] border border-black/10 object-cover sm:w-64"
                 />
               ) : null}
             </label>
@@ -457,7 +457,7 @@ export default function EventsManager() {
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, registrationOpen: event.target.checked }))
                 }
-                className="h-4 w-4 rounded border-black/20 text-brand-green"
+                className="h-4 w-4 rounded-[8px] border-black/20 text-brand-green"
               />
               Keep registration open
             </label>
@@ -468,7 +468,7 @@ export default function EventsManager() {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[8px] bg-brand-black px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {form.id ? "Update" : "Create"}
@@ -479,7 +479,7 @@ export default function EventsManager() {
                   setForm(initialForm);
                   setViewMode("list");
                 }}
-                className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
+                className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-black/15 px-5 text-sm font-semibold uppercase tracking-[0.16em] text-black/70 transition hover:border-brand-red hover:text-brand-red"
               >
                 Cancel
               </button>

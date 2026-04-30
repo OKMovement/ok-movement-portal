@@ -6,18 +6,21 @@ type CloudinaryConfig = {
   apiSecret: string;
 };
 
-type UploadImageArgs = {
+type UploadAssetArgs = {
   file: File;
   folder?: string;
+  resourceType?: "image" | "video" | "raw" | "auto";
 };
 
-type CloudinaryUploadResult = {
+export type CloudinaryUploadResult = {
   secureUrl: string;
   publicId: string;
   width?: number;
   height?: number;
   format?: string;
   bytes?: number;
+  resourceType?: string;
+  originalFilename?: string;
 };
 
 function getCloudinaryConfig(): CloudinaryConfig {
@@ -61,13 +64,15 @@ function createSignature(
     .digest("hex");
 }
 
-export async function uploadImageToCloudinary({
+export async function uploadAssetToCloudinary({
   file,
   folder,
-}: UploadImageArgs): Promise<CloudinaryUploadResult> {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image uploads are allowed.");
-  }
+  resourceType = "auto",
+}: UploadAssetArgs): Promise<CloudinaryUploadResult> {
+  const normalizedResourceType =
+    resourceType === "image" || resourceType === "video" || resourceType === "raw" || resourceType === "auto"
+      ? resourceType
+      : "auto";
 
   const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
   const timestamp = Math.floor(Date.now() / 1000);
@@ -86,10 +91,13 @@ export async function uploadImageToCloudinary({
     body.append("folder", folder);
   }
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-    method: "POST",
-    body,
-  });
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/${normalizedResourceType}/upload`,
+    {
+      method: "POST",
+      body,
+    },
+  );
 
   const data = (await response.json().catch(() => null)) as
     | {
@@ -99,6 +107,8 @@ export async function uploadImageToCloudinary({
         height?: number;
         format?: string;
         bytes?: number;
+        resource_type?: string;
+        original_filename?: string;
         error?: { message?: string };
       }
     | null;
@@ -115,5 +125,18 @@ export async function uploadImageToCloudinary({
     height: data.height,
     format: data.format,
     bytes: data.bytes,
+    resourceType: data.resource_type,
+    originalFilename: data.original_filename,
   };
+}
+
+export async function uploadImageToCloudinary({
+  file,
+  folder,
+}: Omit<UploadAssetArgs, "resourceType">): Promise<CloudinaryUploadResult> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only image uploads are allowed.");
+  }
+
+  return uploadAssetToCloudinary({ file, folder, resourceType: "image" });
 }

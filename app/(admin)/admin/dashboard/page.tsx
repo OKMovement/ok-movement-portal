@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <>
-      <header className="rounded-[18px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
+      <header className="rounded-[8px] border border-black/10 bg-white px-6 py-6 shadow-[0_22px_38px_-24px_rgb(0_0_0/0.34)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">Overview</p>
         <h2 className="mt-3 text-3xl font-semibold text-brand-black">Dashboard</h2>
         <p className="mt-2 text-sm text-black/65">
@@ -78,9 +78,9 @@ export default async function AdminDashboardPage() {
             <Link
               href={card.href}
               key={card.label}
-              className="rounded-[16px] border border-black/10 bg-white p-5 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_40px_-22px_rgb(0_0_0/0.32)]"
+              className="rounded-[8px] border border-black/10 bg-white p-5 shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_40px_-22px_rgb(0_0_0/0.32)]"
             >
-              <span className={`inline-flex h-11 w-11 items-center justify-center rounded-full ${card.tone}`}>
+              <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[8px] ${card.tone}`}>
                 <Icon className="h-5 w-5" />
               </span>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-black/55">{card.label}</p>
