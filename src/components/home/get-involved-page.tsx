@@ -74,6 +74,8 @@ function pillarTone(tone: "green" | "red" | "black") {
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
+const phoneValidationRegex = /^\+?[0-9]{10,15}$/;
+
 const getInvolvedSchema = z
   .object({
     engagement: z.enum([
@@ -84,7 +86,14 @@ const getInvolvedSchema = z
     ]),
     name: z.string().trim().min(1, "Full name is required."),
     email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
-    phone: z.string().trim().min(1, "Telephone / WhatsApp number is required."),
+    phone: z
+      .string()
+      .trim()
+      .min(1, "Telephone / WhatsApp number is required.")
+      .refine(
+        (value) => phoneValidationRegex.test(value.replace(/[()\s.-]/g, "")),
+        "Enter a valid phone number (10-15 digits).",
+      ),
     isDiaspora: z.boolean(),
     country: z.string().trim(),
     votingState: z.string().trim(),

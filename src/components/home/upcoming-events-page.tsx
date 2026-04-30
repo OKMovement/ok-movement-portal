@@ -33,7 +33,6 @@ import {
   eventTypeMeta,
   eventTypes,
   fiveCs,
-  upcomingEvents,
   type DateRangeKey,
   type EventType,
   type UpcomingEvent,
@@ -257,6 +256,99 @@ type FilterState = {
   type: EventType | "all";
   range: DateRangeKey;
 };
+
+type PublicEventApiItem = {
+  id: string;
+  title: string;
+  type: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  city: string;
+  state: string;
+  lga: string;
+  venue: string;
+  address: string;
+  why: string;
+  capacity: number;
+  registrationOpen: boolean;
+  registrationsCount: number;
+};
+
+const fallbackByType: Record<EventType, { fiveC: UpcomingEvent["fiveC"]; language: string }> = {
+  "Town Hall": { fiveC: "Character", language: "English / Pidgin" },
+  "Grassroots Training": { fiveC: "Capacity", language: "English / Hausa" },
+  "Support Group": { fiveC: "Compassion", language: "English / Local language" },
+  "Voter Education": { fiveC: "Competence", language: "English / Local language" },
+  "Campaign Rally": { fiveC: "Commitment", language: "English / Local language" },
+};
+
+function toKnownEventType(value: string): EventType {
+  return eventTypes.includes(value as EventType) ? (value as EventType) : "Town Hall";
+}
+
+function parseDurationLabel(startTime: string, endTime: string) {
+  const matchTime = (value: string) => {
+    const match = value.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return null;
+    const hours12 = Number(match[1]);
+    const minutes = Number(match[2]);
+    const period = match[3].toUpperCase();
+    if (!Number.isFinite(hours12) || !Number.isFinite(minutes)) return null;
+    const hours24 = (hours12 % 12) + (period === "PM" ? 12 : 0);
+    return { hours24, minutes };
+  };
+
+  const start = matchTime(startTime);
+  const end = matchTime(endTime);
+  if (!start || !end) return "TBD";
+  let totalMinutes = end.hours24 * 60 + end.minutes - (start.hours24 * 60 + start.minutes);
+  if (totalMinutes <= 0) totalMinutes += 24 * 60;
+
+  if (totalMinutes % 60 === 0) {
+    const hours = totalMinutes / 60;
+    return `${hours} hr${hours === 1 ? "" : "s"}`;
+  }
+  return `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
+}
+
+function mapApiEventToUpcomingEvent(
+  item: PublicEventApiItem,
+  index: number,
+): UpcomingEvent {
+  const type = toKnownEventType(item.type);
+  const fallback = fallbackByType[type];
+  const cleanedWhy = item.why.trim();
+  const safeWhy = cleanedWhy || "Join fellow citizens for civic engagement and leadership accountability.";
+
+  return {
+    id: item.id,
+    title: item.title,
+    type,
+    date: item.date,
+    startTime: item.startTime,
+    endTime: item.endTime,
+    durationLabel: parseDurationLabel(item.startTime, item.endTime),
+    city: item.city,
+    state: item.state,
+    lga: item.lga,
+    venue: item.venue,
+    address: item.address,
+    why: safeWhy,
+    fiveC: fallback.fiveC,
+    capacity: item.capacity,
+    registered: item.registrationsCount,
+    highlights: [
+      "Citizen-focused policy engagement",
+      "Community organising and mobilisation",
+      "Action points for local follow-through",
+    ],
+    speakers: [],
+    language: fallback.language,
+    featured: index === 0,
+    imageQuery: `${item.city} ${item.state} community event`,
+  };
+}
 
 function CapacityBar({ event }: { event: UpcomingEvent }) {
   const pct = Math.min(100, Math.round((event.registered / event.capacity) * 100));
@@ -1039,6 +1131,9 @@ function RsvpModal({
 /* ----------------------------------------------------------------- */
 
 export default function UpcomingEventsPage() {
+  const [events, setEvents] = useState<UpcomingEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [eventsError, setEventsError] = useState("");
   const [filters, setFilters] = useState<FilterState>({
     query: "",
     type: "all",
@@ -1050,14 +1145,45 @@ export default function UpcomingEventsPage() {
     "idle",
   );
 
+  useEffect(() => {
+    const loadEvents = async () => {
+      setLoadingEvents(true);
+      setEventsError("");
+
+      try {
+        const response = await fetch("/api/events", { cache: "no-store" });
+        const data = (await response.json().catch(() => null)) as
+          | { events?: PublicEventApiItem[]; error?: string }
+          | null;
+
+        if (!response.ok) {
+          setEventsError(data?.error ?? "Unable to load upcoming events right now.");
+          setEvents([]);
+          setLoadingEvents(false);
+          return;
+        }
+
+        const items = data?.events ?? [];
+        setEvents(items.map((item, index) => mapApiEventToUpcomingEvent(item, index)));
+      } catch {
+        setEventsError("Unable to load upcoming events right now.");
+        setEvents([]);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
   const featured = useMemo(
-    () => upcomingEvents.find((e) => e.featured) ?? upcomingEvents[0],
-    [],
+    () => events.find((e) => e.featured) ?? events[0] ?? null,
+    [events],
   );
 
   const visibleEvents = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
-    return upcomingEvents
+    return events
       .filter((event) => {
         if (filters.type !== "all" && event.type !== filters.type) return false;
         if (!inDateRange(event.date, filters.range)) return false;
@@ -1074,7 +1200,7 @@ export default function UpcomingEventsPage() {
         (a, b) =>
           parseEventDate(a.date).getTime() - parseEventDate(b.date).getTime(),
       );
-  }, [filters]);
+  }, [events, filters]);
 
   const handleUseMyLocation = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -1318,7 +1444,7 @@ export default function UpcomingEventsPage() {
                 <span className="font-semibold text-brand-black">
                   {visibleEvents.length}
                 </span>{" "}
-                of {upcomingEvents.length} upcoming events
+                of {events.length} upcoming events
                 {hasFilters ? " for your filters" : ""}.
               </p>
               <div className="flex items-center gap-3">
@@ -1364,7 +1490,26 @@ export default function UpcomingEventsPage() {
               </h2>
             </div>
           </div>
-          <FeaturedEvent event={featured} onRsvp={setActiveEvent} />
+          {loadingEvents ? (
+            <div className="rounded-[18px] border border-black/10 bg-white p-10 text-center">
+              <p className="inline-flex items-center gap-2 text-sm text-black/65">
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                Loading featured event...
+              </p>
+            </div>
+          ) : eventsError ? (
+            <div className="rounded-[18px] border border-brand-red/20 bg-brand-red/5 p-10 text-center">
+              <p className="text-sm text-brand-red">{eventsError}</p>
+            </div>
+          ) : featured ? (
+            <FeaturedEvent event={featured} onRsvp={setActiveEvent} />
+          ) : (
+            <div className="rounded-[18px] border border-dashed border-black/15 bg-white p-10 text-center">
+              <p className="text-sm text-black/65">
+                No upcoming events yet. Create one from the admin dashboard and it will appear here.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1392,7 +1537,18 @@ export default function UpcomingEventsPage() {
             </p>
           </div>
 
-          {visibleEvents.length === 0 ? (
+          {loadingEvents ? (
+            <div className="mt-12 rounded-[18px] border border-black/10 bg-[#f7f7f4] p-10 text-center sm:p-14">
+              <p className="inline-flex items-center gap-2 text-sm text-black/65">
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                Loading upcoming events...
+              </p>
+            </div>
+          ) : eventsError ? (
+            <div className="mt-12 rounded-[18px] border border-brand-red/20 bg-brand-red/5 p-10 text-center sm:p-14">
+              <p className="text-sm text-brand-red">{eventsError}</p>
+            </div>
+          ) : visibleEvents.length === 0 ? (
             <div className="mt-12 rounded-[18px] border border-dashed border-black/15 bg-[#f7f7f4] p-10 text-center sm:p-14">
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">
                 No matches
