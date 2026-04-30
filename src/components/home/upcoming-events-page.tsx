@@ -692,9 +692,11 @@ type RsvpStatus = "idle" | "sending" | "sent";
 function RsvpModal({
   event,
   onClose,
+  onRegistrationSuccess,
 }: {
   event: UpcomingEvent;
   onClose: () => void;
+  onRegistrationSuccess: (eventId: string) => void;
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -703,6 +705,7 @@ function RsvpModal({
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [organise, setOrganise] = useState(false);
   const [status, setStatus] = useState<RsvpStatus>("idle");
+  const [submitError, setSubmitError] = useState("");
   const [copied, setCopied] = useState(false);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -758,10 +761,43 @@ function RsvpModal({
     };
   }, [onClose]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("sending");
-    window.setTimeout(() => setStatus("sent"), 900);
+    setSubmitError("");
+
+    const notes: string[] = [];
+    if (organise) notes.push("Interested in helping to organise this event.");
+    if (smsOptIn) notes.push("Requested SMS/WhatsApp reminder.");
+
+    try {
+      const response = await fetch(`/api/events/${event.id}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone: phone.trim() || undefined,
+          state: event.state,
+          lga: lga.trim(),
+          notes: notes.join(" "),
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+
+      if (!response.ok) {
+        setSubmitError(data?.error ?? "Unable to complete registration right now.");
+        setStatus("idle");
+        return;
+      }
+
+      setStatus("sent");
+      onRegistrationSuccess(event.id);
+    } catch {
+      setSubmitError("Unable to complete registration right now.");
+      setStatus("idle");
+    }
   };
 
   const handleCopy = async () => {
@@ -1090,6 +1126,11 @@ function RsvpModal({
                   date.
                 </p>
               )}
+              {submitError ? (
+                <p className="mt-5 rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
+                  {submitError}
+                </p>
+              ) : null}
 
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-black/8 pt-6">
                 <p className="text-xs leading-relaxed text-black/55">
@@ -1218,6 +1259,21 @@ export default function UpcomingEventsPage() {
     setFilters({ query: "", type: "all", range: "all" });
   const hasFilters =
     filters.query !== "" || filters.type !== "all" || filters.range !== "all";
+
+  const handleRegistrationSuccess = (eventId: string) => {
+    setEvents((prev) =>
+      prev.map((item) =>
+        item.id === eventId
+          ? { ...item, registered: Math.min(item.capacity, item.registered + 1) }
+          : item,
+      ),
+    );
+    setActiveEvent((prev) =>
+      prev && prev.id === eventId
+        ? { ...prev, registered: Math.min(prev.capacity, prev.registered + 1) }
+        : prev,
+    );
+  };
 
   return (
     <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
@@ -1871,7 +1927,11 @@ export default function UpcomingEventsPage() {
       <HomeFooterSection />
 
       {activeEvent && (
-        <RsvpModal event={activeEvent} onClose={() => setActiveEvent(null)} />
+        <RsvpModal
+          event={activeEvent}
+          onClose={() => setActiveEvent(null)}
+          onRegistrationSuccess={handleRegistrationSuccess}
+        />
       )}
     </main>
   );
