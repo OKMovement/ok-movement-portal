@@ -17,7 +17,11 @@ type MemberItem = {
   createdAt: string | Date;
 };
 
-export default function MembersManager() {
+type MembersManagerProps = {
+  donationsOnly?: boolean;
+};
+
+export default function MembersManager({ donationsOnly = false }: MembersManagerProps) {
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,9 +97,13 @@ export default function MembersManager() {
     return [member.votingState, member.votingLga, member.votingWard].filter(Boolean).join(", ");
   }
 
+  const displayedMembers = members.filter((member) =>
+    donationsOnly ? /donate/i.test(member.engagement) : true,
+  );
+
   function handleExportCsv() {
-    if (members.length === 0) {
-      setError("No members to export yet.");
+    if (displayedMembers.length === 0) {
+      setError(donationsOnly ? "No donation submissions to export yet." : "No members to export yet.");
       return;
     }
 
@@ -113,7 +121,7 @@ export default function MembersManager() {
       "Submitted At",
     ];
 
-    const rows = members.map((member) => [
+    const rows = displayedMembers.map((member) => [
       member.name,
       member.email,
       member.phone,
@@ -137,7 +145,9 @@ export default function MembersManager() {
     const link = document.createElement("a");
     const dateLabel = new Date().toISOString().slice(0, 10);
     link.href = url;
-    link.download = `ok-movement-members-${dateLabel}.csv`;
+    link.download = donationsOnly
+      ? `ok-movement-donations-${dateLabel}.csv`
+      : `ok-movement-members-${dateLabel}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -152,7 +162,7 @@ export default function MembersManager() {
           <button
             type="button"
             onClick={handleExportCsv}
-            disabled={loading || members.length === 0}
+            disabled={loading || displayedMembers.length === 0}
             className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
           >
             Export CSV
@@ -178,8 +188,8 @@ export default function MembersManager() {
                     Loading members...
                   </td>
                 </tr>
-              ) : members.length > 0 ? (
-                members.map((member) => {
+              ) : displayedMembers.length > 0 ? (
+                displayedMembers.map((member) => {
                   const location = resolveLocation(member);
 
                   return (
@@ -209,7 +219,7 @@ export default function MembersManager() {
               ) : (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
-                    No members yet.
+                    {donationsOnly ? "No donation submissions yet." : "No members yet."}
                   </td>
                 </tr>
               )}
