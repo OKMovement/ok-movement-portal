@@ -6,7 +6,6 @@ import {
   CalendarDays,
   ImageIcon,
   Newspaper,
-  Play,
   Video as VideoIcon,
 } from "lucide-react";
 import HomeSiteHeader from "@/components/home/home-site-header";
@@ -56,7 +55,7 @@ type VideoCard = {
   thumbnail: string;
   category: string;
   duration: string;
-  href: string;
+  videoUrl: string;
 };
 
 const FALLBACK_IMAGE = "/images/new-logo.png";
@@ -325,46 +324,31 @@ function VideosTab({ videos }: { videos: VideoCard[] }) {
           key={video.id}
           className="group flex flex-col overflow-hidden rounded-[14px] border border-black/8 bg-white shadow-[0_16px_32px_-22px_rgb(0_0_0/0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-22px_rgb(0_0_0/0.45)]"
         >
-          {video.href ? (
-            <a
-              href={video.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Play video: ${video.title}`}
-              className="relative block aspect-video w-full overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
-            >
+          <div className="relative block aspect-video w-full overflow-hidden bg-black">
+            {video.videoUrl ? (
+              <video
+                src={video.videoUrl}
+                poster={video.thumbnail}
+                controls
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-cover"
+              />
+            ) : (
               <img
                 src={video.thumbnail}
                 alt={video.title}
                 loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.05]"
+                className="h-full w-full object-cover"
               />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-brand-black/70 via-brand-black/15 to-transparent"
-              />
-              <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-black">
-                {video.category || "Video"}
-              </span>
-              <span className="absolute right-4 top-4 inline-flex items-center rounded-full bg-brand-black/80 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] text-white">
-                {video.duration || "--:--"}
-              </span>
-              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
-                <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-brand-green shadow-[0_14px_28px_-10px_rgb(0_0_0/0.6)] transition group-hover:scale-110 group-hover:bg-white">
-                  <Play className="ml-0.5 h-6 w-6 fill-current" aria-hidden="true" />
-                </span>
-              </span>
-            </a>
-          ) : (
-            <div className="relative block aspect-video w-full overflow-hidden">
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </div>
-          )}
+            )}
+            <span className="pointer-events-none absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-black">
+              {video.category || "Video"}
+            </span>
+            <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center rounded-full bg-brand-black/80 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] text-white">
+              {video.duration || "--:--"}
+            </span>
+          </div>
 
           <div className="flex flex-1 flex-col gap-2 p-5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-red">OK Movement</p>
@@ -446,7 +430,7 @@ export default function MediaGalleryPage() {
           thumbnail: item.imageUrl || FALLBACK_IMAGE,
           category: item.category,
           duration: item.duration,
-          href: item.linkUrl,
+          videoUrl: item.linkUrl,
         })),
     [mediaItems],
   );

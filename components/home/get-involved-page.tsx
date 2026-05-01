@@ -715,7 +715,7 @@ export default function GetInvolvedPage() {
               </span>
             </a>
             <a
-              href="tel:+2348000652027"
+              href="tel:+2349099999361"
               className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-red hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red/10 text-brand-red group-hover:bg-white/20 group-hover:text-white">
@@ -725,7 +725,7 @@ export default function GetInvolvedPage() {
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">
                   Phone
                 </span>
-                <span className="text-sm font-medium">+234 (0) 800 OK-2027</span>
+                <span className="text-sm font-medium">+234 909 999 9361"</span>
               </span>
             </a>
             <a

@@ -19,6 +19,10 @@ type DonationAdminNotificationArgs = {
   email: string;
   phone: string;
   engagement: string;
+  donationType?: "cash" | "materials";
+  donationAmount?: number;
+  donationMaterial?: "campaign-flyers" | "campaign-cap" | "campaign-tshirt" | "campaign-wraist-band" | "other";
+  donationMaterialOther?: string;
   isDiaspora: boolean;
   country?: string;
   votingState?: string;
@@ -48,6 +52,21 @@ function toEngagementKey(engagement: string) {
     return "volunteer-support-group" as const;
   }
   return "volunteer-individual" as const;
+}
+
+function toDonationMaterialLabel(
+  donationMaterial: DonationAdminNotificationArgs["donationMaterial"],
+  donationMaterialOther?: string,
+) {
+  if (!donationMaterial) return "Not specified";
+  if (donationMaterial === "campaign-flyers") return "Campaign Flyers";
+  if (donationMaterial === "campaign-cap") return "Campaign Cap";
+  if (donationMaterial === "campaign-tshirt") return "Campaign T- Shirt";
+  if (donationMaterial === "campaign-wraist-band") return "Campaign Wraist Band";
+  if (donationMaterial === "other") {
+    return donationMaterialOther ? `Other (${donationMaterialOther})` : "Other";
+  }
+  return "Not specified";
 }
 
 function getMailerConfig() {
@@ -269,6 +288,10 @@ export async function sendDonationAdminNotificationEmail(
     email,
     phone,
     engagement,
+    donationType,
+    donationAmount,
+    donationMaterial,
+    donationMaterialOther,
     isDiaspora,
     country,
     votingState,
@@ -301,6 +324,14 @@ export async function sendDonationAdminNotificationEmail(
   const safeEmail = escapeHtml(email);
   const safePhone = escapeHtml(phone);
   const safeEngagement = escapeHtml(engagement);
+  const safeDonationType = donationType ? escapeHtml(donationType) : "Not specified";
+  const donationAmountText =
+    typeof donationAmount === "number" && Number.isFinite(donationAmount)
+      ? donationAmount.toLocaleString("en-NG")
+      : "Not specified";
+  const materialText = toDonationMaterialLabel(donationMaterial, donationMaterialOther);
+  const safeDonationAmount = escapeHtml(donationAmountText);
+  const safeDonationMaterial = escapeHtml(materialText);
   const safeLocationText = escapeHtml(locationText);
 
   await Promise.allSettled(
@@ -314,6 +345,9 @@ Name: ${name}
 Email: ${email}
 Phone: ${phone}
 Engagement: ${engagement}
+Donation Type: ${donationType ?? "Not specified"}
+Donation Amount: ${donationAmountText}
+Donation Material: ${materialText}
 Location: ${locationText}`,
         html: `
           <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
@@ -327,6 +361,9 @@ Location: ${locationText}`,
                 <p style="margin:0 0 10px; line-height:1.7;"><strong>Email:</strong> ${safeEmail}</p>
                 <p style="margin:0 0 10px; line-height:1.7;"><strong>Phone:</strong> ${safePhone}</p>
                 <p style="margin:0 0 10px; line-height:1.7;"><strong>Engagement:</strong> ${safeEngagement}</p>
+                <p style="margin:0 0 10px; line-height:1.7;"><strong>Donation Type:</strong> ${safeDonationType}</p>
+                <p style="margin:0 0 10px; line-height:1.7;"><strong>Donation Amount:</strong> ${safeDonationAmount}</p>
+                <p style="margin:0 0 10px; line-height:1.7;"><strong>Donation Material:</strong> ${safeDonationMaterial}</p>
                 <p style="margin:0; line-height:1.7;"><strong>Location:</strong> ${safeLocationText}</p>
               </div>
             </div>

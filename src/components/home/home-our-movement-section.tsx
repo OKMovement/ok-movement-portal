@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { homeIssuesSection, homeMovementSection } from "./home-data";
 
@@ -11,7 +12,53 @@ const pillars = [
   "Commitment",
 ] as const;
 
+type CampaignVideo = {
+  id: string;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+};
+
 export default function HomeOurMovementSection() {
+  const [campaignVideo, setCampaignVideo] = useState<CampaignVideo | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadFirstCampaignVideo() {
+      const response = await fetch("/api/media?kind=video", { cache: "no-store" });
+      const data = (await response.json().catch(() => null)) as
+        | { media?: CampaignVideo[] }
+        | null;
+
+      if (!mounted || !response.ok) return;
+
+      const preferredHomeVideo =
+        data?.media?.find((item) => item.title?.trim().toLowerCase() === "home-video" && item.linkUrl?.trim()) ??
+        data?.media?.find((item) => item.linkUrl?.trim()) ??
+        null;
+      setCampaignVideo(preferredHomeVideo);
+    }
+
+    loadFirstCampaignVideo();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function handlePlayVideo() {
+    if (!campaignVideo || !videoRef.current) return;
+    try {
+      await videoRef.current.play();
+      setIsPlaying(true);
+    } catch {
+      // Ignore autoplay/playback errors and keep fallback UI.
+    }
+  }
+
   return (
     <section
       id={homeMovementSection.id}
@@ -66,27 +113,48 @@ export default function HomeOurMovementSection() {
           <div className="grid lg:grid-cols-[1.1fr_1fr]">
             {/* Image side */}
             <div className="relative min-h-[24rem] lg:min-h-[34rem]">
-              <img
-                src={homeIssuesSection.imageSrc}
-                alt={homeIssuesSection.imageAlt}
-                className="absolute inset-0 h-full w-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(120deg,rgb(0_0_0/0.55)_0%,rgb(0_0_0/0.2)_45%,transparent_72%)]" />
+              {campaignVideo ? (
+                <video
+                  ref={videoRef}
+                  src={campaignVideo.linkUrl}
+                  poster={campaignVideo.imageUrl || homeIssuesSection.imageSrc}
+                  className="absolute inset-0 h-full w-full object-cover object-center bg-black"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                />
+              ) : (
+                <img
+                  src={homeIssuesSection.imageSrc}
+                  alt={homeIssuesSection.imageAlt}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+              )}
+              {!isPlaying ? (
+                <div className="absolute inset-0 bg-[linear-gradient(120deg,rgb(0_0_0/0.55)_0%,rgb(0_0_0/0.2)_45%,transparent_72%)]" />
+              ) : null}
 
-              <button
-                type="button"
-                aria-label="Play campaign video"
-                className="group absolute left-1/2 top-1/2 inline-flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-brand-green shadow-[0_20px_40px_-10px_rgb(0_0_0/0.45)] backdrop-blur transition hover:scale-105 hover:bg-white sm:h-24 sm:w-24 lg:h-28 lg:w-28"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/40 opacity-60"
-                />
-                <Play
-                  aria-hidden="true"
-                  className="relative ml-1 h-7 w-7 fill-current sm:h-8 sm:w-8 lg:h-10 lg:w-10"
-                />
-              </button>
+              {!isPlaying ? (
+                <button
+                  type="button"
+                  aria-label="Play campaign video"
+                  onClick={handlePlayVideo}
+                  disabled={!campaignVideo}
+                  className="group absolute left-1/2 top-1/2 inline-flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-brand-green shadow-[0_20px_40px_-10px_rgb(0_0_0/0.45)] backdrop-blur transition hover:scale-105 hover:bg-white sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/40 opacity-60"
+                  />
+                  <Play
+                    aria-hidden="true"
+                    className="relative ml-1 h-7 w-7 fill-current sm:h-8 sm:w-8 lg:h-10 lg:w-10"
+                  />
+                </button>
+              ) : null}
 
               {/* Caption pill */}
               <div className="absolute bottom-5 left-5 inline-flex w-fit items-center gap-2 rounded-full bg-black/55 px-4 py-2 text-xs font-medium text-white backdrop-blur sm:bottom-6 sm:left-6">

@@ -18,11 +18,11 @@ const principalLinks = [
   { label: "About Rabiu Kwankwaso", href: "/home/about/rabiu-kwankwaso" },
   {
     label: "Peter Obi's Track Record",
-    href: "/documents/Peter-Obi-Track-Record.pdf",
+    href: "/documents/obi-profile.pdf",
   },
   {
     label: "Rabiu Kwankwaso Track Record",
-    href: "/documents/Rabiu-Kwankwaso-Track-Record.pdf",
+    href: "/documents/rabiu-profile.pdf",
   },
 ];
 

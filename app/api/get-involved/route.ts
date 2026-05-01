@@ -14,6 +14,10 @@ export async function POST(request: Request) {
       email?: string;
       phone?: string;
       engagement?: string;
+      donationType?: string;
+      donationAmount?: string;
+      donationMaterial?: string;
+      donationMaterialOther?: string;
       isDiaspora?: boolean;
       country?: string;
       votingState?: string;
@@ -25,6 +29,23 @@ export async function POST(request: Request) {
     const email = payload.email?.trim().toLowerCase();
     const phone = payload.phone?.trim();
     const engagement = payload.engagement?.trim();
+    const rawDonationType = payload.donationType?.trim().toLowerCase();
+    const donationType =
+      rawDonationType === "cash" || rawDonationType === "materials" ? rawDonationType : undefined;
+    const rawDonationAmount = payload.donationAmount?.trim();
+    const donationAmountNumeric = rawDonationAmount
+      ? Number(rawDonationAmount.replaceAll(",", ""))
+      : undefined;
+    const rawDonationMaterial = payload.donationMaterial?.trim().toLowerCase();
+    const donationMaterial =
+      rawDonationMaterial === "campaign-flyers" ||
+      rawDonationMaterial === "campaign-cap" ||
+      rawDonationMaterial === "campaign-tshirt" ||
+      rawDonationMaterial === "campaign-wraist-band" ||
+      rawDonationMaterial === "other"
+        ? rawDonationMaterial
+        : undefined;
+    const donationMaterialOther = payload.donationMaterialOther?.trim() || undefined;
     const isDiaspora = Boolean(payload.isDiaspora);
     const country = payload.country?.trim() || undefined;
     const votingState = payload.votingState?.trim() || undefined;
@@ -33,6 +54,34 @@ export async function POST(request: Request) {
 
     if (!name || !email || !phone || !engagement) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    const isDonation = /donate/i.test(engagement);
+
+    if (isDonation && !donationType) {
+      return NextResponse.json(
+        { error: "Donation type must be either cash or materials." },
+        { status: 400 },
+      );
+    }
+
+    if (
+      isDonation &&
+      donationType === "cash" &&
+      (!Number.isFinite(donationAmountNumeric) || (donationAmountNumeric ?? 0) <= 0)
+    ) {
+      return NextResponse.json({ error: "Please provide a valid donation amount." }, { status: 400 });
+    }
+
+    if (isDonation && donationType === "materials" && !donationMaterial) {
+      return NextResponse.json(
+        { error: "Please select a valid material type." },
+        { status: 400 },
+      );
+    }
+
+    if (isDonation && donationType === "materials" && donationMaterial === "other" && !donationMaterialOther) {
+      return NextResponse.json({ error: "Please specify the material type." }, { status: 400 });
     }
 
     if (isDiaspora && !country) {
@@ -58,6 +107,13 @@ export async function POST(request: Request) {
       email,
       phone,
       engagement,
+      donationType: isDonation ? donationType : undefined,
+      donationAmount: isDonation && donationType === "cash" ? donationAmountNumeric : undefined,
+      donationMaterial: isDonation && donationType === "materials" ? donationMaterial : undefined,
+      donationMaterialOther:
+        isDonation && donationType === "materials" && donationMaterial === "other"
+          ? donationMaterialOther
+          : undefined,
       isDiaspora,
       country,
       votingState,
@@ -88,6 +144,13 @@ export async function POST(request: Request) {
           email,
           phone,
           engagement,
+          donationType: isDonation ? donationType : undefined,
+          donationAmount: isDonation && donationType === "cash" ? donationAmountNumeric : undefined,
+          donationMaterial: isDonation && donationType === "materials" ? donationMaterial : undefined,
+          donationMaterialOther:
+            isDonation && donationType === "materials" && donationMaterial === "other"
+              ? donationMaterialOther
+              : undefined,
           isDiaspora,
           country,
           votingState,

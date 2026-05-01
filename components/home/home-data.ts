@@ -59,7 +59,7 @@ export const homeCampaignSection = {
 export const homeGetInvolvedSection = {
   id: "get-involved",
   topCtaLabel: "View Peter Obi's Track Record",
-  topCtaHref: "/documents/Peter-Obi-Track-Record.pdf",
+  topCtaHref: "/documents/obi-profile.pdf",
   eyebrow: "Stay Updated",
   title: "Get Involved",
   submitLabel: "Follow Updates",

@@ -76,6 +76,34 @@ function pillarTone(tone: "green" | "red" | "black") {
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 
+const donationMaterialOptions = [
+  { value: "campaign-flyers", label: "Campaign Flyers" },
+  { value: "campaign-cap", label: "Campaign Cap" },
+  { value: "campaign-tshirt", label: "Campaign T- Shirt" },
+  { value: "campaign-wraist-band", label: "Campaign Wraist Band" },
+  { value: "other", label: "Other" },
+] as const;
+
+function formatCurrencyInput(value: string) {
+  const sanitized = value.replace(/[^\d.]/g, "");
+  const firstDotIndex = sanitized.indexOf(".");
+  const normalized =
+    firstDotIndex === -1
+      ? sanitized
+      : `${sanitized.slice(0, firstDotIndex + 1)}${sanitized.slice(firstDotIndex + 1).replaceAll(".", "")}`;
+
+  const [integerPart = "", decimalPart = ""] = normalized.split(".");
+  const safeInteger = integerPart.replace(/^0+(?=\d)/, "");
+  const groupedInteger = safeInteger.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const trimmedDecimal = decimalPart.slice(0, 2);
+
+  if (normalized.includes(".")) {
+    return `${groupedInteger || "0"}.${trimmedDecimal}`;
+  }
+
+  return groupedInteger;
+}
+
 const getInvolvedSchema = z
   .object({
     engagement: z.enum([
@@ -84,6 +112,12 @@ const getInvolvedSchema = z
       "volunteer-support-group",
       "donate",
     ]),
+    donationType: z.enum(["cash", "materials"]).or(z.literal("")),
+    donationAmount: z.string().trim(),
+    donationMaterial: z
+      .enum(donationMaterialOptions.map((option) => option.value) as [string, ...string[]])
+      .or(z.literal("")),
+    donationMaterialOther: z.string().trim(),
     name: z.string().trim().min(1, "Full name is required."),
     email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
     phone: z
@@ -98,6 +132,51 @@ const getInvolvedSchema = z
     votingWard: z.string().trim(),
   })
   .superRefine((values, ctx) => {
+    if (values.engagement === "donate" && !values.donationType) {
+      ctx.addIssue({
+        path: ["donationType"],
+        code: z.ZodIssueCode.custom,
+        message: "Please select what you want to donate.",
+      });
+    }
+
+    if (values.engagement === "donate" && values.donationType === "cash") {
+      if (!values.donationAmount) {
+        ctx.addIssue({
+          path: ["donationAmount"],
+          code: z.ZodIssueCode.custom,
+          message: "Please enter your donation amount.",
+        });
+      } else {
+        const amount = Number(values.donationAmount.replaceAll(",", ""));
+        if (!Number.isFinite(amount) || amount <= 0) {
+          ctx.addIssue({
+            path: ["donationAmount"],
+            code: z.ZodIssueCode.custom,
+            message: "Enter a valid donation amount.",
+          });
+        }
+      }
+    }
+
+    if (values.engagement === "donate" && values.donationType === "materials") {
+      if (!values.donationMaterial) {
+        ctx.addIssue({
+          path: ["donationMaterial"],
+          code: z.ZodIssueCode.custom,
+          message: "Please select the material you want to donate.",
+        });
+      }
+
+      if (values.donationMaterial === "other" && !values.donationMaterialOther) {
+        ctx.addIssue({
+          path: ["donationMaterialOther"],
+          code: z.ZodIssueCode.custom,
+          message: "Please specify the material.",
+        });
+      }
+    }
+
     if (values.isDiaspora) {
       if (!values.country) {
         ctx.addIssue({
@@ -136,6 +215,10 @@ type GetInvolvedFormValues = z.infer<typeof getInvolvedSchema>;
 
 const defaultFormValues: GetInvolvedFormValues = {
   engagement: "volunteer-individual",
+  donationType: "",
+  donationAmount: "",
+  donationMaterial: "",
+  donationMaterialOther: "",
   name: "",
   email: "",
   phone: "",
@@ -164,6 +247,9 @@ export default function GetInvolvedPage() {
   });
 
   const engagement = watch("engagement");
+  const donationType = watch("donationType");
+  const donationAmount = watch("donationAmount");
+  const donationMaterial = watch("donationMaterial");
   const isDiaspora = watch("isDiaspora");
   const votingState = watch("votingState");
   const votingLga = watch("votingLga");
@@ -190,6 +276,21 @@ export default function GetInvolvedPage() {
 
     const payload = {
       engagement: selected.label,
+      donationType: values.engagement === "donate" ? values.donationType : undefined,
+      donationAmount:
+        values.engagement === "donate" && values.donationType === "cash"
+          ? values.donationAmount.trim()
+          : undefined,
+      donationMaterial:
+        values.engagement === "donate" && values.donationType === "materials"
+          ? values.donationMaterial
+          : undefined,
+      donationMaterialOther:
+        values.engagement === "donate" &&
+        values.donationType === "materials" &&
+        values.donationMaterial === "other"
+          ? values.donationMaterialOther.trim()
+          : undefined,
       name: values.name.trim(),
       email: values.email.trim(),
       phone: values.phone.trim(),
@@ -539,6 +640,15 @@ export default function GetInvolvedPage() {
                               {...engagementField}
                               checked={isActive}
                               value={key}
+                              onChange={(event) => {
+                                engagementField.onChange(event);
+                                if (event.target.value !== "donate") {
+                                  setValue("donationType", "", { shouldValidate: true });
+                                  setValue("donationAmount", "", { shouldValidate: true });
+                                  setValue("donationMaterial", "", { shouldValidate: true });
+                                  setValue("donationMaterialOther", "", { shouldValidate: true });
+                                }
+                              }}
                               className="sr-only"
                             />
                             <span
@@ -565,6 +675,119 @@ export default function GetInvolvedPage() {
                       <p className="mt-2 text-xs text-brand-red">{errors.engagement.message}</p>
                     ) : null}
                   </fieldset>
+
+                  {isDonate ? (
+                    <div className="mt-6">
+                      <label className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                          Donation type <span className="text-brand-red">*</span>
+                        </span>
+                        <select
+                          {...register("donationType")}
+                          value={donationType}
+                          onChange={(event) => {
+                            setValue("donationType", event.target.value as "cash" | "materials" | "", {
+                              shouldValidate: true,
+                            });
+                            setValue("donationAmount", "", { shouldValidate: true });
+                            setValue("donationMaterial", "", { shouldValidate: true });
+                            setValue("donationMaterialOther", "", { shouldValidate: true });
+                          }}
+                          className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
+                        >
+                          <option value="" disabled>
+                            Select one
+                          </option>
+                          <option value="cash">Cash</option>
+                          <option value="materials">Materials</option>
+                        </select>
+                        {errors.donationType?.message ? (
+                          <span className="text-xs text-brand-red">{errors.donationType.message}</span>
+                        ) : null}
+                      </label>
+
+                      {donationType === "cash" ? (
+                        <label className="mt-5 flex flex-col gap-1.5">
+                          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                            Amount <span className="text-brand-red">*</span>
+                          </span>
+                          <span className="relative">
+                            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-black/65">
+                              ₦
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              {...register("donationAmount")}
+                              value={donationAmount}
+                              onChange={(event) =>
+                                setValue("donationAmount", formatCurrencyInput(event.target.value), {
+                                  shouldValidate: true,
+                                })
+                              }
+                              placeholder="e.g. 50,000"
+                              className={`${inputClass} w-full pl-10`}
+                            />
+                          </span>
+                          {errors.donationAmount?.message ? (
+                            <span className="text-xs text-brand-red">{errors.donationAmount.message}</span>
+                          ) : null}
+                        </label>
+                      ) : null}
+
+                      {donationType === "materials" ? (
+                        <div className="mt-5 space-y-5">
+                          <label className="flex flex-col gap-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                              Material type <span className="text-brand-red">*</span>
+                            </span>
+                            <select
+                              {...register("donationMaterial")}
+                              value={donationMaterial}
+                              onChange={(event) => {
+                                setValue("donationMaterial", event.target.value, {
+                                  shouldValidate: true,
+                                });
+                                if (event.target.value !== "other") {
+                                  setValue("donationMaterialOther", "", { shouldValidate: true });
+                                }
+                              }}
+                              className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
+                            >
+                              <option value="" disabled>
+                                Select one
+                              </option>
+                              {donationMaterialOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.donationMaterial?.message ? (
+                              <span className="text-xs text-brand-red">{errors.donationMaterial.message}</span>
+                            ) : null}
+                          </label>
+
+                          {donationMaterial === "other" ? (
+                            <label className="flex flex-col gap-1.5">
+                              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                                Specify material <span className="text-brand-red">*</span>
+                              </span>
+                              <input
+                                type="text"
+                                {...register("donationMaterialOther")}
+                                placeholder="Enter material name"
+                                className={inputClass}
+                              />
+                              {errors.donationMaterialOther?.message ? (
+                                <span className="text-xs text-brand-red">{errors.donationMaterialOther.message}</span>
+                              ) : null}
+                            </label>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   {/* Contact details */}
                   <div className="mt-8 grid gap-5 sm:grid-cols-2">
@@ -915,7 +1138,7 @@ export default function GetInvolvedPage() {
               </span>
             </a>
             <a
-              href="tel:+2348000652027"
+              href="tel:+2349099999361"
               className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-red hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red/10 text-brand-red group-hover:bg-white/20 group-hover:text-white">
@@ -925,7 +1148,7 @@ export default function GetInvolvedPage() {
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">
                   Phone
                 </span>
-                <span className="text-sm font-medium">+234 (0) 800 OK-2027</span>
+                <span className="text-sm font-medium">+234 909 999 9361</span>
               </span>
             </a>
             <a

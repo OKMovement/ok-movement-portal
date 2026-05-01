@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { ChangeEvent } from "react";
 import { Eye, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 
@@ -62,6 +62,9 @@ export default function MediaGalleryManager() {
   const [viewMode, setViewMode] = useState<"list" | "form">("list");
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState<"delete" | "publish" | "unpublish" | null>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
 
   async function loadItems() {
     setLoading(true);
@@ -100,15 +103,36 @@ export default function MediaGalleryManager() {
     return filteredItems.slice(start, start + PAGE_SIZE);
   }, [filteredItems, currentPage]);
 
+  const pageIds = useMemo(() => paginatedItems.map((item) => item.id), [paginatedItems]);
+
+  const allOnPageSelected = useMemo(
+    () => pageIds.length > 0 && pageIds.every((id) => selectedIds.includes(id)),
+    [pageIds, selectedIds],
+  );
+
+  const someOnPageSelected = useMemo(
+    () => pageIds.some((id) => selectedIds.includes(id)) && !allOnPageSelected,
+    [pageIds, selectedIds, allOnPageSelected],
+  );
+
   useEffect(() => {
     setCurrentPage(1);
   }, [filter]);
+
+  useEffect(() => {
+    setSelectedIds((previous) => previous.filter((id) => items.some((item) => item.id === id)));
+  }, [items]);
 
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
   }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (!selectAllRef.current) return;
+    selectAllRef.current.indeterminate = someOnPageSelected;
+  }, [someOnPageSelected]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -185,6 +209,77 @@ export default function MediaGalleryManager() {
     }
 
     await loadItems();
+  }
+
+  function handleToggleItemSelection(itemId: string) {
+    setSelectedIds((previous) =>
+      previous.includes(itemId) ? previous.filter((id) => id !== itemId) : [...previous, itemId],
+    );
+  }
+
+  function handleTogglePageSelection(checked: boolean) {
+    if (!checked) {
+      setSelectedIds((previous) => previous.filter((id) => !pageIds.includes(id)));
+      return;
+    }
+
+    setSelectedIds((previous) => [...new Set([...previous, ...pageIds])]);
+  }
+
+  async function handleBulkAction(action: "delete" | "publish" | "unpublish") {
+    if (selectedIds.length === 0) return;
+
+    if (action === "delete") {
+      const confirmed = window.confirm(
+        `Delete ${selectedIds.length} selected item${selectedIds.length === 1 ? "" : "s"}? This action cannot be undone.`,
+      );
+      if (!confirmed) return;
+    }
+
+    setBulkAction(action);
+    setError("");
+
+    const idsToProcess =
+      action === "publish"
+        ? items.filter((item) => selectedIds.includes(item.id) && !item.isPublished).map((item) => item.id)
+        : action === "unpublish"
+          ? items.filter((item) => selectedIds.includes(item.id) && item.isPublished).map((item) => item.id)
+          : selectedIds;
+
+    if (idsToProcess.length === 0) {
+      setBulkAction(null);
+      return;
+    }
+
+    const results = await Promise.all(
+      idsToProcess.map(async (id) => {
+        if (action === "delete") {
+          const response = await fetch(`/api/admin/media/${id}`, { method: "DELETE" });
+          return response.ok;
+        }
+
+        const response = await fetch(`/api/admin/media/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isPublished: action === "publish" }),
+        });
+        return response.ok;
+      }),
+    );
+
+    const failedCount = results.filter((wasSuccessful) => !wasSuccessful).length;
+
+    if (failedCount > 0) {
+      setError(
+        `${failedCount} item${failedCount === 1 ? "" : "s"} failed to ${
+          action === "delete" ? "delete" : action === "publish" ? "publish" : "unpublish"
+        }.`,
+      );
+    }
+
+    await loadItems();
+    setSelectedIds([]);
+    setBulkAction(null);
   }
 
   function getUploadContext(
@@ -309,6 +404,48 @@ export default function MediaGalleryManager() {
           </div>
         </div>
 
+        {selectedIds.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 bg-black/[0.02] px-6 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-black/70">
+              {selectedIds.length} selected
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleBulkAction("publish")}
+                disabled={bulkAction !== null}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-brand-green/35 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-brand-green transition hover:bg-brand-green hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {bulkAction === "publish" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Bulk publish"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkAction("unpublish")}
+                disabled={bulkAction !== null}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {bulkAction === "unpublish" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Bulk unpublish"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkAction("delete")}
+                disabled={bulkAction !== null}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-brand-red/25 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-brand-red transition hover:bg-brand-red hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {bulkAction === "delete" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Bulk delete"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                disabled={bulkAction !== null}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-red hover:text-brand-red disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {error && viewMode === "list" ? <p className="px-6 pt-4 text-sm text-brand-red">{error}</p> : null}
 
         {loading ? (
@@ -320,6 +457,16 @@ export default function MediaGalleryManager() {
             <table className="min-w-full border-collapse text-left">
               <thead className="bg-black/[0.03]">
                 <tr className="text-[11px] uppercase tracking-[0.12em] text-black/60">
+                  <th className="px-4 py-3 font-semibold">
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      checked={allOnPageSelected}
+                      onChange={(event) => handleTogglePageSelection(event.target.checked)}
+                      className="h-4 w-4 rounded-[8px] border-black/20 text-brand-green"
+                      aria-label="Select all media items on this page"
+                    />
+                  </th>
                   <th className="px-6 py-3 font-semibold">Media</th>
                   <th className="px-6 py-3 font-semibold">Type</th>
                   <th className="px-6 py-3 font-semibold">Category</th>
@@ -330,6 +477,15 @@ export default function MediaGalleryManager() {
               <tbody className="divide-y divide-black/8">
                 {paginatedItems.map((item) => (
                   <tr key={item.id}>
+                    <td className="px-4 py-4 align-top">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(item.id)}
+                        onChange={() => handleToggleItemSelection(item.id)}
+                        className="mt-1 h-4 w-4 rounded-[8px] border-black/20 text-brand-green"
+                        aria-label={`Select ${item.title}`}
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img

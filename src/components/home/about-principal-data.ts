@@ -39,7 +39,7 @@ export const aboutPrincipals = {
       "Across the country, his message has connected with citizens who want leaders willing to listen, make hard choices, and prioritize security, productive work, and a future young Nigerians can believe in.",
     ],
     wideImage: { src: "/images/bg-7.jpeg", alt: "Peter Obi and Rabiu Kwankwaso addressing a large crowd" },
-    ctaHref: "/documents/Peter-Obi-Track-Record.pdf",
+    ctaHref: "/documents/obi-profile.pdf",
     ctaLabel: "View Peter Obi's Track Record",
   },
   "rabiu-kwankwaso": {
@@ -65,7 +65,7 @@ export const aboutPrincipals = {
       "Together with Peter Obi, the OK Movement presents a national rebirth agenda anchored in unity, integrity, competence, and a practical commitment to improving daily life for Nigerians.",
     ],
     wideImage: { src: "/images/bg-6.jpeg", alt: "A large crowd gathered at a public rally" },
-    ctaHref: "/documents/Rabiu-Kwankwaso-Track-Record.pdf",
+    ctaHref: "/documents/rabiu-profile.pdf",
     ctaLabel: "View Rabiu Kwankwaso Track Record",
   },
 } satisfies Record<string, AboutPrincipal>;
