@@ -191,7 +191,7 @@ export default function HomePrincipalsSection() {
         </div>
 
         {/* Quote / Issues sub-section */}
-        <div className="mt-20 lg:mt-24">
+        {/* <div className="mt-20 lg:mt-24">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-green ring-1 ring-brand-green/20 shadow-sm">
               <Quote aria-hidden="true" className="h-3.5 w-3.5" />
@@ -213,7 +213,7 @@ export default function HomePrincipalsSection() {
               <HomeTestimonialMarquee cards={ANSWER_PAIRS} />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Get Involved closing CTA */}
         <div

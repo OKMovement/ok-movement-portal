@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowUpRight,
@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import PhoneInput from "@/components/ui/phone-input";
 import { isPhoneValid } from "@/lib/phone-validation";
@@ -75,6 +76,28 @@ function pillarTone(tone: "green" | "red" | "black") {
 
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+
+function normalizeLocation(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\((.*?)\)/g, " $1 ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function resolvePrefilledState(stateValue: string) {
+  const normalized = normalizeLocation(stateValue);
+  if (!normalized) {
+    return "";
+  }
+
+  const matchedState = nigeriaStateOptions.find((state) => {
+    return state.value === normalized || normalizeLocation(state.label) === normalized;
+  });
+
+  return matchedState?.value ?? "";
+}
 
 const donationMaterialOptions = [
   { value: "campaign-flyers", label: "Campaign Flyers" },
@@ -230,6 +253,7 @@ const defaultFormValues: GetInvolvedFormValues = {
 };
 
 export default function GetInvolvedPage() {
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "sent">("idle");
   const [submitError, setSubmitError] = useState("");
   const [submittedName, setSubmittedName] = useState("");
@@ -270,6 +294,25 @@ export default function GetInvolvedPage() {
     () => getWardOptionsByStateAndLga(votingState, votingLga),
     [votingState, votingLga],
   );
+  const prefilledEmail = searchParams.get("email")?.trim() ?? "";
+  const prefilledState = searchParams.get("state")?.trim() ?? "";
+
+  useEffect(() => {
+    if (prefilledEmail) {
+      setValue("email", prefilledEmail, { shouldDirty: true });
+    }
+
+    if (prefilledState) {
+      const resolvedState = resolvePrefilledState(prefilledState);
+      if (resolvedState) {
+        setValue("isDiaspora", false, { shouldDirty: true, shouldValidate: false });
+        setValue("country", "", { shouldDirty: true, shouldValidate: false });
+        setValue("votingState", resolvedState, { shouldDirty: true });
+        setValue("votingLga", "", { shouldDirty: true, shouldValidate: false });
+        setValue("votingWard", "", { shouldDirty: true, shouldValidate: false });
+      }
+    }
+  }, [prefilledEmail, prefilledState, setValue]);
 
   const onSubmit = async (values: GetInvolvedFormValues) => {
     setSubmitError("");
