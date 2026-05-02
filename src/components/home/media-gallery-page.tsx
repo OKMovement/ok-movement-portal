@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import HomeSiteHeader from "@/components/home/home-site-header";
 import HomeFooterSection from "@/components/home/home-footer-section";
+import { aboutPrincipals } from "@/components/home/about-principal-data";
 
 type GalleryTab = "images" | "news" | "videos";
 
@@ -106,6 +107,27 @@ function resolveNewsDocumentUrl(...candidates: Array<string | null | undefined>)
 
   const documentUrl = normalizedCandidates.find((candidate) => DOCUMENT_LINK_PATTERN.test(candidate));
   return documentUrl ?? normalizedCandidates[0];
+}
+
+function resolveTrackRecordDocumentForRelease(release: PressRelease): string {
+  const normalizedTitle = release.title.toLowerCase();
+  const normalizedSlug = release.slug.toLowerCase();
+
+  if (
+    normalizedSlug.includes("peter-obi") ||
+    (normalizedTitle.includes("peter obi") && normalizedTitle.includes("track record"))
+  ) {
+    return aboutPrincipals["peter-obi"].ctaHref;
+  }
+
+  if (
+    normalizedSlug.includes("rabiu-kwankwaso") ||
+    (normalizedTitle.includes("kwankwaso") && normalizedTitle.includes("track record"))
+  ) {
+    return aboutPrincipals["rabiu-kwankwaso"].ctaHref;
+  }
+
+  return "";
 }
 
 function TabNav({
@@ -484,7 +506,7 @@ export default function MediaGalleryPage() {
       category: "Press Release",
       title: release.title,
       excerpt: release.excerpt,
-      href: resolveNewsDocumentUrl(release.fileUrl),
+      href: resolveNewsDocumentUrl(resolveTrackRecordDocumentForRelease(release), release.fileUrl),
       image: release.imageUrl || FALLBACK_IMAGE,
       readTime: "Official",
     }));
