@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Copy, Loader2, Trash2, X } from "lucide-react";
 
 type MemberItem = {
@@ -21,6 +21,8 @@ type MembersManagerProps = {
   donationsOnly?: boolean;
 };
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+
 export default function MembersManager({ donationsOnly = false }: MembersManagerProps) {
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,11 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
   const [selected, setSelected] = useState<MemberItem | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [engagementFilter, setEngagementFilter] = useState("all");
+  const [diasporaFilter, setDiasporaFilter] = useState<"all" | "diaspora" | "local">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(10);
 
   async function loadMembers() {
     setLoading(true);
@@ -97,13 +104,82 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     return [member.votingState, member.votingLga, member.votingWard].filter(Boolean).join(", ");
   }
 
-  const displayedMembers = members.filter((member) =>
-    donationsOnly ? /donate/i.test(member.engagement) : true,
+  const scopedMembers = useMemo(
+    () => members.filter((member) => (donationsOnly ? /donate/i.test(member.engagement) : true)),
+    [members, donationsOnly],
   );
 
+  const engagementOptions = useMemo(() => {
+    const values = Array.from(
+      new Set(scopedMembers.map((member) => member.engagement.trim()).filter(Boolean)),
+    );
+    return values.sort((a, b) => a.localeCompare(b));
+  }, [scopedMembers]);
+
+  useEffect(() => {
+    if (engagementFilter !== "all" && !engagementOptions.includes(engagementFilter)) {
+      setEngagementFilter("all");
+    }
+  }, [engagementFilter, engagementOptions]);
+
+  const filteredMembers = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return scopedMembers.filter((member) => {
+      if (engagementFilter !== "all" && member.engagement !== engagementFilter) {
+        return false;
+      }
+
+      if (diasporaFilter === "diaspora" && !member.isDiaspora) return false;
+      if (diasporaFilter === "local" && member.isDiaspora) return false;
+
+      if (!query) return true;
+
+      const searchable = [
+        member.name,
+        member.email,
+        member.phone,
+        member.engagement,
+        resolveLocation(member),
+        member.country ?? "",
+        member.votingState ?? "",
+        member.votingLga ?? "",
+        member.votingWard ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+  }, [scopedMembers, searchQuery, engagementFilter, diasporaFilter]);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(filteredMembers.length / pageSize)),
+    [filteredMembers.length, pageSize],
+  );
+
+  const paginatedMembers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredMembers.slice(start, start + pageSize);
+  }, [filteredMembers, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, engagementFilter, diasporaFilter, pageSize, donationsOnly]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   function handleExportCsv() {
-    if (displayedMembers.length === 0) {
-      setError(donationsOnly ? "No donation submissions to export yet." : "No members to export yet.");
+    if (filteredMembers.length === 0) {
+      setError(
+        donationsOnly
+          ? "No donation submissions match the current filters."
+          : "No members match the current filters.",
+      );
       return;
     }
 
@@ -121,7 +197,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
       "Submitted At",
     ];
 
-    const rows = displayedMembers.map((member) => [
+    const rows = filteredMembers.map((member) => [
       member.name,
       member.email,
       member.phone,
@@ -162,13 +238,53 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
           <button
             type="button"
             onClick={handleExportCsv}
-            disabled={loading || displayedMembers.length === 0}
+            disabled={loading || filteredMembers.length === 0}
             className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
           >
             Export CSV
           </button>
         </div>
         {error ? <p className="px-4 pt-4 text-sm text-brand-red">{error}</p> : null}
+        <div className="flex flex-wrap items-end gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
+          <label className="grid min-w-[14rem] flex-1 gap-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">Search</span>
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={donationsOnly ? "Name, email, phone, location" : "Search members"}
+              className="min-h-10 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+            />
+          </label>
+          <label className="grid min-w-[12rem] gap-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">
+              Engagement
+            </span>
+            <select
+              value={engagementFilter}
+              onChange={(event) => setEngagementFilter(event.target.value)}
+              className="min-h-10 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+            >
+              <option value="all">All engagement</option>
+              {engagementOptions.map((engagement) => (
+                <option key={engagement} value={engagement}>
+                  {engagement}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid min-w-[10rem] gap-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">Audience</span>
+            <select
+              value={diasporaFilter}
+              onChange={(event) => setDiasporaFilter(event.target.value as "all" | "diaspora" | "local")}
+              className="min-h-10 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+            >
+              <option value="all">All</option>
+              <option value="local">Local</option>
+              <option value="diaspora">Diaspora</option>
+            </select>
+          </label>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
             <thead className="bg-[#f7f7f4] text-xs uppercase tracking-[0.16em] text-black/60">
@@ -188,8 +304,8 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
                     Loading members...
                   </td>
                 </tr>
-              ) : displayedMembers.length > 0 ? (
-                displayedMembers.map((member) => {
+              ) : paginatedMembers.length > 0 ? (
+                paginatedMembers.map((member) => {
                   const location = resolveLocation(member);
 
                   return (
@@ -219,13 +335,60 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
               ) : (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
-                    {donationsOnly ? "No donation submissions yet." : "No members yet."}
+                    {donationsOnly
+                      ? "No donation submissions match your filters."
+                      : "No members match your filters."}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+        {!loading && filteredMembers.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/8 px-4 py-4 sm:px-6">
+            <p className="text-xs text-black/60">
+              Showing {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, filteredMembers.length)} of{" "}
+              {filteredMembers.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.12em] text-black/65">
+                <span className="mr-2">Rows</span>
+                <select
+                  value={String(pageSize)}
+                  onChange={(event) =>
+                    setPageSize(Number(event.target.value) as (typeof PAGE_SIZE_OPTIONS)[number])
+                  }
+                  className="min-h-9 rounded-[8px] border border-black/15 bg-white px-2 text-xs text-brand-black"
+                >
+                  {PAGE_SIZE_OPTIONS.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-black/65">
+                Page {currentPage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="inline-flex min-h-9 items-center justify-center rounded-[8px] border border-black/15 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {selected ? (
