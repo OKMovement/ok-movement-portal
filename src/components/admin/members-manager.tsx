@@ -9,6 +9,10 @@ type MemberItem = {
   email: string;
   phone: string;
   engagement: string;
+  donationType: "cash" | "materials" | null;
+  donationAmount: number | null;
+  donationMaterial: "campaign-flyers" | "campaign-cap" | "campaign-tshirt" | "campaign-wraist-band" | "other" | null;
+  donationMaterialOther: string | null;
   isDiaspora: boolean;
   country: string | null;
   votingState: string | null;
@@ -104,6 +108,37 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     return [member.votingState, member.votingLga, member.votingWard].filter(Boolean).join(", ");
   }
 
+  function formatDonationAmount(amount: number | null) {
+    if (amount == null || !Number.isFinite(amount)) return "-";
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
+
+  function formatDonationMaterial(member: MemberItem) {
+    if (!member.donationMaterial) return "-";
+    if (member.donationMaterial === "campaign-flyers") return "Campaign Flyers";
+    if (member.donationMaterial === "campaign-cap") return "Campaign Cap";
+    if (member.donationMaterial === "campaign-tshirt") return "Campaign T-Shirt";
+    if (member.donationMaterial === "campaign-wraist-band") return "Campaign Waist Band";
+    if (member.donationMaterial === "other") {
+      return member.donationMaterialOther?.trim() ? `Other (${member.donationMaterialOther})` : "Other";
+    }
+    return member.donationMaterial;
+  }
+
+  function donationSummary(member: MemberItem) {
+    if (member.donationType === "cash") {
+      return formatDonationAmount(member.donationAmount);
+    }
+    if (member.donationType === "materials") {
+      return formatDonationMaterial(member);
+    }
+    return "-";
+  }
+
   const scopedMembers = useMemo(
     () => members.filter((member) => (donationsOnly ? /donate/i.test(member.engagement) : true)),
     [members, donationsOnly],
@@ -188,6 +223,9 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
       "Email",
       "Phone",
       "Engagement",
+      "Donation Type",
+      "Donation Amount",
+      "Donation Material",
       "Diaspora",
       "Country",
       "Voting State",
@@ -202,6 +240,9 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
       member.email,
       member.phone,
       member.engagement,
+      member.donationType ?? "",
+      member.donationAmount ?? "",
+      formatDonationMaterial(member),
       member.isDiaspora ? "Yes" : "No",
       member.country ?? "",
       member.votingState ?? "",
@@ -229,6 +270,8 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     link.remove();
     URL.revokeObjectURL(url);
   }
+
+  const columnCount = donationsOnly ? 7 : 6;
 
   return (
     <>
@@ -293,6 +336,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Engagement</th>
+                {donationsOnly ? <th className="px-4 py-3">Donation</th> : null}
                 <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3">Submitted</th>
               </tr>
@@ -300,7 +344,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
+                  <td colSpan={columnCount} className="px-4 py-8 text-center text-sm text-black/60">
                     Loading members...
                   </td>
                 </tr>
@@ -325,6 +369,9 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
                           {member.engagement}
                         </span>
                       </td>
+                      {donationsOnly ? (
+                        <td className="px-4 py-3 text-black/70">{donationSummary(member)}</td>
+                      ) : null}
                       <td className="px-4 py-3 text-black/70">{location || "-"}</td>
                       <td className="px-4 py-3 text-black/60">
                         {member.createdAt ? new Date(member.createdAt).toLocaleString() : "-"}
@@ -334,7 +381,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
+                  <td colSpan={columnCount} className="px-4 py-8 text-center text-sm text-black/60">
                     {donationsOnly
                       ? "No donation submissions match your filters."
                       : "No members match your filters."}
@@ -435,6 +482,26 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Engagement</p>
                 <p className="mt-1 text-brand-black">{selected.engagement}</p>
               </div>
+
+              {selected.donationType ? (
+                <>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Donation Type</p>
+                    <p className="mt-1 text-brand-black capitalize">{selected.donationType}</p>
+                  </div>
+                  {selected.donationType === "cash" ? (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Donation Amount</p>
+                      <p className="mt-1 text-brand-black">{formatDonationAmount(selected.donationAmount)}</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Donation Material</p>
+                      <p className="mt-1 text-brand-black">{formatDonationMaterial(selected)}</p>
+                    </div>
+                  )}
+                </>
+              ) : null}
             </div>
 
             <div className="mt-6 flex flex-wrap justify-end gap-3">

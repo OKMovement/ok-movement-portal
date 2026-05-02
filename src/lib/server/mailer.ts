@@ -126,14 +126,14 @@ export async function sendMemberWelcomeEmail(args: MemberWelcomeArgs) {
   const firstName = name.trim().split(/\s+/)[0] ?? "Supporter";
   const safeFirstName = escapeHtml(firstName);
 
-  const website = process.env.APP_BASE_URL ?? "https://okmovement.ng";
-  const whatsappOrTelegram = process.env.OK_MOVEMENT_WHATSAPP_TELEGRAM ?? "https://wa.me";
-  const socials = process.env.OK_MOVEMENT_SOCIAL_HANDLES ?? "@OK2027movement";
+  const website = process.env.OK_MOVEMENT_WEBSITE_URL ?? "https://www.okmovement.org";
+  const twitterHandle = process.env.OK_MOVEMENT_TWITTER_HANDLE ?? "@OK2027movement.org";
+  const twitterUrl = process.env.OK_MOVEMENT_TWITTER_URL ?? "https://x.com/OK2027movement";
 
   if (engagementKey === "donate") {
     const safeWebsite = escapeHtml(website);
-    const safeWhatsappOrTelegram = escapeHtml(whatsappOrTelegram);
-    const safeSocials = escapeHtml(socials);
+    const safeTwitterHandle = escapeHtml(twitterHandle);
+    const safeTwitterUrl = escapeHtml(twitterUrl);
 
     await sendEmail({
       to: email,
@@ -148,7 +148,7 @@ We’ll keep you updated on how your contribution is making an impact, and share
 
 With gratitude,
 OK Movement Team
-${website} | ${whatsappOrTelegram} | ${socials}`,
+${website} | ${twitterHandle}`,
       html: `
         <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
           <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:14px; overflow:hidden;">
@@ -172,8 +172,7 @@ ${website} | ${whatsappOrTelegram} | ${socials}`,
                 With gratitude,<br/>
                 <strong>OK Movement Team</strong><br/>
                 <a href="${safeWebsite}" style="color:#0a7f3f; text-decoration:none;">${safeWebsite}</a> |
-                <a href="${safeWhatsappOrTelegram}" style="color:#0a7f3f; text-decoration:none;">WhatsApp/Telegram</a> |
-                ${safeSocials}
+                <a href="${safeTwitterUrl}" style="color:#0a7f3f; text-decoration:none;">${safeTwitterHandle}</a>
               </p>
             </div>
           </div>

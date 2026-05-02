@@ -9,10 +9,8 @@ import {
   HandHeart,
   Heart,
   Loader2,
-  Mail,
   MapPin,
   MessageCircleQuestion,
-  Phone,
   Plane,
   ShieldCheck,
   Sparkles,
@@ -1167,31 +1165,35 @@ export default function GetInvolvedPage() {
 
           <div className="mt-10 grid gap-3 rounded-[16px] border border-black/8 bg-[#f7f7f4] p-5 sm:grid-cols-3 sm:p-6">
             <a
-              href="/home/contact"
+              href="https://www.okmovement.org"
+              target="_blank"
+              rel="noreferrer"
               className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-green hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-green/10 text-brand-green group-hover:bg-white/20 group-hover:text-white">
-                <Mail aria-hidden="true" className="h-4 w-4" />
+                <Globe2 aria-hidden="true" className="h-4 w-4" />
               </span>
               <span className="flex flex-col">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">
-                  Email
+                  Website
                 </span>
-                <span className="text-sm font-medium">admin@okmovement.org</span>
+                <span className="text-sm font-medium">www.okmovement.org</span>
               </span>
             </a>
             <a
-              href="tel:+2349099999361"
+              href="https://x.com/OK2027movement"
+              target="_blank"
+              rel="noreferrer"
               className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-red hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red/10 text-brand-red group-hover:bg-white/20 group-hover:text-white">
-                <Phone aria-hidden="true" className="h-4 w-4" />
+                <Users aria-hidden="true" className="h-4 w-4" />
               </span>
               <span className="flex flex-col">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">
-                  Phone
+                  X (Twitter)
                 </span>
-                <span className="text-sm font-medium">+234 909 999 9361</span>
+                <span className="text-sm font-medium">@OK2027movement.org</span>
               </span>
             </a>
             <a

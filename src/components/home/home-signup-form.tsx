@@ -79,9 +79,13 @@ export default function HomeSignupForm({
       return;
     }
 
+    const formData = new FormData(form);
+    const submittedEmail = String(formData.get("email") ?? "").trim();
+    const submittedState = String(formData.get("state") ?? "").trim();
+
     const query = new URLSearchParams({
-      email: email.trim(),
-      state: selectedState,
+      email: submittedEmail,
+      state: submittedState,
     });
     router.push(`/home/get-involved?${query.toString()}`);
   };

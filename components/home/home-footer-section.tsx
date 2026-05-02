@@ -14,8 +14,6 @@ const quickLinks = [
 ];
 
 const principalLinks = [
-  { label: "About Peter Obi", href: "/home/about/peter-obi" },
-  { label: "About Rabiu Kwankwaso", href: "/home/about/rabiu-kwankwaso" },
   {
     label: "Peter Obi's Track Record",
     href: "/documents/obi-profile.pdf",
@@ -123,17 +121,22 @@ export default function HomeFooterSection() {
                 Principals
               </h3>
               <ul className="mt-5 space-y-3">
-                {principalLinks.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="group inline-flex items-center text-sm text-white/65 transition hover:text-white"
-                    >
-                      <span className="mr-2 inline-block h-px w-3 bg-white/30 transition group-hover:w-5 group-hover:bg-brand-green" />
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {principalLinks.map((link) => {
+                  const isDocumentLink = /\.pdf(?:$|[?#])/i.test(link.href);
+                  return (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        target={isDocumentLink ? "_blank" : undefined}
+                        rel={isDocumentLink ? "noreferrer" : undefined}
+                        className="group inline-flex items-center text-sm text-white/65 transition hover:text-white"
+                      >
+                        <span className="mr-2 inline-block h-px w-3 bg-white/30 transition group-hover:w-5 group-hover:bg-brand-green" />
+                        {link.label}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
