@@ -2,6 +2,7 @@
 
 import { ArrowRight, ShieldCheck } from "lucide-react";
 const heroImage = "/For_Hero_Section.png";
+import type { TestimonialPair } from "@/lib/get-testimonial-pairs";
 import HomeFooterSection from "./home-footer-section";
 import HomeOurMovementSection from "./home-our-movement-section";
 import HomePrincipalsSection from "./home-principals-section";
@@ -69,7 +70,11 @@ function HeroStats() {
   );
 }
 
-export default function HomeHero() {
+type HomeHeroProps = {
+  testimonialPairs: TestimonialPair[];
+};
+
+export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
   return (
     <main className="min-h-screen bg-white text-white">
       <HomeSiteHeader />
@@ -225,7 +230,7 @@ export default function HomeHero() {
         <HeroStats />
       </section>
       <HomeOurMovementSection />
-      <HomePrincipalsSection />
+      <HomePrincipalsSection testimonialPairs={testimonialPairs} />
       <HomeFooterSection />
     </main>
   );

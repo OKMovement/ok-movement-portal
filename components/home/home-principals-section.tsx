@@ -2,7 +2,6 @@
 
 import { ArrowUpRight, Quote, Sparkles } from "lucide-react";
 import { homeCampaignSection, homeMovementSection } from "./home-data";
-import HomeTestimonialMarquee from "./home-testimonial-marquee";
 const peterObiPortrait = "/Peter.png";
 const kwankwasoPortrait = "/Kwankwaso.png";
 
@@ -208,11 +207,6 @@ export default function HomePrincipalsSection() {
             </p>
           </div>
 
-          <div className="relative mt-10 overflow-hidden rounded-3xl bg-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.25)] ring-1 ring-black/5 lg:mt-12">
-            <div className="px-2 pb-6 pt-6 sm:px-4 sm:pb-8 sm:pt-8">
-              <HomeTestimonialMarquee cards={ANSWER_PAIRS} />
-            </div>
-          </div>
         </div>
 
         {/* Get Involved closing CTA */}

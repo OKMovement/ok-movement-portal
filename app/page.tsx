@@ -1,5 +1,7 @@
 import HomeHero from "@/components/home/home-hero";
+import { getTestimonialPairs } from "@/lib/get-testimonial-pairs";
 
 export default function Page() {
-  return <HomeHero />;
+  const testimonialPairs = getTestimonialPairs();
+  return <HomeHero testimonialPairs={testimonialPairs} />;
 }
