@@ -147,13 +147,13 @@ export default function HomeFooterSection() {
               how you can get involved in your community.
             </p>
 
-            <a
+            {/* <a
               href="/home#get-involved"
               className="mt-6 inline-flex items-center justify-center gap-2 bg-brand-green px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-brand-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Get Involved
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </a>
+            </a> */}
 
             <ul className="mt-8 space-y-3 text-sm text-white/65">
               <li className="flex items-start justify-center gap-3 lg:justify-start">

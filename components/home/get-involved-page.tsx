@@ -711,7 +711,7 @@ export default function GetInvolvedPage() {
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">
                   Email
                 </span>
-                <span className="text-sm font-medium">hello@okmovement.ng</span>
+                <span className="text-sm font-medium">admin@okmovement.org</span>
               </span>
             </a>
             <a

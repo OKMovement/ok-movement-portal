@@ -59,6 +59,7 @@ type VideoCard = {
 };
 
 const FALLBACK_IMAGE = "/images/new-logo.png";
+const DOCUMENT_LINK_PATTERN = /\.(pdf|doc|docx|ppt|pptx|txt)(?:$|[?#])/i;
 
 function TricolorRule({ light = false }: { light?: boolean }) {
   return (
@@ -79,6 +80,32 @@ function formatDate(value: string | null): string {
     month: "long",
     day: "numeric",
   });
+}
+
+function normalizeExternalUrl(value: string | null | undefined): string {
+  const raw = value?.trim() ?? "";
+  if (!raw) return "";
+  if (raw.startsWith("/")) return raw;
+  if (raw.startsWith("//")) return `https:${raw}`;
+
+  const withProtocol = /^[a-z]+:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+  try {
+    return new URL(withProtocol).toString();
+  } catch {
+    return "";
+  }
+}
+
+function resolveNewsDocumentUrl(...candidates: Array<string | null | undefined>): string {
+  const normalizedCandidates = candidates
+    .map((candidate) => normalizeExternalUrl(candidate))
+    .filter(Boolean);
+
+  if (normalizedCandidates.length === 0) return "";
+
+  const documentUrl = normalizedCandidates.find((candidate) => DOCUMENT_LINK_PATTERN.test(candidate));
+  return documentUrl ?? normalizedCandidates[0];
 }
 
 function TabNav({
@@ -445,7 +472,7 @@ export default function MediaGalleryPage() {
         category: item.category || "News",
         title: item.title,
         excerpt: item.excerpt || item.description || "Latest movement update.",
-        href: item.linkUrl,
+        href: resolveNewsDocumentUrl(item.linkUrl),
         image: item.imageUrl || FALLBACK_IMAGE,
         readTime: "3 min read",
       }));
@@ -457,7 +484,7 @@ export default function MediaGalleryPage() {
       category: "Press Release",
       title: release.title,
       excerpt: release.excerpt,
-      href: release.fileUrl,
+      href: resolveNewsDocumentUrl(release.fileUrl),
       image: release.imageUrl || FALLBACK_IMAGE,
       readTime: "Official",
     }));
