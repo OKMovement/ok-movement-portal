@@ -34,7 +34,7 @@ function TricolorRule({ light = false, wide = false }: { light?: boolean; wide?:
   return (
     <span
       aria-hidden="true"
-      className={`flex h-[2px] overflow-hidden rounded-full ${wide ? "w-24" : "w-16"}`}
+      className={`flex h-0.5 overflow-hidden rounded-full ${wide ? "w-24" : "w-16"}`}
     >
       <span className={`h-full flex-1 ${light ? "bg-white" : "bg-brand-green"}`} />
       <span className={`h-full flex-1 ${light ? "bg-white/65" : "bg-brand-black"}`} />
@@ -173,11 +173,11 @@ export default function GetInvolvedPage() {
               </ul>
             </div>
 
-            <dl className="grid gap-3 rounded-[16px] border border-white/15 bg-white/5 p-5 backdrop-blur sm:grid-cols-2 sm:p-6">
+            <dl className="grid gap-3 rounded-2xl border border-white/15 bg-white/5 p-5 backdrop-blur sm:grid-cols-2 sm:p-6">
               {involveStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-[12px] border border-white/10 bg-white/5 p-4 backdrop-blur"
+                  className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur"
                 >
                   <dt className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
                     {stat.label}
@@ -198,11 +198,11 @@ export default function GetInvolvedPage() {
         <div className="mx-auto w-[min(100%-1.5rem,80rem)]">
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto inline-flex items-center gap-3">
-              <span className="h-[2px] w-10 rounded-full bg-brand-green" />
+              <span className="h-0.5 w-10 rounded-full bg-brand-green" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-red">
                 Four ways to engage
               </span>
-              <span className="h-[2px] w-10 rounded-full bg-brand-red" />
+              <span className="h-0.5 w-10 rounded-full bg-brand-red" />
             </div>
             <h2 className="mt-5 text-3xl font-medium leading-tight text-brand-black sm:text-4xl lg:text-[2.75rem]">
               Pick the role that fits you.
@@ -223,7 +223,7 @@ export default function GetInvolvedPage() {
                   key={pillar.title}
                   className="group relative overflow-hidden rounded-[18px] border border-black/8 bg-white p-7 shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] sm:p-8"
                 >
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-0.75">
                     <span className="h-full flex-1 bg-brand-green" />
                     <span className="h-full flex-1 bg-brand-black" />
                     <span className="h-full flex-1 bg-brand-red" />
@@ -332,7 +332,7 @@ export default function GetInvolvedPage() {
 
             {/* Form panel */}
             <div className="relative overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_24px_48px_-26px_rgb(0_0_0/0.3)]">
-              <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-0.75">
                 <span className="h-full flex-1 bg-brand-green" />
                 <span className="h-full flex-1 bg-brand-black" />
                 <span className="h-full flex-1 bg-brand-red" />
@@ -393,7 +393,7 @@ export default function GetInvolvedPage() {
                         return (
                           <label
                             key={key}
-                            className={`group flex cursor-pointer items-center gap-3 rounded-[12px] border px-4 py-3 text-sm font-medium transition ${
+                            className={`group flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                               isActive
                                 ? "border-brand-green bg-brand-green/5 text-brand-black shadow-[0_10px_20px_-12px_rgb(0_166_81/0.5)]"
                                 : "border-black/10 bg-white text-black/70 hover:border-brand-green/40 hover:bg-brand-green/5 hover:text-brand-black"
@@ -411,7 +411,7 @@ export default function GetInvolvedPage() {
                               className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition ${
                                 isActive
                                   ? "bg-brand-green text-white"
-                                  : "bg-black/[0.04] text-brand-black group-hover:bg-brand-green/10 group-hover:text-brand-green"
+                                  : "bg-black/4 text-brand-black group-hover:bg-brand-green/10 group-hover:text-brand-green"
                               }`}
                             >
                               <Icon aria-hidden="true" className="h-4 w-4" />
@@ -478,13 +478,13 @@ export default function GetInvolvedPage() {
                   </div>
 
                   {/* Diaspora toggle */}
-                  <div className="mt-6 flex items-start gap-3 rounded-[12px] border border-black/10 bg-[#f7f7f4] p-4">
+                  <div className="mt-6 flex items-start gap-3 rounded-xl border border-black/10 bg-[#f7f7f4] p-4">
                     <input
                       id="diaspora-toggle"
                       type="checkbox"
                       checked={isDiaspora}
                       onChange={(event) => setIsDiaspora(event.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-black/20 text-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green/50"
+                      className="mt-1 h-4 w-4 rounded border-black/20 text-brand-green focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-brand-green/50"
                     />
                     <label htmlFor="diaspora-toggle" className="cursor-pointer text-sm">
                       <span className="flex items-center gap-2 font-medium text-brand-black">
@@ -531,7 +531,7 @@ export default function GetInvolvedPage() {
                           name="votingState"
                           required
                           defaultValue=""
-                          className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
+                          className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-size-[1.25rem_1.25rem] bg-position-[right_0.75rem_center] bg-no-repeat pr-10`}
                         >
                           <option value="" disabled>
                             Select a state
@@ -581,7 +581,7 @@ export default function GetInvolvedPage() {
                     <button
                       type="submit"
                       disabled={status === "sending"}
-                      className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+                      className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {status === "sending" ? (
                         <>
@@ -656,7 +656,7 @@ export default function GetInvolvedPage() {
                   key={kind.title}
                   className="group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white p-7 shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] sm:p-8"
                 >
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-0.75">
                     <span className="h-full flex-1 bg-brand-green" />
                     <span className="h-full flex-1 bg-brand-black" />
                     <span className="h-full flex-1 bg-brand-red" />
@@ -699,10 +699,10 @@ export default function GetInvolvedPage() {
             })}
           </div>
 
-          <div className="mt-10 grid gap-3 rounded-[16px] border border-black/8 bg-[#f7f7f4] p-5 sm:grid-cols-3 sm:p-6">
+          <div className="mt-10 grid gap-3 rounded-2xl border border-black/8 bg-[#f7f7f4] p-5 sm:grid-cols-3 sm:p-6">
             <a
               href="/home/contact"
-              className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-green hover:text-white"
+              className="group flex items-center gap-3 rounded-xl bg-white p-4 transition hover:bg-brand-green hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-green/10 text-brand-green group-hover:bg-white/20 group-hover:text-white">
                 <Mail aria-hidden="true" className="h-4 w-4" />
@@ -716,7 +716,7 @@ export default function GetInvolvedPage() {
             </a>
             <a
               href="tel:+2349099999361"
-              className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-red hover:text-white"
+              className="group flex items-center gap-3 rounded-xl bg-white p-4 transition hover:bg-brand-red hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red/10 text-brand-red group-hover:bg-white/20 group-hover:text-white">
                 <Phone aria-hidden="true" className="h-4 w-4" />
@@ -730,7 +730,7 @@ export default function GetInvolvedPage() {
             </a>
             <a
               href="/home/our-movement#zonal-structure"
-              className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-black hover:text-white"
+              className="group flex items-center gap-3 rounded-xl bg-white p-4 transition hover:bg-brand-black hover:text-white"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/10 text-brand-black group-hover:bg-white/20 group-hover:text-white">
                 <MapPin aria-hidden="true" className="h-4 w-4" />
@@ -793,7 +793,7 @@ export default function GetInvolvedPage() {
 
       {/* CLOSING CTA --------------------------------------------- */}
       <section className="relative isolate overflow-hidden bg-brand-green px-4 py-20 text-center text-white sm:py-24 lg:py-28">
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-0.75">
           <span className="h-full flex-1 bg-white/40" />
           <span className="h-full flex-1 bg-brand-black/60" />
           <span className="h-full flex-1 bg-brand-red" />
