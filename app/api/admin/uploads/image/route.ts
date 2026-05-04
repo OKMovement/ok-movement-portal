@@ -84,7 +84,15 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown upload error.";
     console.error("Failed to upload file:", error);
-    return NextResponse.json({ error: "Unable to upload file right now." }, { status: 500 });
+
+    const status = message.includes("Cloudinary is not configured")
+      ? 503
+      : message.startsWith("Cloudinary upload failed:")
+        ? 502
+        : 500;
+
+    return NextResponse.json({ error: message }, { status });
   }
 }

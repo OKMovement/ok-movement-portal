@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 type CloudinaryConfig = {
   cloudName: string;
   apiKey: string;
@@ -23,16 +21,51 @@ export type CloudinaryUploadResult = {
   originalFilename?: string;
 };
 
+function parseCloudinaryUrl(value: string): CloudinaryConfig | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const withoutScheme = trimmed.startsWith("cloudinary://")
+    ? trimmed.slice("cloudinary://".length)
+    : trimmed;
+
+  // Split on the final "@" so unescaped "@" in secrets still work.
+  const atIndex = withoutScheme.lastIndexOf("@");
+  if (atIndex === -1) return null;
+
+  const credentials = withoutScheme.slice(0, atIndex);
+  const hostWithOptionalPath = withoutScheme.slice(atIndex + 1);
+  const cloudName = hostWithOptionalPath.split("/")[0]?.trim();
+
+  const colonIndex = credentials.indexOf(":");
+  if (colonIndex === -1) return null;
+
+  const apiKey = decodeURIComponent(credentials.slice(0, colonIndex).trim());
+  const apiSecret = decodeURIComponent(credentials.slice(colonIndex + 1).trim());
+
+  if (!apiKey || !apiSecret || !cloudName) return null;
+  return { cloudName, apiKey, apiSecret };
+}
+
 function getCloudinaryConfig(): CloudinaryConfig {
   const cloudinaryUrl = process.env.CLOUDINARY_URL?.trim();
   if (cloudinaryUrl) {
-    const parsed = new URL(cloudinaryUrl);
-    const apiKey = decodeURIComponent(parsed.username);
-    const apiSecret = decodeURIComponent(parsed.password);
-    const cloudName = parsed.hostname;
+    const parsedFromRaw = parseCloudinaryUrl(cloudinaryUrl);
+    if (parsedFromRaw) {
+      return parsedFromRaw;
+    }
 
-    if (apiKey && apiSecret && cloudName) {
-      return { cloudName, apiKey, apiSecret };
+    try {
+      const parsed = new URL(cloudinaryUrl);
+      const apiKey = decodeURIComponent(parsed.username);
+      const apiSecret = decodeURIComponent(parsed.password);
+      const cloudName = parsed.hostname;
+
+      if (apiKey && apiSecret && cloudName) {
+        return { cloudName, apiKey, apiSecret };
+      }
+    } catch {
+      // Fallback to explicit env keys below.
     }
   }
 
@@ -49,21 +82,6 @@ function getCloudinaryConfig(): CloudinaryConfig {
   return { cloudName, apiKey, apiSecret };
 }
 
-function createSignature(
-  params: Record<string, string | number | undefined>,
-  apiSecret: string,
-): string {
-  const toSign = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== "")
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-
-  return createHash("sha1")
-    .update(`${toSign}${apiSecret}`)
-    .digest("hex");
-}
-
 export async function uploadAssetToCloudinary({
   file,
   folder,
@@ -75,26 +93,22 @@ export async function uploadAssetToCloudinary({
       : "auto";
 
   const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
-  const timestamp = Math.floor(Date.now() / 1000);
-  const paramsToSign = {
-    timestamp,
-    folder,
-  };
-  const signature = createSignature(paramsToSign, apiSecret);
 
   const body = new FormData();
   body.append("file", file);
-  body.append("api_key", apiKey);
-  body.append("timestamp", String(timestamp));
-  body.append("signature", signature);
   if (folder) {
     body.append("folder", folder);
   }
+
+  const authorization = `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString("base64")}`;
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${cloudName}/${normalizedResourceType}/upload`,
     {
       method: "POST",
+      headers: {
+        Authorization: authorization,
+      },
       body,
     },
   );
@@ -115,7 +129,7 @@ export async function uploadAssetToCloudinary({
 
   if (!response.ok || !data?.secure_url || !data.public_id) {
     const reason = data?.error?.message ?? "Unknown Cloudinary upload error.";
-    throw new Error(`Image upload failed: ${reason}`);
+    throw new Error(`Cloudinary upload failed: ${reason}`);
   }
 
   return {
