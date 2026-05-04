@@ -118,14 +118,14 @@ const contactChannels = [
     href: "tel:+2349099999361",
     accent: "bg-brand-red/10 text-brand-red",
   },
-  {
-    icon: MapPin,
-    label: "National Office",
-    primary: "Headquarters Annex Office, 56 Oladipo Bateye Street",
-    secondary: "GRA Ikeja, Lagos",
-    href: "https://maps.google.com/?q=56+Oladipo+Bateye+Street+GRA+Ikeja+Lagos",
-    accent: "bg-brand-black/10 text-brand-black",
-  },
+  // {
+  //   icon: MapPin,
+  //   label: "National Office",
+  //   primary: "Headquarters Annex Office, 56 Oladipo Bateye Street",
+  //   secondary: "GRA Ikeja, Lagos",
+  //   href: "https://maps.google.com/?q=56+Oladipo+Bateye+Street+GRA+Ikeja+Lagos",
+  //   accent: "bg-brand-black/10 text-brand-black",
+  // },
   {
     icon: Globe2,
     label: "Coverage",
