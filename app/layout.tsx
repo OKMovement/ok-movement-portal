@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import "react-international-phone/style.css";
+import AskOkFab from "../components/ask-ok-fab";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -37,6 +38,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body>{children}</body>
+      <AskOkFab />
+
     </html>
   );
 }
