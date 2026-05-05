@@ -10,6 +10,15 @@ const contactSubmissionSchema = new Schema(
     subject: { type: String, required: true, trim: true },
     message: { type: String, required: true, trim: true },
     newsletter: { type: Boolean, required: true, default: true },
+    replies: [
+      {
+        message: { type: String, required: true, trim: true },
+        sentAt: { type: Date, required: true, default: Date.now },
+        sentByAdminId: { type: Schema.Types.ObjectId, ref: "AdminUser", required: true },
+        sentByAdminName: { type: String, required: true, trim: true },
+        sentByAdminEmail: { type: String, required: true, trim: true, lowercase: true },
+      },
+    ],
   },
   { timestamps: true },
 );

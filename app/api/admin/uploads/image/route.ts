@@ -18,6 +18,7 @@ function isUploadContext(value: string): value is UploadContext {
 }
 
 function resolveResourceType(file: File): "image" | "video" | "raw" {
+  if (file.type === "application/pdf") return "image";
   if (file.type.startsWith("image/")) return "image";
   if (file.type.startsWith("video/")) return "video";
   return "raw";

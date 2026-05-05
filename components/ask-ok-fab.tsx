@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 export default function AskOkFab() {
   const pathname = usePathname();
   if (pathname === "/home/ask-ok") return null;
+  if (pathname.includes("admin")) return null;
 
   return (
     <a

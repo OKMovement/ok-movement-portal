@@ -95,9 +95,14 @@ export async function uploadAssetToCloudinary({
   const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
 
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", file, file.name || "upload.bin");
   if (folder) {
     body.append("folder", folder);
+  }
+  if (normalizedResourceType === "raw" && file.name) {
+    body.append("use_filename", "true");
+    body.append("unique_filename", "true");
+    body.append("filename_override", file.name);
   }
 
   const authorization = `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString("base64")}`;

@@ -37,6 +37,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
   const [searchQuery, setSearchQuery] = useState("");
   const [engagementFilter, setEngagementFilter] = useState("all");
   const [diasporaFilter, setDiasporaFilter] = useState<"all" | "diaspora" | "local">("all");
+  const [stateFilter, setStateFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(10);
 
@@ -151,11 +152,24 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     return values.sort((a, b) => a.localeCompare(b));
   }, [scopedMembers]);
 
+  const stateOptions = useMemo(() => {
+    const values = Array.from(
+      new Set(scopedMembers.map((member) => member.votingState?.trim()).filter(Boolean) as string[]),
+    );
+    return values.sort((a, b) => a.localeCompare(b));
+  }, [scopedMembers]);
+
   useEffect(() => {
     if (engagementFilter !== "all" && !engagementOptions.includes(engagementFilter)) {
       setEngagementFilter("all");
     }
   }, [engagementFilter, engagementOptions]);
+
+  useEffect(() => {
+    if (stateFilter !== "all" && !stateOptions.includes(stateFilter)) {
+      setStateFilter("all");
+    }
+  }, [stateFilter, stateOptions]);
 
   const filteredMembers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -167,6 +181,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
       if (diasporaFilter === "diaspora" && !member.isDiaspora) return false;
       if (diasporaFilter === "local" && member.isDiaspora) return false;
+      if (stateFilter !== "all" && (member.votingState?.trim() ?? "") !== stateFilter) return false;
 
       if (!query) return true;
 
@@ -186,7 +201,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
       return searchable.includes(query);
     });
-  }, [scopedMembers, searchQuery, engagementFilter, diasporaFilter]);
+  }, [scopedMembers, searchQuery, engagementFilter, diasporaFilter, stateFilter]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(filteredMembers.length / pageSize)),
@@ -200,7 +215,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, engagementFilter, diasporaFilter, pageSize, donationsOnly]);
+  }, [searchQuery, engagementFilter, diasporaFilter, stateFilter, pageSize, donationsOnly]);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -325,6 +340,21 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
               <option value="all">All</option>
               <option value="local">Local</option>
               <option value="diaspora">Diaspora</option>
+            </select>
+          </label>
+          <label className="grid min-w-[12rem] gap-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">State</span>
+            <select
+              value={stateFilter}
+              onChange={(event) => setStateFilter(event.target.value)}
+              className="min-h-10 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+            >
+              <option value="all">All states</option>
+              {stateOptions.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
             </select>
           </label>
         </div>

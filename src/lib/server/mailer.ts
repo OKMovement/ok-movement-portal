@@ -407,9 +407,70 @@ type EventRegistrationConfirmationArgs = {
   venueOrLink: string;
 };
 
+type ContactSubmissionReplyEmailArgs = {
+  to: string;
+  supporterName: string;
+  originalSubject: string;
+  adminName: string;
+  replyMessage: string;
+};
+
 function getFirstName(name: string) {
   const first = name.trim().split(/\s+/)[0] ?? "";
   return first || "Supporter";
+}
+
+export async function sendContactSubmissionReplyEmail(args: ContactSubmissionReplyEmailArgs) {
+  const { to, supporterName, originalSubject, adminName, replyMessage } = args;
+  const firstName = getFirstName(supporterName);
+  const website = process.env.OK_MOVEMENT_WEBSITE_URL ?? "https://www.okmovement.org";
+  const safeFirstName = escapeHtml(firstName);
+  const safeOriginalSubject = escapeHtml(originalSubject);
+  const safeAdminName = escapeHtml(adminName);
+  const safeWebsite = escapeHtml(website);
+  const plainReply = replyMessage.trim();
+  const htmlReply = escapeHtml(plainReply).replaceAll("\n", "<br/>");
+
+  await sendEmail({
+    to,
+    subject: `Re: ${originalSubject}`,
+    text: `Dear ${firstName},
+
+Thank you for contacting the OK Movement.
+
+${plainReply}
+
+Best regards,
+${adminName}
+OK Movement Team
+${website}`,
+    html: `
+      <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
+        <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:12px; overflow:hidden;">
+          <div style="padding:20px 24px; background:#111111;">
+            <p style="margin:0; color:#ffffff; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">OK Movement</p>
+            <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">Response to Your Contact Submission</h1>
+          </div>
+          <div style="padding:24px;">
+            <p style="margin:0 0 12px; line-height:1.7;">Dear ${safeFirstName},</p>
+            <p style="margin:0 0 12px; line-height:1.7;">
+              Thank you for contacting the OK Movement. We are responding to your message regarding:
+              <strong>${safeOriginalSubject}</strong>.
+            </p>
+            <div style="margin:0 0 14px; border-left:4px solid #0a7f3f; background:#f7fbf8; padding:12px 14px; line-height:1.7;">
+              ${htmlReply}
+            </div>
+            <p style="margin:0; line-height:1.7;">
+              Best regards,<br/>
+              ${safeAdminName}<br/>
+              <strong>OK Movement Team</strong><br/>
+              <a href="${safeWebsite}" style="color:#0a7f3f; text-decoration:none;">${safeWebsite}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    `,
+  });
 }
 
 export async function sendEventRegistrationConfirmationEmail(

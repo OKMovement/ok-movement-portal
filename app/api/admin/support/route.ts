@@ -15,6 +15,19 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     submissions: submissions.map((submission) => ({
+      // Replies are optional for older records created before this field existed.
+      replies: (submission.replies ?? []).map((reply) => ({
+        message: reply.message,
+        sentAt: reply.sentAt,
+        sentByAdminId: String(reply.sentByAdminId),
+        sentByAdminName: reply.sentByAdminName,
+        sentByAdminEmail: reply.sentByAdminEmail,
+      })),
+      replyCount: submission.replies?.length ?? 0,
+      lastRepliedAt:
+        submission.replies && submission.replies.length > 0
+          ? submission.replies[submission.replies.length - 1]?.sentAt ?? null
+          : null,
       id: String(submission._id),
       requestType: submission.requestType,
       name: submission.name,

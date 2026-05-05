@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Copy, Loader2, Trash2, X } from "lucide-react";
+import { Copy, Loader2, Send, Trash2, X } from "lucide-react";
+
+type SubmissionReply = {
+  message: string;
+  sentAt: string | Date;
+  sentByAdminId: string;
+  sentByAdminName: string;
+  sentByAdminEmail: string;
+};
 
 type SupportSubmissionItem = {
   id: string;
@@ -14,6 +22,9 @@ type SupportSubmissionItem = {
   message: string;
   newsletter: boolean;
   createdAt: string | Date;
+  replies?: SubmissionReply[];
+  replyCount?: number;
+  lastRepliedAt?: string | Date | null;
 };
 
 export default function SupportSubmissionsManager() {
@@ -23,6 +34,9 @@ export default function SupportSubmissionsManager() {
   const [selected, setSelected] = useState<SupportSubmissionItem | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+  const [replyNotice, setReplyNotice] = useState("");
 
   async function loadSubmissions() {
     setLoading(true);
@@ -46,6 +60,23 @@ export default function SupportSubmissionsManager() {
   useEffect(() => {
     loadSubmissions();
   }, []);
+
+  function defaultReplyFor(submission: SupportSubmissionItem) {
+    const firstName = submission.name.trim().split(/\s+/)[0] || "there";
+    return `Hello ${firstName},
+
+Thank you for reaching out to the OK Movement.
+
+`;
+  }
+
+  function handleSelectSubmission(submission: SupportSubmissionItem) {
+    setSelected(submission);
+    setCopiedEmail(false);
+    setReplyNotice("");
+    setError("");
+    setReplyMessage(defaultReplyFor(submission));
+  }
 
   async function handleCopyEmail(email: string) {
     try {
@@ -77,6 +108,59 @@ export default function SupportSubmissionsManager() {
     setDeleting(false);
   }
 
+  async function handleSendReply() {
+    if (!selected) return;
+
+    const message = replyMessage.trim();
+    if (message.length < 10) {
+      setError("Reply message must be at least 10 characters.");
+      return;
+    }
+
+    setSendingReply(true);
+    setReplyNotice("");
+    setError("");
+
+    const response = await fetch(`/api/admin/support/${selected.id}/reply`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+
+    const data = (await response.json().catch(() => null)) as
+      | {
+          error?: string;
+          reply?: SubmissionReply;
+          submission?: {
+            id: string;
+            replyCount: number;
+            lastRepliedAt: string;
+          };
+        }
+      | null;
+
+    if (!response.ok || !data?.reply || !data.submission) {
+      setError(data?.error ?? "Unable to send reply email.");
+      setSendingReply(false);
+      return;
+    }
+
+    const updatedSelected: SupportSubmissionItem = {
+      ...selected,
+      replies: [...(selected.replies ?? []), data.reply],
+      replyCount: data.submission.replyCount,
+      lastRepliedAt: data.submission.lastRepliedAt,
+    };
+
+    setSelected(updatedSelected);
+    setSubmissions((prev) =>
+      prev.map((item) => (item.id === selected.id ? { ...item, ...updatedSelected } : item)),
+    );
+    setReplyNotice("Reply email sent successfully.");
+    setReplyMessage("");
+    setSendingReply(false);
+  }
+
   return (
     <>
       <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
@@ -90,12 +174,13 @@ export default function SupportSubmissionsManager() {
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Subject</th>
                 <th className="px-4 py-3">Submitted</th>
+                <th className="px-4 py-3">Reply Status</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-black/60">
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
                     Loading support submissions...
                   </td>
                 </tr>
@@ -103,10 +188,7 @@ export default function SupportSubmissionsManager() {
                 submissions.map((submission) => (
                   <tr
                     key={submission.id}
-                    onClick={() => {
-                      setSelected(submission);
-                      setCopiedEmail(false);
-                    }}
+                    onClick={() => handleSelectSubmission(submission)}
                     className="cursor-pointer border-t border-black/8 align-top text-sm text-brand-black transition hover:bg-[#f7f7f4]"
                   >
                     <td className="px-4 py-3 font-medium">{submission.name}</td>
@@ -120,11 +202,22 @@ export default function SupportSubmissionsManager() {
                     <td className="px-4 py-3 text-black/60">
                       {submission.createdAt ? new Date(submission.createdAt).toLocaleString() : "-"}
                     </td>
+                    <td className="px-4 py-3 text-black/60">
+                      {submission.lastRepliedAt ? (
+                        <span className="rounded-[8px] bg-brand-green/10 px-2 py-1 text-xs font-semibold text-brand-green">
+                          Replied ({submission.replyCount ?? 1})
+                        </span>
+                      ) : (
+                        <span className="rounded-[8px] bg-black/8 px-2 py-1 text-xs font-semibold text-black/60">
+                          Pending
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-black/60">
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
                     No support submissions yet.
                   </td>
                 </tr>
@@ -195,6 +288,39 @@ export default function SupportSubmissionsManager() {
               <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-black">{selected.message}</p>
             </div>
 
+            <div className="mt-5 rounded-[8px] border border-black/10 bg-[#fafaf8] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Reply and Send Email</p>
+              <textarea
+                value={replyMessage}
+                onChange={(event) => setReplyMessage(event.target.value)}
+                rows={6}
+                placeholder="Write your response..."
+                className="mt-2 w-full rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+              />
+              {replyNotice ? <p className="mt-2 text-sm text-brand-green">{replyNotice}</p> : null}
+              {selected.lastRepliedAt ? (
+                <p className="mt-2 text-xs text-black/55">
+                  Last reply: {new Date(selected.lastRepliedAt).toLocaleString()} ({selected.replyCount ?? 1} total)
+                </p>
+              ) : null}
+            </div>
+
+            {selected.replies && selected.replies.length > 0 ? (
+              <div className="mt-4 rounded-[8px] border border-black/10 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Reply History</p>
+                <div className="mt-3 max-h-44 space-y-3 overflow-y-auto pr-1">
+                  {selected.replies.map((reply, index) => (
+                    <div key={`${reply.sentAt}-${index}`} className="rounded-[8px] border border-black/8 p-3">
+                      <p className="text-xs text-black/55">
+                        {new Date(reply.sentAt).toLocaleString()} by {reply.sentByAdminName}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-brand-black">{reply.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
@@ -202,6 +328,15 @@ export default function SupportSubmissionsManager() {
                 className="inline-flex min-h-10 items-center justify-center rounded-[8px] border border-black/15 px-4 text-xs font-semibold uppercase tracking-[0.15em] text-black/70 transition hover:border-black/30"
               >
                 Close
+              </button>
+              <button
+                type="button"
+                onClick={handleSendReply}
+                disabled={sendingReply}
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-green px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
+              >
+                {sendingReply ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                Send reply email
               </button>
               <button
                 type="button"
