@@ -37,7 +37,7 @@ export default function AskOkFab() {
           </span>
         </div>
       </div>
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-[9px] font-extrabold tracking-tight backdrop-blur-sm">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-[9px] font-extrabold tracking-tight backdrop-blur-sm">
         AI
       </span>
     </a>
