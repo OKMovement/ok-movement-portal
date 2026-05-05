@@ -7,6 +7,14 @@ type SendMailArgs = {
   text: string;
 };
 
+type BulkNotificationEmailArgs = {
+  to: string;
+  subject: string;
+  message: string;
+  senderName: string;
+  recipientName?: string;
+};
+
 type MemberWelcomeArgs = {
   name: string;
   email: string;
@@ -552,6 +560,42 @@ ${website} | ${whatsappOrTelegram} | ${socials}`;
   await sendEmail({
     to: email,
     subject: "Your Registration Is Confirmed – OK Movement Event",
+    text,
+    html,
+  });
+}
+
+export async function sendBulkNotificationEmail(args: BulkNotificationEmailArgs) {
+  const { to, subject, message } = args;
+  const safeSubject = escapeHtml(subject.trim());
+  const safeMessageHtml = escapeHtml(message.trim()).replaceAll("\n", "<br/>");
+
+  const text = `${message.trim()}
+
+OK Movement`;
+
+  const html = `
+    <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
+      <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:12px; overflow:hidden;">
+        <div style="padding:20px 24px; background:#111111;">
+          <p style="margin:0; color:#ffffff; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">OK Movement</p>
+          <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">${safeSubject}</h1>
+        </div>
+        <div style="padding:24px;">
+          <div style="margin:0 0 14px; line-height:1.7;">
+            ${safeMessageHtml}
+          </div>
+          <p style="margin:0; line-height:1.7;">
+            <strong>OK Movement</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  await sendEmail({
+    to,
+    subject,
     text,
     html,
   });

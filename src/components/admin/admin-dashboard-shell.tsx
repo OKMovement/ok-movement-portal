@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   LogOut,
+  Mail,
   Settings,
   Users,
 } from "lucide-react";
@@ -23,7 +24,7 @@ type AdminDashboardShellProps = {
   children: React.ReactNode;
 };
 
-const links = [
+const baseLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/dashboard/members", label: "Members", icon: Users },
   { href: "/admin/dashboard/donations", label: "Donations", icon: HandCoins },
@@ -31,12 +32,14 @@ const links = [
   { href: "/admin/dashboard/media-gallery", label: "Media Gallery", icon: Images },
   { href: "/admin/dashboard/events", label: "Events", icon: CalendarDays },
   { href: "/admin/dashboard/support", label: "Support", icon: LifeBuoy },
+  { href: "/admin/dashboard/notifications", label: "Notifications", icon: Mail },
   { href: "/admin/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 
 export default function AdminDashboardShell({ admin, children }: AdminDashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const links = baseLinks;
 
   async function handleSignOut() {
     await fetch("/api/admin/auth/sign-out", { method: "POST" });
