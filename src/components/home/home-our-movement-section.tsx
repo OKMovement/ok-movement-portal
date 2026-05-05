@@ -19,6 +19,9 @@ type CampaignVideo = {
   linkUrl: string;
 };
 
+const HOME_VIDEO_ID = "69f4be25da27d1ce9c50c484";
+const HOME_VIDEO_TITLE = "ok movement new song";
+
 export default function HomeOurMovementSection() {
   const [campaignVideo, setCampaignVideo] = useState<CampaignVideo | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -32,10 +35,15 @@ export default function HomeOurMovementSection() {
       const data = (await response.json().catch(() => null)) as
         | { media?: CampaignVideo[] }
         | null;
-
       if (!mounted || !response.ok) return;
 
       const preferredHomeVideo =
+        data?.media?.find((item) => item.id === HOME_VIDEO_ID && item.linkUrl?.trim()) ??
+        data?.media?.find(
+          (item) =>
+            item.title?.trim().toLowerCase() === HOME_VIDEO_TITLE &&
+            item.linkUrl?.trim(),
+        ) ??
         data?.media?.find((item) => item.title?.trim().toLowerCase() === "home-video" && item.linkUrl?.trim()) ??
         data?.media?.find((item) => item.linkUrl?.trim()) ??
         null;
