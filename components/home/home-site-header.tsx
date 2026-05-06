@@ -157,27 +157,7 @@ export default function HomeSiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white text-brand-black shadow-[0_1px_0_0_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(0_0_0/0.18)]">
       {/* Announcement strip */}
-      <div className="relative bg-brand-black text-white">
-        <div className="mx-auto flex min-h-10 w-full max-w-7xl items-center justify-center gap-3 px-4 text-[10px] font-semibold uppercase tracking-[0.32em] sm:tracking-[0.5em]">
-          <span aria-hidden="true" className="hidden h-1 w-1 rounded-full bg-brand-green sm:inline-block" />
-          <span className="text-white/85">Official Launch Coming Soon</span>
-          <a
-            href="/home#get-involved"
-            className="group inline-flex items-center gap-1 text-brand-green transition hover:text-white"
-          >
-            Join us
-            <ArrowRight
-              aria-hidden="true"
-              className="h-3 w-3 transition group-hover:translate-x-0.5"
-            />
-          </a>
-        </div>
-        <span aria-hidden="true" className="absolute inset-x-0 bottom-0 flex h-px">
-          <span className="h-full flex-1 bg-brand-green" />
-          <span className="h-full flex-1 bg-white/25" />
-          <span className="h-full flex-1 bg-brand-red" />
-        </span>
-      </div>
+      
 
       {/* Main bar */}
       <div className="flex min-h-[4.5rem] w-full items-center justify-between gap-5 px-4 sm:px-6 lg:px-10 xl:min-h-20 xl:px-12 2xl:px-16">
