@@ -48,6 +48,12 @@ const navItems: readonly NavItem[] = [
     description: "Volunteer, donate, organize",
   },
   {
+    label: "Tech Volunteers",
+    href: "/home/tech-volunteer",
+    icon: Users,
+    description: "Use your skills to power the movement",
+  },
+  {
     label: "Upcoming Events",
     href: "/home/upcoming-events",
     icon: CalendarDays,
