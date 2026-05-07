@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   HandCoins,
   CalendarDays,
+  Code2,
   FileText,
   Images,
   LayoutDashboard,
@@ -27,6 +28,7 @@ type AdminDashboardShellProps = {
 const baseLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/dashboard/members", label: "Members", icon: Users },
+  { href: "/admin/dashboard/tech-volunteers", label: "Tech Volunteers", icon: Code2 },
   { href: "/admin/dashboard/donations", label: "Donations", icon: HandCoins },
   { href: "/admin/dashboard/press-releases", label: "Press Releases", icon: FileText },
   { href: "/admin/dashboard/media-gallery", label: "Media Gallery", icon: Images },

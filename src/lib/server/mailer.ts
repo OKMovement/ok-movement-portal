@@ -38,6 +38,32 @@ type DonationAdminNotificationArgs = {
   votingWard?: string;
 };
 
+type TechVolunteerSubmissionEmailArgs = {
+  fullName: string;
+  email: string;
+  primaryRole: string;
+  isDiaspora: boolean;
+  state?: string;
+  country?: string;
+};
+
+type TechVolunteerAdminNotificationArgs = {
+  adminEmails: string[];
+  fullName: string;
+  email: string;
+  phone: string;
+  primaryRole: string;
+  secondarySkills: string[];
+  experience: string;
+  availability: string;
+  isDiaspora: boolean;
+  state?: string;
+  country?: string;
+  portfolioUrl?: string;
+  linkedinUrl?: string;
+  motivation?: string;
+};
+
 function escapeHtml(input: string) {
   return input
     .replaceAll("&", "&amp;")
@@ -372,6 +398,173 @@ Location: ${locationText}`,
                 <p style="margin:0 0 10px; line-height:1.7;"><strong>Donation Amount:</strong> ${safeDonationAmount}</p>
                 <p style="margin:0 0 10px; line-height:1.7;"><strong>Donation Material:</strong> ${safeDonationMaterial}</p>
                 <p style="margin:0; line-height:1.7;"><strong>Location:</strong> ${safeLocationText}</p>
+              </div>
+            </div>
+          </div>
+        `,
+      }),
+    ),
+  );
+}
+
+export async function sendTechVolunteerSubmissionEmail(args: TechVolunteerSubmissionEmailArgs) {
+  const { fullName, email, primaryRole, isDiaspora, state, country } = args;
+  const firstName = getFirstName(fullName);
+  const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:4200";
+  const volunteerPageUrl = `${appBaseUrl.replace(/\/$/, "")}/home/tech-volunteer`;
+  const locationText = isDiaspora
+    ? `Diaspora (${country || "Country not provided"})`
+    : state || "Nigeria";
+
+  await sendEmail({
+    to: email,
+    subject: "Tech Volunteer Application Received - OK Movement",
+    text: `Hello ${firstName},
+
+Thank you for applying to join the OK Movement Tech Volunteers Programme.
+
+We have received your application and our team will review it within 5 working days.
+
+Application summary:
+- Primary role: ${primaryRole}
+- Location: ${locationText}
+
+What happens next:
+1. We review your skills and preferred role.
+2. A coordinator contacts you by email.
+3. You receive onboarding instructions for your first contribution.
+
+You can revisit the application page here: ${volunteerPageUrl}
+
+OK Movement Team`,
+    html: `
+      <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
+        <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:12px; overflow:hidden;">
+          <div style="padding:20px 24px; background:#111111;">
+            <p style="margin:0; color:#ffffff; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">OK Movement</p>
+            <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">Tech Volunteer Application Received</h1>
+          </div>
+          <div style="padding:24px;">
+            <p style="margin:0 0 12px; line-height:1.7;">Hello ${escapeHtml(firstName)},</p>
+            <p style="margin:0 0 12px; line-height:1.7;">
+              Thank you for applying to join the OK Movement Tech Volunteers Programme.
+              We have received your application and our team will review it within 5 working days.
+            </p>
+            <div style="margin:0 0 14px; border-left:4px solid #0a7f3f; background:#f7fbf8; padding:12px 14px;">
+              <p style="margin:0 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#0a7f3f;">Application Summary</p>
+              <p style="margin:0 0 4px; line-height:1.6;"><strong>Primary role:</strong> ${escapeHtml(primaryRole)}</p>
+              <p style="margin:0; line-height:1.6;"><strong>Location:</strong> ${escapeHtml(locationText)}</p>
+            </div>
+            <ol style="margin:0; padding-left:18px; line-height:1.7;">
+              <li>We review your skills and preferred role.</li>
+              <li>A coordinator contacts you by email.</li>
+              <li>You receive onboarding instructions for your first contribution.</li>
+            </ol>
+            <p style="margin:16px 0 0; line-height:1.7;">
+              You can revisit the application page here:
+              <a href="${escapeHtml(volunteerPageUrl)}" style="color:#0a7f3f; text-decoration:none;">${escapeHtml(volunteerPageUrl)}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendTechVolunteerAdminNotificationEmail(
+  args: TechVolunteerAdminNotificationArgs,
+) {
+  const {
+    adminEmails,
+    fullName,
+    email,
+    phone,
+    primaryRole,
+    secondarySkills,
+    experience,
+    availability,
+    isDiaspora,
+    state,
+    country,
+    portfolioUrl,
+    linkedinUrl,
+    motivation,
+  } = args;
+
+  const fallbackRecipients = (process.env.TECH_VOLUNTEER_ALERT_EMAILS ?? "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+
+  const recipients = Array.from(
+    new Set(
+      [...adminEmails, ...fallbackRecipients]
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  );
+
+  if (recipients.length === 0) {
+    return;
+  }
+
+  const locationText = isDiaspora
+    ? `Diaspora (${country || "Country not provided"})`
+    : state || "State not provided";
+  const secondaryText = secondarySkills.length > 0 ? secondarySkills.join(", ") : "None selected";
+  const portfolioText = portfolioUrl || "Not provided";
+  const linkedinText = linkedinUrl || "Not provided";
+  const motivationText = motivation || "Not provided";
+
+  const safeFullName = escapeHtml(fullName);
+  const safeEmail = escapeHtml(email);
+  const safePhone = escapeHtml(phone);
+  const safePrimaryRole = escapeHtml(primaryRole);
+  const safeSecondary = escapeHtml(secondaryText);
+  const safeExperience = escapeHtml(experience);
+  const safeAvailability = escapeHtml(availability);
+  const safeLocation = escapeHtml(locationText);
+  const safePortfolio = escapeHtml(portfolioText);
+  const safeLinkedin = escapeHtml(linkedinText);
+  const safeMotivation = escapeHtml(motivationText);
+
+  await Promise.allSettled(
+    recipients.map((adminEmail) =>
+      sendEmail({
+        to: adminEmail,
+        subject: "New Tech Volunteer Application - OK Movement",
+        text: `A new tech volunteer application has been submitted.
+
+Name: ${fullName}
+Email: ${email}
+Phone: ${phone}
+Primary role: ${primaryRole}
+Secondary skills: ${secondaryText}
+Experience: ${experience}
+Availability: ${availability}
+Location: ${locationText}
+Portfolio: ${portfolioText}
+LinkedIn/GitHub: ${linkedinText}
+Motivation: ${motivationText}`,
+        html: `
+          <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
+            <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:12px; overflow:hidden;">
+              <div style="padding:20px 24px; background:#111111;">
+                <p style="margin:0; color:#ffffff; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">OK Movement Admin Alert</p>
+                <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">New Tech Volunteer Application</h1>
+              </div>
+              <div style="padding:24px;">
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Name:</strong> ${safeFullName}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Email:</strong> ${safeEmail}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Phone:</strong> ${safePhone}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Primary role:</strong> ${safePrimaryRole}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Secondary skills:</strong> ${safeSecondary}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Experience:</strong> ${safeExperience}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Availability:</strong> ${safeAvailability}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Location:</strong> ${safeLocation}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>Portfolio:</strong> ${safePortfolio}</p>
+                <p style="margin:0 0 8px; line-height:1.7;"><strong>LinkedIn/GitHub:</strong> ${safeLinkedin}</p>
+                <p style="margin:0; line-height:1.7;"><strong>Motivation:</strong> ${safeMotivation}</p>
               </div>
             </div>
           </div>

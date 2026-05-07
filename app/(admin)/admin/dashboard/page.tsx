@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CalendarDays, FileText, Images, LifeBuoy, Users } from "lucide-react";
+import { CalendarDays, Code2, FileText, Images, LifeBuoy, Users } from "lucide-react";
 import { connectToDatabase } from "@/lib/db";
 import { MemberModel } from "@/lib/models/member";
+import { TechVolunteerModel } from "@/lib/models/tech-volunteer";
 import { PressReleaseModel } from "@/lib/models/press-release";
 import { EventModel } from "@/lib/models/event";
 import { MediaItemModel } from "@/lib/models/media-item";
@@ -11,8 +12,9 @@ import StateStatsBarChart from "@/components/admin/state-stats-bar-chart";
 export default async function AdminDashboardPage() {
   await connectToDatabase();
 
-  const [members, pressReleases, mediaItems, events, supportSubmissions, membersByState] = await Promise.all([
+  const [members, techVolunteers, pressReleases, mediaItems, events, supportSubmissions, membersByState] = await Promise.all([
     MemberModel.countDocuments({}),
+    TechVolunteerModel.countDocuments({}),
     PressReleaseModel.countDocuments({}),
     MediaItemModel.countDocuments({}),
     EventModel.countDocuments({}),
@@ -39,6 +41,14 @@ export default async function AdminDashboardPage() {
       icon: Users,
       href: "/admin/dashboard/members",
       tone: "bg-brand-green/10 text-brand-green",
+    },
+    {
+      label: "Tech Volunteers",
+      value: techVolunteers,
+      helper: "Applicants from tech volunteer form",
+      icon: Code2,
+      href: "/admin/dashboard/tech-volunteers",
+      tone: "bg-brand-black/10 text-brand-black",
     },
     {
       label: "Press Releases",
@@ -84,7 +94,7 @@ export default async function AdminDashboardPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

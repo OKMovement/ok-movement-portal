@@ -25,6 +25,13 @@ const inputClass =
   "w-full min-h-11 rounded-xl border border-black/10 bg-white px-3.5 text-[14px] text-brand-black placeholder:text-black/35 focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green sm:min-h-12 sm:px-4";
 
 const labelClass = "text-[12px] font-semibold tracking-wide text-brand-black/75";
+const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+function isValidPhoneInput(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  const hasValidChars = /^\+?[0-9\s().-]+$/.test(phone);
+  return hasValidChars && digits.length >= 10 && digits.length <= 15;
+}
 
 const initialForm = {
   fullName: "",
@@ -70,6 +77,20 @@ export default function TechVolunteersPage() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === "submitting") return;
+
+    const normalizedEmail = form.email.trim().toLowerCase();
+    const normalizedPhone = form.phone.trim();
+    if (!basicEmailRegex.test(normalizedEmail)) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+    if (!isValidPhoneInput(normalizedPhone)) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid phone number (include country code, e.g. +234...).");
+      return;
+    }
+
     setErrorMsg(null);
     setStatus("submitting");
 
@@ -77,7 +98,12 @@ export default function TechVolunteersPage() {
       const res = await fetch("/api/tech-volunteers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, secondarySkills }),
+        body: JSON.stringify({
+          ...form,
+          email: normalizedEmail,
+          phone: normalizedPhone,
+          secondarySkills,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -413,8 +439,8 @@ export default function TechVolunteersPage() {
                     onChange={(e) => update("email", e.target.value)}
                     placeholder="you@email.com" className={inputClass} />
                 </Field>
-                <Field label="Phone (optional)">
-                  <input type="tel" value={form.phone}
+                <Field label="Phone *">
+                  <input required type="tel" value={form.phone}
                     onChange={(e) => update("phone", e.target.value)}
                     placeholder="+234 …" className={inputClass} />
                   <span className="mt-1 inline-flex w-fit items-center rounded-md bg-brand-black px-2 py-1 text-[11px] font-semibold text-white">
