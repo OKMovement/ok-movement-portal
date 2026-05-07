@@ -413,7 +413,7 @@ export default function TechVolunteersPage() {
               </h3>
               <p className="mt-2 text-[14px] text-white/75">
                 Check <span className="font-semibold text-white">{form.email || "your inbox"}</span>{" "}
-                for a confirmation. We&apos;ll be in touch shortly.
+                for your confirmation email. Shortlisted applicants will be contacted for onboarding.
               </p>
               <button
                 type="button"
@@ -680,8 +680,9 @@ function SuccessPanel({ email, fullName, onReset }: { email: string; fullName: s
           </span>
           <p className="text-[13px] text-brand-black sm:text-[14px]">
             <span className="font-semibold">Welcome, {fullName.split(" ")[0] || "friend"}.</span>{" "}
-            We&apos;ve received your application. A confirmation has been sent to{" "}
-            <span className="font-semibold">{email}</span>.
+            Your registration was successful. We&apos;ve sent a confirmation email to{" "}
+            <span className="font-semibold">{email}</span>, and shortlisted applicants will be contacted
+            for onboarding.
           </p>
         </div>
         <button type="button" onClick={onReset}

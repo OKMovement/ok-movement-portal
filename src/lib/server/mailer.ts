@@ -408,61 +408,65 @@ Location: ${locationText}`,
 }
 
 export async function sendTechVolunteerSubmissionEmail(args: TechVolunteerSubmissionEmailArgs) {
-  const { fullName, email, primaryRole, isDiaspora, state, country } = args;
+  const { fullName, email } = args;
   const firstName = getFirstName(fullName);
-  const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:4200";
-  const volunteerPageUrl = `${appBaseUrl.replace(/\/$/, "")}/home/tech-volunteer`;
-  const locationText = isDiaspora
-    ? `Diaspora (${country || "Country not provided"})`
-    : state || "Nigeria";
 
   await sendEmail({
     to: email,
-    subject: "Tech Volunteer Application Received - OK Movement",
-    text: `Hello ${firstName},
+    subject: "Tech Volunteer Registration Successful - OK Movement",
+    text: `Thank you for your interest in volunteering with the OK Movement.
 
-Thank you for applying to join the OK Movement Tech Volunteers Programme.
+Dear ${firstName},
 
-We have received your application and our team will review it within 5 working days.
+Thank you for stepping forward to support the Obi/Kwankwaso (OK) Movement. We are excited to see your interest in contributing your media skills to help drive this people-powered campaign.
 
-Application summary:
-- Primary role: ${primaryRole}
-- Location: ${locationText}
+Your application has been received, and we are currently reviewing submissions from individuals with diverse media expertise, including content creation, social media strategy, graphic design, video production, communications, and digital storytelling.
 
-What happens next:
-1. We review your skills and preferred role.
-2. A coordinator contacts you by email.
-3. You receive onboarding instructions for your first contribution.
+As a next step, shortlisted applicants will be contacted for a brief onboarding process, where we will align your skills with ongoing media initiatives and campaign needs. In the meantime, we encourage you to stay engaged with our official platforms and be ready to collaborate in a fast-paced, impact-driven environment.
 
-You can revisit the application page here: ${volunteerPageUrl}
+We appreciate your willingness to contribute your time and talent toward building a better future.
 
-OK Movement Team`,
+Warm regards,
+
+Admin
+OK Movement Media Team
+admin@okmovement.org`,
     html: `
       <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
         <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e8ece9; border-radius:12px; overflow:hidden;">
           <div style="padding:20px 24px; background:#111111;">
             <p style="margin:0; color:#ffffff; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700;">OK Movement</p>
-            <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">Tech Volunteer Application Received</h1>
+            <h1 style="margin:10px 0 0; color:#ffffff; font-size:22px; line-height:1.3;">Tech Volunteer Registration Successful</h1>
           </div>
           <div style="padding:24px;">
-            <p style="margin:0 0 12px; line-height:1.7;">Hello ${escapeHtml(firstName)},</p>
             <p style="margin:0 0 12px; line-height:1.7;">
-              Thank you for applying to join the OK Movement Tech Volunteers Programme.
-              We have received your application and our team will review it within 5 working days.
+              Thank you for your interest in volunteering with the OK Movement.
             </p>
-            <div style="margin:0 0 14px; border-left:4px solid #0a7f3f; background:#f7fbf8; padding:12px 14px;">
-              <p style="margin:0 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#0a7f3f;">Application Summary</p>
-              <p style="margin:0 0 4px; line-height:1.6;"><strong>Primary role:</strong> ${escapeHtml(primaryRole)}</p>
-              <p style="margin:0; line-height:1.6;"><strong>Location:</strong> ${escapeHtml(locationText)}</p>
-            </div>
-            <ol style="margin:0; padding-left:18px; line-height:1.7;">
-              <li>We review your skills and preferred role.</li>
-              <li>A coordinator contacts you by email.</li>
-              <li>You receive onboarding instructions for your first contribution.</li>
-            </ol>
-            <p style="margin:16px 0 0; line-height:1.7;">
-              You can revisit the application page here:
-              <a href="${escapeHtml(volunteerPageUrl)}" style="color:#0a7f3f; text-decoration:none;">${escapeHtml(volunteerPageUrl)}</a>
+            <p style="margin:0 0 12px; line-height:1.7;">Dear ${escapeHtml(firstName)},</p>
+            <p style="margin:0 0 12px; line-height:1.7;">
+              Thank you for stepping forward to support the Obi/Kwankwaso (OK) Movement.
+              We are excited to see your interest in contributing your media skills to help drive
+              this people-powered campaign.
+            </p>
+            <p style="margin:0 0 12px; line-height:1.7;">
+              Your application has been received, and we are currently reviewing submissions
+              from individuals with diverse media expertise, including content creation, social media
+              strategy, graphic design, video production, communications, and digital storytelling.
+            </p>
+            <p style="margin:0 0 12px; line-height:1.7;">
+              As a next step, shortlisted applicants will be contacted for a brief onboarding process,
+              where we will align your skills with ongoing media initiatives and campaign needs.
+              In the meantime, we encourage you to stay engaged with our official platforms and be ready
+              to collaborate in a fast-paced, impact-driven environment.
+            </p>
+            <p style="margin:0 0 16px; line-height:1.7;">
+              We appreciate your willingness to contribute your time and talent toward building a better future.
+            </p>
+            <p style="margin:0; line-height:1.7;">
+              Warm regards,<br/>
+              <strong>Admin</strong><br/>
+              OK Movement Media Team<br/>
+              <a href="mailto:admin@okmovement.org" style="color:#0a7f3f; text-decoration:none;">admin@okmovement.org</a>
             </p>
           </div>
         </div>
