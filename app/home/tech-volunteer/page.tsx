@@ -151,7 +151,7 @@ export default function TechVolunteersPage() {
             <h1 className="text-balance text-[34px] font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
               Build the rebirth.<br />
               <span className="bg-gradient-to-r from-brand-green via-emerald-300 to-brand-red bg-clip-text text-transparent">
-                Code, design & ship Nigeria&apos;s future.
+                Code, design & shape Nigeria&apos;s future.
               </span>
             </h1>
             <p className="max-w-xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
@@ -260,9 +260,9 @@ export default function TechVolunteersPage() {
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <span className="rounded-full bg-black/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-black/60">
+                  {/* <span className="rounded-full bg-black/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-black/60">
                     {role.commitment}
-                  </span>
+                  </span> */}
                 </div>
                 <div>
                   <h3 className="text-[16px] font-semibold tracking-tight text-brand-black sm:text-[17px]">
@@ -505,8 +505,8 @@ export default function TechVolunteersPage() {
                     ))}
                   </select>
                 </Field>
-                <Field label="Weekly availability *">
-                  <select required value={form.availability}
+                {/* <Field label="Weekly availability">
+                  <select value={form.availability}
                     onChange={(e) => update("availability", e.target.value)}
                     className={inputClass}>
                     <option value="">How much time can you give?</option>
@@ -514,7 +514,7 @@ export default function TechVolunteersPage() {
                       <option key={a} value={a}>{a}</option>
                     ))}
                   </select>
-                </Field>
+                </Field> */}
                 <Field label="Portfolio / website (optional)">
                   <input type="url" value={form.portfolioUrl}
                     onChange={(e) => update("portfolioUrl", e.target.value)}
@@ -635,9 +635,9 @@ export default function TechVolunteersPage() {
             <Mail className="mx-auto h-5 w-5 text-brand-green" />
             <p className="mt-2 text-[13px] text-brand-black/70">
               Still have questions? Email us at{" "}
-              <a href="mailto:volunteers@okmovement.ng"
+              <a href="mailto:volunteers@okmovement.org"
                 className="font-semibold text-brand-green hover:text-brand-black">
-                volunteers@okmovement.ng
+                volunteers@okmovement.org
               </a>
             </p>
           </div>
