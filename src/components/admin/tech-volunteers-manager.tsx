@@ -15,7 +15,7 @@ type TechVolunteerItem = {
   primaryRole: string;
   secondarySkills: string[];
   experience: string;
-  availability: string;
+  availability: string | null;
   portfolioUrl: string | null;
   linkedinUrl: string | null;
   motivation: string | null;
@@ -161,7 +161,7 @@ export default function TechVolunteersManager() {
         resolveRoleLabel(volunteer.primaryRole),
         volunteer.primaryRole,
         volunteer.experience,
-        volunteer.availability,
+        volunteer.availability ?? "",
         resolveLocation(volunteer),
         ...(volunteer.secondarySkills ?? []),
       ]
@@ -226,7 +226,7 @@ export default function TechVolunteersManager() {
       resolveRoleLabel(volunteer.primaryRole),
       volunteer.secondarySkills.map((item) => resolveRoleLabel(item)).join(", "),
       volunteer.experience,
-      volunteer.availability,
+      volunteer.availability ?? "",
       volunteer.portfolioUrl ?? "",
       volunteer.linkedinUrl ?? "",
       volunteer.motivation ?? "",
@@ -477,7 +477,7 @@ export default function TechVolunteersManager() {
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Availability</p>
-                <p className="mt-1 text-brand-black">{selected.availability}</p>
+                <p className="mt-1 text-brand-black">{selected.availability || "-"}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Portfolio</p>

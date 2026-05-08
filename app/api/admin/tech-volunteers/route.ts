@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       primaryRole: item.primaryRole,
       secondarySkills: item.secondarySkills ?? [],
       experience: item.experience,
-      availability: item.availability,
+      availability: item.availability ?? null,
       portfolioUrl: item.portfolioUrl ?? null,
       linkedinUrl: item.linkedinUrl ?? null,
       motivation: item.motivation ?? null,

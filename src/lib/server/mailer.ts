@@ -55,7 +55,7 @@ type TechVolunteerAdminNotificationArgs = {
   primaryRole: string;
   secondarySkills: string[];
   experience: string;
-  availability: string;
+  availability?: string;
   isDiaspora: boolean;
   state?: string;
   country?: string;
@@ -526,7 +526,7 @@ export async function sendTechVolunteerAdminNotificationEmail(
   const safePrimaryRole = escapeHtml(primaryRole);
   const safeSecondary = escapeHtml(secondaryText);
   const safeExperience = escapeHtml(experience);
-  const safeAvailability = escapeHtml(availability);
+  const safeAvailability = escapeHtml(availability || "Not provided");
   const safeLocation = escapeHtml(locationText);
   const safePortfolio = escapeHtml(portfolioText);
   const safeLinkedin = escapeHtml(linkedinText);
@@ -545,7 +545,7 @@ Phone: ${phone}
 Primary role: ${primaryRole}
 Secondary skills: ${secondaryText}
 Experience: ${experience}
-Availability: ${availability}
+Availability: ${availability || "Not provided"}
 Location: ${locationText}
 Portfolio: ${portfolioText}
 LinkedIn/GitHub: ${linkedinText}

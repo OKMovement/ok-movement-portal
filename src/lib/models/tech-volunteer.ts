@@ -11,7 +11,7 @@ const techVolunteerSchema = new Schema(
     primaryRole: { type: String, required: true, trim: true },
     secondarySkills: { type: [String], default: [] },
     experience: { type: String, required: true, trim: true },
-    availability: { type: String, required: true, trim: true },
+    availability: { type: String, required: false, trim: true },
     portfolioUrl: { type: String, required: false, trim: true },
     linkedinUrl: { type: String, required: false, trim: true },
     motivation: { type: String, required: false, trim: true },

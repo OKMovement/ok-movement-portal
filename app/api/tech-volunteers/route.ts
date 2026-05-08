@@ -42,7 +42,7 @@ const techVolunteerSchema = z
     country: z.string().trim().optional(),
     primaryRole: z.string().trim().min(1, "Primary role is required."),
     experience: z.string().trim().min(1, "Experience level is required."),
-    availability: z.string().trim().min(1, "Availability is required."),
+    availability: z.string().trim().optional(),
     portfolioUrl: z.string().trim().optional(),
     linkedinUrl: z.string().trim().optional(),
     motivation: z.string().trim().max(2000, "Motivation must be 2000 characters or less.").optional(),
@@ -74,7 +74,7 @@ const techVolunteerSchema = z
       });
     }
 
-    if (!availabilityOptions.has(payload.availability)) {
+    if (payload.availability && !availabilityOptions.has(payload.availability)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["availability"],
@@ -175,6 +175,7 @@ export async function POST(request: Request) {
     const secondarySkillLabels = secondarySkills.map(
       (skill) => roleLabelById.get(skill) ?? skill,
     );
+    const availability = payload.availability?.trim() || undefined;
     const portfolioUrl = payload.portfolioUrl?.trim() || undefined;
     const linkedinUrl = payload.linkedinUrl?.trim() || undefined;
     const motivation = payload.motivation?.trim() || undefined;
@@ -199,7 +200,7 @@ export async function POST(request: Request) {
       primaryRole: payload.primaryRole,
       secondarySkills,
       experience: payload.experience,
-      availability: payload.availability,
+      availability,
       portfolioUrl,
       linkedinUrl,
       motivation,
@@ -236,7 +237,7 @@ export async function POST(request: Request) {
         primaryRole: primaryRoleLabel,
         secondarySkills: secondarySkillLabels,
         experience: payload.experience,
-        availability: payload.availability,
+        availability,
         isDiaspora: payload.isDiaspora,
         state,
         country,
