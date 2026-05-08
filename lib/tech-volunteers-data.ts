@@ -126,7 +126,7 @@ export const VOLUNTEER_BENEFITS = [
 
 export const HOW_IT_WORKS = [
   { step: "01", title: "Apply", desc: "Tell us who you are, what you do best, and how much time you can give." },
-  { step: "02", title: "Get matched", desc: "Within 5 working days, our coordinators will pair you with a project lead." },
+  { step: "02", title: "Get matched", desc: "our coordinators will pair you with a project lead." },
   { step: "03", title: "Onboard", desc: "Join our Slack, sign the volunteer code of conduct, and meet your team." },
   { step: "04", title: "Start shipping", desc: "Pick up your first task. Ship work that helps win 2027." },
 ];

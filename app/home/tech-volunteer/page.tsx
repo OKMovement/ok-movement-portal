@@ -399,7 +399,7 @@ export default function TechVolunteersPage() {
             </h2>
             <p className="mt-3 text-[14px] leading-relaxed text-white/75 sm:text-[16px]">
               Tell us about yourself. Our coordinators review every application and
-              respond within 5 working days.
+             
             </p>
           </div>
 
@@ -581,9 +581,7 @@ export default function TechVolunteersPage() {
               ) : null}
 
               <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/45">
-                  We respond within 5 working days · 100% confidential
-                </p>
+               
                 <button type="submit" disabled={status === "submitting"}
                   className="group inline-flex items-center justify-center gap-2 rounded-full bg-brand-green px-7 py-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_40px_-14px_rgb(0_166_81/0.7)] transition hover:bg-white hover:text-brand-black disabled:cursor-not-allowed disabled:opacity-60">
                   {status === "submitting" ? (
