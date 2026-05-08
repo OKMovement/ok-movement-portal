@@ -24,7 +24,7 @@ type FormStatus = "idle" | "submitting" | "success" | "error";
 const inputClass =
   "w-full min-h-11 rounded-xl border border-black/10 bg-white px-3.5 text-[14px] text-brand-black placeholder:text-black/35 focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green sm:min-h-12 sm:px-4";
 
-const labelClass = "text-[12px] font-semibold tracking-wide text-brand-black/75";
+const labelClass = "text-[12px] font-semibold tracking-wide text-white";
 const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
 function isValidPhoneInput(phone: string) {
