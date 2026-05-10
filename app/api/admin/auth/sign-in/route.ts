@@ -117,25 +117,37 @@ export async function POST(request: NextRequest) {
     const userAgent = getClientUserAgent(request);
     const expiresInMinutes = Math.floor(TWO_FACTOR_TTL_MS / (1000 * 60));
 
-    await sendAdminSignInCodeEmail({
-      email: admin.email,
-      name: admin.name,
-      code: loginCode,
-      expiresInMinutes,
-      ipAddress,
-      userAgent,
-      isNewDevice,
-    });
-
-    if (isNewDevice) {
-      await sendAdminNewDeviceAlertEmail({
+    const emailJobs = [
+      sendAdminSignInCodeEmail({
         email: admin.email,
         name: admin.name,
+        code: loginCode,
+        expiresInMinutes,
         ipAddress,
         userAgent,
-        attemptedAt: new Date().toISOString(),
-      });
+        isNewDevice,
+      }),
+    ];
+
+    if (isNewDevice) {
+      emailJobs.push(
+        sendAdminNewDeviceAlertEmail({
+          email: admin.email,
+          name: admin.name,
+          ipAddress,
+          userAgent,
+          attemptedAt: new Date().toISOString(),
+        }),
+      );
     }
+
+    void Promise.allSettled(emailJobs).then((results) => {
+      for (const result of results) {
+        if (result.status === "rejected") {
+          console.error("Admin auth email send failed:", result.reason);
+        }
+      }
+    });
 
     return NextResponse.json({
       ok: true,

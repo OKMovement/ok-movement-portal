@@ -5,6 +5,7 @@ type SendMailArgs = {
   subject: string;
   html: string;
   text: string;
+  priority?: "high" | "normal" | "low";
 };
 
 type BulkNotificationEmailArgs = {
@@ -148,14 +149,20 @@ function getMailerConfig() {
 const config = getMailerConfig();
 const transport = config
   ? nodemailer.createTransport({
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
       host: config.host,
       port: config.port,
       secure: config.secure,
       auth: config.auth,
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
     })
   : null;
 
-export async function sendEmail({ to, subject, html, text }: SendMailArgs) {
+export async function sendEmail({ to, subject, html, text, priority = "normal" }: SendMailArgs) {
   if (!transport || !config) {
     console.info("[mail:disabled]", { to, subject, text });
     return;
@@ -167,6 +174,15 @@ export async function sendEmail({ to, subject, html, text }: SendMailArgs) {
     subject,
     html,
     text,
+    priority,
+    headers:
+      priority === "high"
+        ? {
+            "X-Priority": "1",
+            "X-MSMail-Priority": "High",
+            Importance: "High",
+          }
+        : undefined,
   });
 }
 
@@ -620,6 +636,7 @@ export async function sendAdminSignInCodeEmail(args: AdminSignInCodeEmailArgs) {
   await sendEmail({
     to: email,
     subject: "Your OK Movement admin verification code",
+    priority: "high",
     text: `Hi ${firstName},
 
 Use this verification code to continue your admin login:
@@ -654,6 +671,7 @@ export async function sendAdminNewDeviceAlertEmail(args: AdminNewDeviceAlertEmai
   await sendEmail({
     to: email,
     subject: "New device sign-in attempt on your admin account",
+    priority: "high",
     text: `Hi ${firstName},
 
 We detected a sign-in attempt to your admin account from a new device.
