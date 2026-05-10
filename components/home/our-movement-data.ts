@@ -2,12 +2,16 @@ export type CouncilMember = {
   role: string;
   name: string;
   phone: string;
+  email: string;
 };
+
+export const ADMIN_EMAIL = "admin@okmovement.org";
 
 export type StateCoordinator = {
   state: string;
   coordinator: string;
   phone: string;
+  email: string;
 };
 
 export type Zone = {
@@ -16,6 +20,7 @@ export type Zone = {
   region: string;
   zonalCoordinator: string;
   zonalPhone: string;
+  zonalEmail: string;
   states: StateCoordinator[];
 };
 
@@ -133,13 +138,13 @@ export const movementStats = [
 ];
 
 export const executiveCouncil: CouncilMember[] = [
-  { role: "Director General", name: "Hon. John Ozyl Ughulu", phone: "09099999362" },
-  { role: "Deputy DG (North)", name: "Amb. Muhammad Auwal Musa", phone: "07064771347" },
-  { role: "Deputy DG (South)", name: "Onabanjo Olusola", phone: "08182375926" },
-  { role: "National Secretary", name: "Hajiya Amina Kuta", phone: "09032450092" },
-  { role: "Legal Adviser", name: "Barr. Kingdom Okere", phone: "08036288528" },
-  { role: "Media & Publicity Secretary", name: "Justin Ijeh", phone: "08023053854" },
-  { role: "National Treasury", name: "Telma Iheme", phone: "08136903416" },
+  { role: "Director General", name: "Hon. John Ozyl Ughulu", phone: "09099999362", email: ADMIN_EMAIL },
+  { role: "Deputy DG (North)", name: "Amb. Muhammad Auwal Musa", phone: "07064771347", email: ADMIN_EMAIL },
+  { role: "Deputy DG (South)", name: "Onabanjo Olusola", phone: "08182375926", email: ADMIN_EMAIL },
+  { role: "National Secretary", name: "Hajiya Amina Kuta", phone: "09032450092", email: ADMIN_EMAIL },
+  { role: "Legal Adviser", name: "Barr. Kingdom Okere", phone: "08036288528", email: ADMIN_EMAIL },
+  { role: "Media & Publicity Secretary", name: "Justin Ijeh", phone: "08023053854", email: ADMIN_EMAIL },
+  { role: "National Treasury", name: "Telma Iheme", phone: "08136903416", email: ADMIN_EMAIL },
 ];
 
 export const zones: Zone[] = [
@@ -149,14 +154,15 @@ export const zones: Zone[] = [
     region: "Middle Belt",
     zonalCoordinator: "Ogwuche Richard Enemona (CSP Rtd)",
     zonalPhone: "08037906078",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Kogi", coordinator: "Samson Mayaki Sokojinwa", phone: "07016599603" },
-      { state: "Plateau", coordinator: "Tokji Mandim", phone: "08034126541" },
-      { state: "Nasarawa", coordinator: "Yusuf Abdullahi Ahmed", phone: "08162625153" },
-      { state: "Benue", coordinator: "Hon. Aliyu Ukechia Tershaku", phone: "08063624068" },
-      { state: "Niger", coordinator: "Awwal Muhammad Goma", phone: "08129774767" },
-      { state: "FCT Abuja", coordinator: "Ibrahim Jabir", phone: "08033200430" },
-      { state: "Kwara", coordinator: "Hon. Kazeem Ademola Olawuyi", phone: "08129197251" },
+      { state: "Kogi", coordinator: "Samson Mayaki Sokojinwa", phone: "07016599603", email: "Kogi@okmovement.org" },
+      { state: "Plateau", coordinator: "Tokji Mandim", phone: "08034126541", email: "Plateau@okmovement.org" },
+      { state: "Nasarawa", coordinator: "Yusuf Abdullahi Ahmed", phone: "08162625153", email: "Nasarawa@okmovement.org" },
+      { state: "Benue", coordinator: "Hon. Aliyu Ukechia Tershaku", phone: "08063624068", email: "Benue@okmovement.org" },
+      { state: "Niger", coordinator: "Awwal Muhammad Goma", phone: "08129774767", email: "Niger@okmovement.org" },
+      { state: "FCT Abuja", coordinator: "Ibrahim Jabir", phone: "08033200430", email: "Abuja@okmovement.org" },
+      { state: "Kwara", coordinator: "Hon. Kazeem Ademola Olawuyi", phone: "08129197251", email: "Kwara@okmovement.org" },
     ],
   },
   {
@@ -165,14 +171,15 @@ export const zones: Zone[] = [
     region: "Sahel & Sudan belt",
     zonalCoordinator: "Hon. Hashimu Dungurawa",
     zonalPhone: "08033009555",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Kaduna", coordinator: "Yusuf Bala Ahmad", phone: "07012029188" },
-      { state: "Sokoto", coordinator: "Umar A. Umar", phone: "08034054626" },
-      { state: "Kano", coordinator: "Muhyideen Mustapha", phone: "08033905618" },
-      { state: "Zamfara", coordinator: "Hon. Usman Muhammad Sani", phone: "08067311998" },
-      { state: "Jigawa", coordinator: "Abubakar Abdullahi", phone: "07044445444" },
-      { state: "Kebbi", coordinator: "Hanafi Mujeli", phone: "07037781505" },
-      { state: "Katsina", coordinator: "Munawwar Abdussamad", phone: "09010000215" },
+      { state: "Kaduna", coordinator: "Yusuf Bala Ahmad", phone: "07012029188", email: "Kaduna@okmovement.org" },
+      { state: "Sokoto", coordinator: "Umar A. Umar", phone: "08034054626", email: "Sokoto@okmovement.org" },
+      { state: "Kano", coordinator: "Muhyideen Mustapha", phone: "08033905618", email: "Kano@okmovement.org" },
+      { state: "Zamfara", coordinator: "Hon. Usman Muhammad Sani", phone: "08067311998", email: "Zamfara@okmovement.org" },
+      { state: "Jigawa", coordinator: "Abubakar Abdullahi", phone: "07044445444", email: "Jigawa@okmovement.org" },
+      { state: "Kebbi", coordinator: "Hanafi Mujeli", phone: "07037781505", email: "Kebbi@okmovement.org" },
+      { state: "Katsina", coordinator: "Munawwar Abdussamad", phone: "09010000215", email: "Katsina@okmovement.org" },
     ],
   },
   {
@@ -181,13 +188,14 @@ export const zones: Zone[] = [
     region: "Lake Chad basin",
     zonalCoordinator: "Amadu Babadidi Gwambe",
     zonalPhone: "09022914542",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Adamawa", coordinator: "Hon. Abubakar Na'ibi Bala", phone: "07032122399" },
-      { state: "Gombe", coordinator: "Dr. Aminu Muhammad Makko", phone: "08033671115" },
-      { state: "Taraba", coordinator: "Hon. Abdulmalik Abubakar", phone: "08130423390" },
-      { state: "Bauchi", coordinator: "Hon. Ahmad Balewa", phone: "08032449720" },
-      { state: "Yobe", coordinator: "Barr. Ibrahim Muhammad", phone: "08103332531" },
-      { state: "Borno", coordinator: "Amina Bello Suleiman", phone: "09039187441" },
+      { state: "Adamawa", coordinator: "Hon. Abubakar Na'ibi Bala", phone: "07032122399", email: "Adamawa@okmovement.org" },
+      { state: "Gombe", coordinator: "Dr. Aminu Muhammad Makko", phone: "08033671115", email: "Gombe@okmovement.org" },
+      { state: "Taraba", coordinator: "Hon. Abdulmalik Abubakar", phone: "08130423390", email: "Taraba@okmovement.org" },
+      { state: "Bauchi", coordinator: "Hon. Ahmad Balewa", phone: "08032449720", email: "Bauchi@okmovement.org" },
+      { state: "Yobe", coordinator: "Barr. Ibrahim Muhammad", phone: "08103332531", email: "Yobe@okmovement.org" },
+      { state: "Borno", coordinator: "Amina Bello Suleiman", phone: "09039187441", email: "Borno@okmovement.org" },
     ],
   },
   {
@@ -196,13 +204,14 @@ export const zones: Zone[] = [
     region: "Yorubaland & Atlantic coast",
     zonalCoordinator: "Dr. Adebayo Adefolaseye",
     zonalPhone: "08142354951",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Osun", coordinator: "Otunba Segun Odekunle", phone: "09035350000" },
-      { state: "Oyo", coordinator: "Bababowale Olagbenro", phone: "07032936044" },
-      { state: "Ekiti", coordinator: "Hon. Animasaun Sunday Diamond", phone: "07034455578" },
-      { state: "Ogun", coordinator: "Omotayo Samson Adejobi", phone: "08067504326" },
-      { state: "Lagos", coordinator: "Pastor Ibironke Ogboro", phone: "07087793011" },
-      { state: "Ondo", coordinator: "Ibrahim Shuibu", phone: "08065431304" },
+      { state: "Osun", coordinator: "Otunba Segun Odekunle", phone: "09035350000", email: "Osun@okmovement.org" },
+      { state: "Oyo", coordinator: "Bababowale Olagbenro", phone: "07032936044", email: "Oyo@okmovement.org" },
+      { state: "Ekiti", coordinator: "Hon. Animasaun Sunday Diamond", phone: "07034455578", email: "Ekiti@okmovement.org" },
+      { state: "Ogun", coordinator: "Omotayo Samson Adejobi", phone: "08067504326", email: "Ogun@okmovement.org" },
+      { state: "Lagos", coordinator: "Pastor Ibironke Ogboro", phone: "07087793011", email: "Lagos@okmovement.org" },
+      { state: "Ondo", coordinator: "Ibrahim Shuibu", phone: "08065431304", email: "Ondo@okmovement.org" },
     ],
   },
   {
@@ -211,13 +220,14 @@ export const zones: Zone[] = [
     region: "Niger Delta",
     zonalCoordinator: "Amb. Christopher Ighodara",
     zonalPhone: "07035004159",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Cross River", coordinator: "Hon. Egwu Arong", phone: "08064038788" },
-      { state: "Akwa Ibom", coordinator: "Elijah Noah", phone: "08136624951" },
-      { state: "Edo", coordinator: "Eromosele Peter Jatto", phone: "08061666664" },
-      { state: "Delta", coordinator: "Emerure Favour", phone: "08075036683" },
-      { state: "Bayelsa", coordinator: "Mr. Freedom Akene", phone: "08036740025" },
-      { state: "Rivers", coordinator: "Dr. Princess Jane Peters", phone: "07039959274" },
+      { state: "Cross River", coordinator: "Hon. Egwu Arong", phone: "08064038788", email: "Cross-River@okmovement.org" },
+      { state: "Akwa Ibom", coordinator: "Elijah Noah", phone: "08136624951", email: "Akwa-Ibom@okmovement.org" },
+      { state: "Edo", coordinator: "Eromosele Peter Jatto", phone: "08061666664", email: "Edo@okmovement.org" },
+      { state: "Delta", coordinator: "Emerure Favour", phone: "08075036683", email: "Delta@okmovement.org" },
+      { state: "Bayelsa", coordinator: "Mr. Freedom Akene", phone: "08036740025", email: "Bayelsa@okmovement.org" },
+      { state: "Rivers", coordinator: "Dr. Princess Jane Peters", phone: "07039959274", email: "Rivers@okmovement.org" },
     ],
   },
   {
@@ -226,12 +236,13 @@ export const zones: Zone[] = [
     region: "Igboland",
     zonalCoordinator: "El-shaddai Ikeh Esq.",
     zonalPhone: "07079214619",
+    zonalEmail: ADMIN_EMAIL,
     states: [
-      { state: "Imo", coordinator: "Nwanebu Christian Onyinyechi", phone: "08034549033" },
-      { state: "Anambra", coordinator: "Chukwudi Onyejekwe Esq.", phone: "08063460908" },
-      { state: "Ebonyi", coordinator: "Onya Emeka Mekadise", phone: "08038373359" },
-      { state: "Enugu", coordinator: "Hon. Victor Onyia", phone: "08035201306" },
-      { state: "Abia", coordinator: "Professor Zulu Ofoelue", phone: "08032620750" },
+      { state: "Imo", coordinator: "Nwanebu Christian Onyinyechi", phone: "08034549033", email: "Imo@okmovement.org" },
+      { state: "Anambra", coordinator: "Chukwudi Onyejekwe Esq.", phone: "08063460908", email: "Anambra@okmovement.org" },
+      { state: "Ebonyi", coordinator: "Onya Emeka Mekadise", phone: "08038373359", email: "Ebonyi@okmovement.org" },
+      { state: "Enugu", coordinator: "Hon. Victor Onyia", phone: "08035201306", email: "Enugu@okmovement.org" },
+      { state: "Abia", coordinator: "Professor Zulu Ofoelue", phone: "08032620750", email: "Abia@okmovement.org" },
     ],
   },
 ];
