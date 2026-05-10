@@ -10,7 +10,7 @@ import HomeOurMovementSection from "./home-our-movement-section";
 import HomePrincipalsSection from "./home-principals-section";
 import HomeSignupForm from "./home-signup-form";
 import HomeSiteHeader from "./home-site-header";
-const SLIDE_INTERVAL_MS = 5000;
+const SLIDE_INTERVAL_MS = 4000;
 
 function TricolorRule() {
   return (
