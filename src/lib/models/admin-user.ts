@@ -13,6 +13,19 @@ const adminUserSchema = new Schema(
     resetTokenExpiresAt: { type: Date, required: false },
     mustChangePassword: { type: Boolean, default: false },
     lastLoginAt: { type: Date, required: false },
+    twoFactorCodeHash: { type: String, required: false },
+    twoFactorCodeExpiresAt: { type: Date, required: false },
+    twoFactorChallengeHash: { type: String, required: false },
+    twoFactorChallengeExpiresAt: { type: Date, required: false },
+    twoFactorCodeAttempts: { type: Number, default: 0 },
+    trustedDevices: [
+      {
+        deviceHash: { type: String, required: true },
+        userAgent: { type: String, required: false },
+        firstSeenAt: { type: Date, required: true },
+        lastSeenAt: { type: Date, required: true },
+      },
+    ],
   },
   { timestamps: true },
 );

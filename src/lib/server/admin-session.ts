@@ -1,5 +1,12 @@
 import { cookies } from "next/headers";
-import { ADMIN_SESSION_COOKIE, createAdminSessionToken, getSessionMaxAge, verifyAdminSessionToken } from "@/lib/server/session";
+import {
+  ADMIN_DEVICE_COOKIE,
+  ADMIN_SESSION_COOKIE,
+  createAdminSessionToken,
+  getDeviceMaxAge,
+  getSessionMaxAge,
+  verifyAdminSessionToken,
+} from "@/lib/server/session";
 
 type SessionUser = {
   id: string;
@@ -29,6 +36,17 @@ export async function setAdminSession(user: SessionUser) {
 export async function clearAdminSession() {
   const cookieStore = await cookies();
   cookieStore.delete(ADMIN_SESSION_COOKIE);
+}
+
+export async function setAdminDeviceToken(token: string) {
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_DEVICE_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: getDeviceMaxAge(),
+  });
 }
 
 export async function getAdminSessionFromCookies() {

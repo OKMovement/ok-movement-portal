@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const ADMIN_SESSION_COOKIE = "ok_admin_session";
+export const ADMIN_DEVICE_COOKIE = "ok_admin_device";
 
 type SessionPayload = {
   sub: string;
@@ -11,6 +12,7 @@ type SessionPayload = {
 };
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+const DEVICE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 function getSessionSecret() {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -80,6 +82,10 @@ export function verifyAdminSessionToken(token: string): SessionPayload | null {
 
 export function getSessionMaxAge() {
   return SESSION_MAX_AGE_SECONDS;
+}
+
+export function getDeviceMaxAge() {
+  return DEVICE_MAX_AGE_SECONDS;
 }
 
 export type { SessionPayload };

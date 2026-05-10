@@ -64,6 +64,24 @@ type TechVolunteerAdminNotificationArgs = {
   motivation?: string;
 };
 
+type AdminSignInCodeEmailArgs = {
+  email: string;
+  name: string;
+  code: string;
+  expiresInMinutes: number;
+  ipAddress: string;
+  userAgent: string;
+  isNewDevice: boolean;
+};
+
+type AdminNewDeviceAlertEmailArgs = {
+  email: string;
+  name: string;
+  ipAddress: string;
+  userAgent: string;
+  attemptedAt: string;
+};
+
 function escapeHtml(input: string) {
   return input
     .replaceAll("&", "&amp;")
@@ -590,6 +608,69 @@ export async function sendAdminInviteEmail(args: {
     subject: "You have been invited as an OK Movement admin",
     text: `You were invited by ${invitedByName} to join the OK Movement admin dashboard.\n\nEmail: ${email}\nTemporary password: ${temporaryPassword}\nSign in: ${signInUrl}\n\nPlease sign in and change your password immediately.`,
     html: `<p>You were invited by <strong>${invitedByName}</strong> to join the OK Movement admin dashboard.</p><p><strong>Email:</strong> ${email}<br/><strong>Temporary password:</strong> ${temporaryPassword}<br/><strong>Sign in:</strong> <a href="${signInUrl}">${signInUrl}</a></p><p>Please sign in and change your password immediately.</p>`,
+  });
+}
+
+export async function sendAdminSignInCodeEmail(args: AdminSignInCodeEmailArgs) {
+  const { email, name, code, expiresInMinutes, ipAddress, userAgent, isNewDevice } = args;
+  const firstName = getFirstName(name);
+  const safeDevice = escapeHtml(userAgent);
+  const safeIpAddress = escapeHtml(ipAddress);
+
+  await sendEmail({
+    to: email,
+    subject: "Your OK Movement admin verification code",
+    text: `Hi ${firstName},
+
+Use this verification code to continue your admin login:
+
+${code}
+
+This code expires in ${expiresInMinutes} minutes.
+Device: ${userAgent}
+IP address: ${ipAddress}
+${isNewDevice ? "This appears to be a new device." : ""}
+
+If you did not try to sign in, reset your password immediately.`,
+    html: `
+      <p>Hi ${escapeHtml(firstName)},</p>
+      <p>Use this verification code to continue your admin login:</p>
+      <p style="font-size:24px; font-weight:700; letter-spacing:0.2em; margin:14px 0;">${escapeHtml(code)}</p>
+      <p>This code expires in <strong>${expiresInMinutes} minutes</strong>.</p>
+      <p><strong>Device:</strong> ${safeDevice}<br/><strong>IP address:</strong> ${safeIpAddress}</p>
+      ${isNewDevice ? "<p><strong>Security notice:</strong> This appears to be a new device.</p>" : ""}
+      <p>If you did not try to sign in, reset your password immediately.</p>
+    `,
+  });
+}
+
+export async function sendAdminNewDeviceAlertEmail(args: AdminNewDeviceAlertEmailArgs) {
+  const { email, name, ipAddress, userAgent, attemptedAt } = args;
+  const firstName = getFirstName(name);
+  const safeDevice = escapeHtml(userAgent);
+  const safeIpAddress = escapeHtml(ipAddress);
+  const safeAttemptedAt = escapeHtml(new Date(attemptedAt).toLocaleString());
+
+  await sendEmail({
+    to: email,
+    subject: "New device sign-in attempt on your admin account",
+    text: `Hi ${firstName},
+
+We detected a sign-in attempt to your admin account from a new device.
+
+Time: ${new Date(attemptedAt).toLocaleString()}
+Device: ${userAgent}
+IP address: ${ipAddress}
+
+If this was you, continue with your verification code.
+If this was not you, reset your password immediately.`,
+    html: `
+      <p>Hi ${escapeHtml(firstName)},</p>
+      <p>We detected a sign-in attempt to your admin account from a new device.</p>
+      <p><strong>Time:</strong> ${safeAttemptedAt}<br/><strong>Device:</strong> ${safeDevice}<br/><strong>IP address:</strong> ${safeIpAddress}</p>
+      <p>If this was you, continue with your verification code.</p>
+      <p>If this was not you, reset your password immediately.</p>
+    `,
   });
 }
 

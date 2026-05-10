@@ -21,6 +21,16 @@ export function createRandomToken() {
   return randomBytes(32).toString("hex");
 }
 
+export function createNumericCode(length = 6) {
+  let output = "";
+
+  while (output.length < length) {
+    output += String(randomBytes(1)[0] % 10);
+  }
+
+  return output.slice(0, length);
+}
+
 export function createTemporaryPassword() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$";
   let output = "";
