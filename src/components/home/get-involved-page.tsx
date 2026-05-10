@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowUpRight,
@@ -10,11 +10,13 @@ import {
   Heart,
   Loader2,
   MapPin,
+  MessageCircle,
   MessageCircleQuestion,
   Plane,
   ShieldCheck,
   Sparkles,
   Users,
+  X,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useSearchParams } from "next/navigation";
@@ -74,7 +76,52 @@ function pillarTone(tone: "green" | "red" | "black") {
 
 const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
+const WHATSAPP_CHANNEL_URL =
+  "https://whatsapp.com/channel/0029VbCiHBHJZg42170Uvw1K";
+const REGISTERED_PHONES_KEY = "ok-movement:registered-phones:v1";
 
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D+/g, "");
+  if (!digits) return "";
+  // Compare on the last 10 digits so +234 / 0-prefix / spaces all match
+  return digits.slice(-10);
+}
+
+function loadRegisteredPhones(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(REGISTERED_PHONES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberRegisteredPhone(phone: string) {
+  if (typeof window === "undefined") return;
+  const normalized = normalizePhone(phone);
+  if (!normalized) return;
+  const existing = loadRegisteredPhones();
+  if (existing.includes(normalized)) return;
+  try {
+    window.localStorage.setItem(
+      REGISTERED_PHONES_KEY,
+      JSON.stringify([...existing, normalized]),
+    );
+  } catch {
+    /* storage unavailable — silently ignore */
+  }
+}
+
+function isPhoneRegistered(phone: string): boolean {
+  const normalized = normalizePhone(phone);
+  if (normalized.length < 10) return false;
+  return loadRegisteredPhones().includes(normalized);
+}
+
+type WhatsappStep = "ask" | "verify" | "denied";
 function normalizeLocation(value: string) {
   return value
     .trim()
@@ -251,6 +298,61 @@ const defaultFormValues: GetInvolvedFormValues = {
 };
 
 export default function GetInvolvedPage() {
+
+      const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
+    const [whatsappStep, setWhatsappStep] = useState<WhatsappStep>("ask");
+    const [whatsappPhone, setWhatsappPhone] = useState("");
+    const [whatsappError, setWhatsappError] = useState<string | null>(null);
+  
+    function openWhatsappDialog() {
+      setWhatsappStep("ask");
+      setWhatsappPhone("");
+      setWhatsappError(null);
+      setWhatsappDialogOpen(true);
+    }
+  
+    function closeWhatsappDialog() {
+      setWhatsappDialogOpen(false);
+      setWhatsappError(null);
+    }
+  
+    function handleWhatsappYes() {
+      setWhatsappError(null);
+      setWhatsappStep("verify");
+    }
+  
+    function handleWhatsappNo() {
+      closeWhatsappDialog();
+      if (typeof window !== "undefined") {
+        const target = document.getElementById("registration");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          window.location.hash = "#registration";
+        }
+      }
+    }
+  
+    function handleWhatsappVerify(event: FormEvent<HTMLFormElement>) {
+      event.preventDefault();
+      const normalized = normalizePhone(whatsappPhone);
+      if (normalized.length < 10) {
+        setWhatsappError(
+          "Please enter a valid phone number (at least 10 digits, e.g. +234 …).",
+        );
+        return;
+      }
+      if (!isPhoneRegistered(whatsappPhone)) {
+        setWhatsappError(null);
+        setWhatsappStep("denied");
+        return;
+      }
+      setWhatsappError(null);
+      closeWhatsappDialog();
+      if (typeof window !== "undefined") {
+        window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer");
+      }
+    }
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "sent">("idle");
   const [submitError, setSubmitError] = useState("");
@@ -1213,7 +1315,117 @@ export default function GetInvolvedPage() {
           </div>
         </div>
       </section>
+ <section
+        id="whatsapp-channel"
+        className="relative scroll-mt-28 bg-[#f7f7f4] py-16 sm:py-20 lg:py-24"
+      >
+        <div className="mx-auto w-[min(100%-1.5rem,72rem)]">
+          <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0b3d2e] via-brand-black to-[#0b3d2e] p-8 text-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.55)] sm:p-12 lg:p-14">
+            <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+              <span className="h-full flex-1 bg-brand-green" />
+              <span className="h-full flex-1 bg-white/40" />
+              <span className="h-full flex-1 bg-brand-red" />
+            </span>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-green/30 blur-3xl"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-red/20 blur-3xl"
+            />
 
+            <div className="relative grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-white ring-1 ring-white/20 backdrop-blur">
+                  <MessageCircle aria-hidden="true" className="h-3.5 w-3.5" />
+                  Members only
+                </div>
+                <h2 className="mt-5 text-3xl font-medium leading-tight sm:text-4xl lg:text-[2.6rem]">
+                  Join the National Discuss on the OK Movement{" "}
+                  <span className="text-brand-green">WhatsApp Channel</span>.
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
+                  Verified, registered members get direct access to our official
+                  WhatsApp Channel — where the national conversation, briefings
+                  and ground-level updates happen in real time.
+                </p>
+
+                <ul className="mt-6 grid gap-2.5 text-sm text-white/85 sm:grid-cols-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-green"
+                    />
+                    <span>Daily campaign briefings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-green"
+                    />
+                    <span>Verified updates from the principals</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-green"
+                    />
+                    <span>State &amp; zonal mobilisation alerts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-brand-green"
+                    />
+                    <span>National Discuss with fellow members</span>
+                  </li>
+                </ul>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={openWhatsappDialog}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_36px_-12px_rgb(0_166_81/0.55)] transition hover:bg-white hover:text-brand-black sm:min-h-[3.25rem]"
+                  >
+                    <MessageCircle aria-hidden="true" className="h-4 w-4" />
+                    Join the channel
+                  </button>
+                  <a
+                    href="#registration"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] border border-white/30 bg-white/10 px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white backdrop-blur transition hover:bg-white hover:text-brand-green sm:min-h-[3.25rem]"
+                  >
+                    Not registered? Sign up
+                  </a>
+                </div>
+              </div>
+
+              <div className="relative rounded-[18px] border border-white/15 bg-white/[0.06] p-6 backdrop-blur sm:p-7">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/65">
+                  Why members only?
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-white/85">
+                  The channel is a verified space for the OK Movement community.
+                  We confirm membership first to keep the discussion authentic
+                  and free from impersonation.
+                </p>
+                <div className="mt-6 rounded-[12px] bg-brand-green/15 p-4 ring-1 ring-brand-green/30">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-green">
+                    Already registered?
+                  </p>
+                  <p className="mt-1.5 text-sm text-white/90">
+                    Tap{" "}
+                    <span className="font-semibold text-white">
+                      &ldquo;Join the channel&rdquo;
+                    </span>{" "}
+                    and confirm — you&apos;ll be redirected straight to WhatsApp.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* FAQ ----------------------------------------------------- */}
       <section className="bg-[#f7f7f4] px-4 py-16 sm:py-20 lg:py-24">
         <div className="mx-auto w-[min(100%-1rem,72rem)]">
@@ -1310,6 +1522,187 @@ export default function GetInvolvedPage() {
       </section>
 
       <HomeFooterSection />
+
+             {whatsappDialogOpen ? (
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="whatsapp-dialog-title"
+                aria-describedby="whatsapp-dialog-desc"
+                className="fixed inset-0 z-[10000] flex items-center justify-center px-4"
+              >
+                <button
+                  type="button"
+                  aria-label="Close dialog"
+                  onClick={closeWhatsappDialog}
+                  className="absolute inset-0 h-full w-full cursor-default bg-brand-black/65 backdrop-blur-sm"
+                />
+                <div className="relative w-full max-w-md overflow-hidden rounded-[20px] bg-white shadow-[0_40px_80px_-30px_rgb(0_0_0/0.55)]">
+                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+                    <span className="h-full flex-1 bg-brand-green" />
+                    <span className="h-full flex-1 bg-brand-black" />
+                    <span className="h-full flex-1 bg-brand-red" />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={closeWhatsappDialog}
+                    aria-label="Close"
+                    className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-black/60 transition hover:bg-black/5 hover:text-brand-black"
+                  >
+                    <X aria-hidden="true" className="h-4 w-4" />
+                  </button>
+      
+                  <div className="px-7 pb-7 pt-9 sm:px-8 sm:pt-10">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-green/10 text-brand-green">
+                      <MessageCircle aria-hidden="true" className="h-5 w-5" />
+                    </div>
+      
+                    {whatsappStep === "ask" ? (
+                      <>
+                        <h3
+                          id="whatsapp-dialog-title"
+                          className="mt-5 text-2xl font-medium leading-tight tracking-tight text-brand-black"
+                        >
+                          Are you a registered OK Movement member?
+                        </h3>
+                        <p
+                          id="whatsapp-dialog-desc"
+                          className="mt-3 text-sm leading-relaxed text-black/65"
+                        >
+                          Our WhatsApp Channel is reserved for verified, registered
+                          members. If you&apos;re already signed up, we&apos;ll ask
+                          for the phone number you registered with to confirm. If
+                          not, we&apos;ll take you to the registration form first.
+                        </p>
+      
+                        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                          <button
+                            type="button"
+                            onClick={handleWhatsappYes}
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_14px_28px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
+                          >
+                            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+                            Yes, I&apos;m registered
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleWhatsappNo}
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] border border-black/15 bg-white px-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand-black transition hover:bg-brand-black hover:text-white"
+                          >
+                            No, register me first
+                          </button>
+                        </div>
+                      </>
+                    ) : whatsappStep === "verify" ? (
+                      <form onSubmit={handleWhatsappVerify}>
+                        <h3
+                          id="whatsapp-dialog-title"
+                          className="mt-5 text-2xl font-medium leading-tight tracking-tight text-brand-black"
+                        >
+                          Confirm your registered phone number
+                        </h3>
+                        <p
+                          id="whatsapp-dialog-desc"
+                          className="mt-3 text-sm leading-relaxed text-black/65"
+                        >
+                          Enter the telephone / WhatsApp number you used when you
+                          registered. We&apos;ll verify it and send you straight to
+                          the OK Movement WhatsApp Channel.
+                        </p>
+      
+                        <label className="mt-5 flex flex-col gap-1.5">
+                          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                            Telephone / WhatsApp number{" "}
+                            <span className="text-brand-red">*</span>
+                          </span>
+                          <input
+                            type="tel"
+                            name="whatsapp-verify-phone"
+                            required
+                            autoComplete="tel"
+                            autoFocus
+                            placeholder="+234 …"
+                            value={whatsappPhone}
+                            onChange={(event) => {
+                              setWhatsappPhone(event.target.value);
+                              if (whatsappError) setWhatsappError(null);
+                            }}
+                            className={inputClass}
+                          />
+                        </label>
+      
+                        {whatsappError ? (
+                          <p
+                            role="alert"
+                            className="mt-3 rounded-[10px] bg-brand-red/10 px-3 py-2 text-xs font-medium text-brand-red"
+                          >
+                            {whatsappError}
+                          </p>
+                        ) : null}
+      
+                        <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
+                          <button
+                            type="submit"
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_14px_28px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
+                          >
+                            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+                            Verify &amp; continue
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWhatsappError(null);
+                              setWhatsappStep("ask");
+                            }}
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] border border-black/15 bg-white px-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand-black transition hover:bg-brand-black hover:text-white"
+                          >
+                            Back
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <>
+                        <h3
+                          id="whatsapp-dialog-title"
+                          className="mt-5 text-2xl font-medium leading-tight tracking-tight text-brand-black"
+                        >
+                          We couldn&apos;t verify that number
+                        </h3>
+                        <p
+                          id="whatsapp-dialog-desc"
+                          className="mt-3 text-sm leading-relaxed text-black/65"
+                        >
+                          The phone number you entered isn&apos;t in our list of
+                          registered members on this device. Please register first
+                          using the same phone number, then come back to join the
+                          channel.
+                        </p>
+      
+                        <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
+                          <button
+                            type="button"
+                            onClick={handleWhatsappNo}
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_14px_28px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
+                          >
+                            Go to registration
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWhatsappError(null);
+                              setWhatsappStep("verify");
+                            }}
+                            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] border border-black/15 bg-white px-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand-black transition hover:bg-brand-black hover:text-white"
+                          >
+                            Try another number
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
     </main>
   );
 }
