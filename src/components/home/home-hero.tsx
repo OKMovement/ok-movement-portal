@@ -243,28 +243,27 @@ type HomeHeroProps = {
 };
 
 export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
-     const [activeSlide, setActiveSlide] = useState(0);
-    const [isPaused, setIsPaused] = useState(false);
-  
-    useEffect(() => {
-      if (isPaused || SLIDES.length <= 1) return;
-      const id = window.setInterval(() => {
-        setActiveSlide((i) => (i + 1) % SLIDES.length);
-      }, SLIDE_INTERVAL_MS);
-      return () => window.clearInterval(id);
-    }, [isPaused]);
-  
-    function goTo(index: number) {
-      setActiveSlide(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
-    }
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (SLIDES.length <= 1) return;
+
+    const id = window.setTimeout(() => {
+      setActiveSlide((i) => (i + 1) % SLIDES.length);
+    }, SLIDE_INTERVAL_MS);
+
+    return () => window.clearTimeout(id);
+  }, [activeSlide]);
+
+  function goTo(index: number) {
+    setActiveSlide(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
+  }
   return (
     <main className="min-h-screen bg-white text-white">
       <HomeSiteHeader />
-        <section
+      <section
         id="home-hero"
         className="relative isolate overflow-hidden bg-brand-black lg:min-h-[54rem]"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
         aria-roledescription="carousel"
         aria-label="OK Movement hero slideshow"
       >
