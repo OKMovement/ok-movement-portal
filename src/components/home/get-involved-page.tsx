@@ -78,47 +78,12 @@ const inputClass =
   "min-h-12 rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
 const WHATSAPP_CHANNEL_URL =
   "https://whatsapp.com/channel/0029VbCiHBHJZg42170Uvw1K";
-const REGISTERED_PHONES_KEY = "ok-movement:registered-phones:v1";
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D+/g, "");
   if (!digits) return "";
   // Compare on the last 10 digits so +234 / 0-prefix / spaces all match
   return digits.slice(-10);
-}
-
-function loadRegisteredPhones(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(REGISTERED_PHONES_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function rememberRegisteredPhone(phone: string) {
-  if (typeof window === "undefined") return;
-  const normalized = normalizePhone(phone);
-  if (!normalized) return;
-  const existing = loadRegisteredPhones();
-  if (existing.includes(normalized)) return;
-  try {
-    window.localStorage.setItem(
-      REGISTERED_PHONES_KEY,
-      JSON.stringify([...existing, normalized]),
-    );
-  } catch {
-    /* storage unavailable — silently ignore */
-  }
-}
-
-function isPhoneRegistered(phone: string): boolean {
-  const normalized = normalizePhone(phone);
-  if (normalized.length < 10) return false;
-  return loadRegisteredPhones().includes(normalized);
 }
 
 type WhatsappStep = "ask" | "verify" | "denied";
@@ -303,17 +268,20 @@ export default function GetInvolvedPage() {
     const [whatsappStep, setWhatsappStep] = useState<WhatsappStep>("ask");
     const [whatsappPhone, setWhatsappPhone] = useState("");
     const [whatsappError, setWhatsappError] = useState<string | null>(null);
+    const [isVerifyingWhatsappPhone, setIsVerifyingWhatsappPhone] = useState(false);
   
     function openWhatsappDialog() {
       setWhatsappStep("ask");
       setWhatsappPhone("");
       setWhatsappError(null);
+      setIsVerifyingWhatsappPhone(false);
       setWhatsappDialogOpen(true);
     }
   
     function closeWhatsappDialog() {
       setWhatsappDialogOpen(false);
       setWhatsappError(null);
+      setIsVerifyingWhatsappPhone(false);
     }
   
     function handleWhatsappYes() {
@@ -333,8 +301,10 @@ export default function GetInvolvedPage() {
       }
     }
   
-    function handleWhatsappVerify(event: FormEvent<HTMLFormElement>) {
+    async function handleWhatsappVerify(event: FormEvent<HTMLFormElement>) {
       event.preventDefault();
+      if (isVerifyingWhatsappPhone) return;
+
       const normalized = normalizePhone(whatsappPhone);
       if (normalized.length < 10) {
         setWhatsappError(
@@ -342,15 +312,40 @@ export default function GetInvolvedPage() {
         );
         return;
       }
-      if (!isPhoneRegistered(whatsappPhone)) {
-        setWhatsappError(null);
-        setWhatsappStep("denied");
-        return;
-      }
+
+      setIsVerifyingWhatsappPhone(true);
       setWhatsappError(null);
-      closeWhatsappDialog();
-      if (typeof window !== "undefined") {
-        window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer");
+
+      try {
+        const response = await fetch("/api/members/verify-phone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: whatsappPhone.trim() }),
+        });
+        const data = (await response.json().catch(() => null)) as
+          | { exists?: boolean; error?: string }
+          | null;
+
+        if (!response.ok) {
+          setWhatsappError(data?.error ?? "Unable to verify your number right now.");
+          return;
+        }
+
+        if (!data?.exists) {
+          setWhatsappError(null);
+          setWhatsappStep("denied");
+          return;
+        }
+
+        setWhatsappError(null);
+        closeWhatsappDialog();
+        if (typeof window !== "undefined") {
+          window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer");
+        }
+      } catch {
+        setWhatsappError("Unable to verify your number right now. Please try again.");
+      } finally {
+        setIsVerifyingWhatsappPhone(false);
       }
     }
   const searchParams = useSearchParams();
@@ -1623,6 +1618,7 @@ export default function GetInvolvedPage() {
                             autoFocus
                             placeholder="+234 …"
                             value={whatsappPhone}
+                            disabled={isVerifyingWhatsappPhone}
                             onChange={(event) => {
                               setWhatsappPhone(event.target.value);
                               if (whatsappError) setWhatsappError(null);
@@ -1643,13 +1639,19 @@ export default function GetInvolvedPage() {
                         <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
                           <button
                             type="submit"
+                            disabled={isVerifyingWhatsappPhone}
                             className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_14px_28px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
                           >
-                            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
-                            Verify &amp; continue
+                            {isVerifyingWhatsappPhone ? (
+                              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+                            )}
+                            {isVerifyingWhatsappPhone ? "Verifying..." : "Verify & continue"}
                           </button>
                           <button
                             type="button"
+                            disabled={isVerifyingWhatsappPhone}
                             onClick={() => {
                               setWhatsappError(null);
                               setWhatsappStep("ask");
@@ -1673,9 +1675,8 @@ export default function GetInvolvedPage() {
                           className="mt-3 text-sm leading-relaxed text-black/65"
                         >
                           The phone number you entered isn&apos;t in our list of
-                          registered members on this device. Please register first
-                          using the same phone number, then come back to join the
-                          channel.
+                          registered members. Please register first using the same
+                          phone number, then come back to join the channel.
                         </p>
       
                         <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
