@@ -9,6 +9,7 @@ import {
   Flag,
   HandHeart,
   Heart,
+  Mail,
   MapPin,
   Phone,
   Quote,
@@ -442,13 +443,22 @@ export default function OurMovementPage() {
                   <p className="mt-1 text-lg font-medium leading-tight text-brand-black">
                     {member.name}
                   </p>
-                  <a
-                    href={`tel:+234${member.phone.replace(/^0/, "")}`}
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-black/70 transition hover:text-brand-green"
-                  >
-                    <Phone aria-hidden="true" className="h-3.5 w-3.5" />
-                    {formatPhone(member.phone)}
-                  </a>
+                  <div className="mt-5 flex flex-col gap-1.5">
+                    <a
+                      href={`tel:+234${member.phone.replace(/^0/, "")}`}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-black/70 transition hover:text-brand-green"
+                    >
+                      <Phone aria-hidden="true" className="h-3.5 w-3.5" />
+                      {formatPhone(member.phone)}
+                    </a>
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="inline-flex items-center gap-2 break-all text-sm font-medium text-black/70 transition hover:text-brand-green"
+                    >
+                      <Mail aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                      {member.email}
+                    </a>
+                  </div>
                 </article>
               </li>
             ))}
@@ -531,13 +541,22 @@ export default function OurMovementPage() {
                   <p className="mt-1.5 text-lg font-medium leading-tight text-white">
                     {activeZone.zonalCoordinator}
                   </p>
-                  <a
-                    href={`tel:+234${activeZone.zonalPhone.replace(/^0/, "")}`}
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-white/85 transition hover:text-brand-green"
-                  >
-                    <Phone aria-hidden="true" className="h-3.5 w-3.5" />
-                    {formatPhone(activeZone.zonalPhone)}
-                  </a>
+                  <div className="mt-4 flex flex-col gap-1.5">
+                    <a
+                      href={`tel:+234${activeZone.zonalPhone.replace(/^0/, "")}`}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-white/85 transition hover:text-brand-green"
+                    >
+                      <Phone aria-hidden="true" className="h-3.5 w-3.5" />
+                      {formatPhone(activeZone.zonalPhone)}
+                    </a>
+                    <a
+                      href={`mailto:${activeZone.zonalEmail}`}
+                      className="inline-flex items-center gap-2 break-all text-sm font-medium text-white/85 transition hover:text-brand-green"
+                    >
+                      <Mail aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                      {activeZone.zonalEmail}
+                    </a>
+                  </div>
                 </div>
                 <dl className="mt-7 grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -580,13 +599,22 @@ export default function OurMovementPage() {
                       <p className="mt-1 text-sm font-medium leading-snug text-brand-black">
                         {entry.coordinator}
                       </p>
-                      <a
-                        href={`tel:+234${entry.phone.replace(/^0/, "")}`}
-                        className="mt-auto inline-flex items-center gap-2 pt-4 text-sm font-medium text-black/70 transition group-hover:text-brand-green"
-                      >
-                        <Phone aria-hidden="true" className="h-3.5 w-3.5" />
-                        {formatPhone(entry.phone)}
-                      </a>
+                      <div className="mt-auto flex flex-col gap-1.5 pt-4">
+                        <a
+                          href={`tel:+234${entry.phone.replace(/^0/, "")}`}
+                          className="inline-flex items-center gap-2 text-sm font-medium text-black/70 transition group-hover:text-brand-green"
+                        >
+                          <Phone aria-hidden="true" className="h-3.5 w-3.5" />
+                          {formatPhone(entry.phone)}
+                        </a>
+                        <a
+                          href={`mailto:${entry.email}`}
+                          className="inline-flex items-center gap-2 break-all text-sm font-medium text-black/70 transition group-hover:text-brand-green"
+                        >
+                          <Mail aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                          {entry.email}
+                        </a>
+                      </div>
                     </article>
                   </li>
                 ))}
