@@ -628,7 +628,7 @@ function ComplaintSection() {
                     Thank you — your report has been logged.
                   </h3>
                   <p className="mt-2 max-w-sm text-[14px] text-brand-black/65">
-                    A coordinator will follow up with you by email or phone within 48 hours. Your
+                    A coordinator will follow up with you by email or phone. Your
                     voice keeps INEC accountable.
                   </p>
                   <button

@@ -24,6 +24,18 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   const { id } = await params;
+  const source = request.nextUrl.searchParams.get("source") ?? "contact";
+
+  if (source !== "contact" && source !== "complaint") {
+    return NextResponse.json({ error: "Invalid submission source." }, { status: 400 });
+  }
+
+  if (source === "complaint") {
+    return NextResponse.json(
+      { error: "Reply by email is only available for contact submissions." },
+      { status: 400 },
+    );
+  }
 
   try {
     const body = await request.json();

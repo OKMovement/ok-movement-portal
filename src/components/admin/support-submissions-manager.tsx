@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Copy, Loader2, Send, Trash2, X } from "lucide-react";
 
+type SubmissionSource = "contact" | "complaint";
+
 type SubmissionReply = {
   message: string;
   sentAt: string | Date;
@@ -13,9 +15,10 @@ type SubmissionReply = {
 
 type SupportSubmissionItem = {
   id: string;
+  source: SubmissionSource;
   requestType: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   region: string | null;
   subject: string;
@@ -37,6 +40,7 @@ export default function SupportSubmissionsManager() {
   const [replyMessage, setReplyMessage] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
   const [replyNotice, setReplyNotice] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<SubmissionSource | "all">("all");
 
   async function loadSubmissions() {
     setLoading(true);
@@ -75,10 +79,15 @@ Thank you for reaching out to the OK Movement.
     setCopiedEmail(false);
     setReplyNotice("");
     setError("");
-    setReplyMessage(defaultReplyFor(submission));
+    setReplyMessage(submission.source === "contact" ? defaultReplyFor(submission) : "");
   }
 
-  async function handleCopyEmail(email: string) {
+  async function handleCopyEmail(email: string | null) {
+    if (!email) {
+      setError("No email address is available for this submission.");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(email);
       setCopiedEmail(true);
@@ -94,7 +103,9 @@ Thank you for reaching out to the OK Movement.
     setDeleting(true);
     setError("");
 
-    const response = await fetch(`/api/admin/support/${selected.id}`, { method: "DELETE" });
+    const response = await fetch(`/api/admin/support/${selected.id}?source=${selected.source}`, {
+      method: "DELETE",
+    });
     const data = (await response.json().catch(() => null)) as { error?: string } | null;
 
     if (!response.ok) {
@@ -103,13 +114,19 @@ Thank you for reaching out to the OK Movement.
       return;
     }
 
-    setSubmissions((prev) => prev.filter((item) => item.id !== selected.id));
+    setSubmissions((prev) =>
+      prev.filter((item) => !(item.id === selected.id && item.source === selected.source)),
+    );
     setSelected(null);
     setDeleting(false);
   }
 
   async function handleSendReply() {
     if (!selected) return;
+    if (selected.source !== "contact" || !selected.email) {
+      setError("Reply by email is only available for contact submissions with an email address.");
+      return;
+    }
 
     const message = replyMessage.trim();
     if (message.length < 10) {
@@ -121,7 +138,7 @@ Thank you for reaching out to the OK Movement.
     setReplyNotice("");
     setError("");
 
-    const response = await fetch(`/api/admin/support/${selected.id}/reply`, {
+    const response = await fetch(`/api/admin/support/${selected.id}/reply?source=${selected.source}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
@@ -154,17 +171,39 @@ Thank you for reaching out to the OK Movement.
 
     setSelected(updatedSelected);
     setSubmissions((prev) =>
-      prev.map((item) => (item.id === selected.id ? { ...item, ...updatedSelected } : item)),
+      prev.map((item) =>
+        item.id === selected.id && item.source === selected.source ? { ...item, ...updatedSelected } : item,
+      ),
     );
     setReplyNotice("Reply email sent successfully.");
     setReplyMessage("");
     setSendingReply(false);
   }
 
+  const filteredSubmissions = submissions.filter((submission) =>
+    sourceFilter === "all" ? true : submission.source === sourceFilter,
+  );
+
+  const canReplyToSelected = Boolean(selected && selected.source === "contact" && selected.email);
+
   return (
     <>
       <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         {error ? <p className="px-4 pt-4 text-sm text-brand-red">{error}</p> : null}
+        <div className="flex justify-end px-4 pt-4">
+          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/60">
+            Filter
+            <select
+              value={sourceFilter}
+              onChange={(event) => setSourceFilter(event.target.value as SubmissionSource | "all")}
+              className="rounded-[8px] border border-black/15 bg-white px-2 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-brand-black"
+            >
+              <option value="all">All submissions</option>
+              <option value="contact">Contact submissions</option>
+              <option value="complaint">Complaint submissions</option>
+            </select>
+          </label>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
             <thead className="bg-[#f7f7f4] text-xs uppercase tracking-[0.16em] text-black/60">
@@ -184,18 +223,24 @@ Thank you for reaching out to the OK Movement.
                     Loading support submissions...
                   </td>
                 </tr>
-              ) : submissions.length > 0 ? (
-                submissions.map((submission) => (
+              ) : filteredSubmissions.length > 0 ? (
+                filteredSubmissions.map((submission) => (
                   <tr
                     key={submission.id}
                     onClick={() => handleSelectSubmission(submission)}
                     className="cursor-pointer border-t border-black/8 align-top text-sm text-brand-black transition hover:bg-[#f7f7f4]"
                   >
                     <td className="px-4 py-3 font-medium">{submission.name}</td>
-                    <td className="px-4 py-3 text-black/70">{submission.email}</td>
+                    <td className="px-4 py-3 text-black/70">{submission.email || "-"}</td>
                     <td className="px-4 py-3">
-                      <span className="rounded-[8px] bg-brand-green/10 px-2.5 py-1 text-xs font-semibold text-brand-green">
-                        {submission.requestType}
+                      <span
+                        className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold ${
+                          submission.source === "complaint"
+                            ? "bg-brand-red/10 text-brand-red"
+                            : "bg-brand-green/10 text-brand-green"
+                        }`}
+                      >
+                        {submission.source === "complaint" ? "complaint" : submission.requestType}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-black/70">{submission.subject}</td>
@@ -218,7 +263,9 @@ Thank you for reaching out to the OK Movement.
               ) : (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-sm text-black/60">
-                    No support submissions yet.
+                    {submissions.length === 0
+                      ? "No support submissions yet."
+                      : "No support submissions match the selected filter."}
                   </td>
                 </tr>
               )}
@@ -233,7 +280,7 @@ Thank you for reaching out to the OK Movement.
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-red">
-                  Support Submission
+                  {selected.source === "complaint" ? "Complaint Submission" : "Contact Submission"}
                 </p>
                 <h3 className="mt-1 text-xl font-semibold text-brand-black">{selected.subject}</h3>
               </div>
@@ -252,21 +299,27 @@ Thank you for reaching out to the OK Movement.
                 <p className="mt-1 text-brand-black">{selected.name}</p>
               </div>
               <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Source</p>
+                <p className="mt-1 text-brand-black capitalize">{selected.source}</p>
+              </div>
+              <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Request Type</p>
                 <p className="mt-1 text-brand-black">{selected.requestType}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Email</p>
                 <div className="mt-1 flex items-center gap-2">
-                  <p className="text-brand-black">{selected.email}</p>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyEmail(selected.email)}
-                    className="inline-flex items-center gap-1 rounded-[8px] border border-black/15 px-2 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green"
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                    {copiedEmail ? "Copied" : "Copy"}
-                  </button>
+                  <p className="text-brand-black">{selected.email || "-"}</p>
+                  {selected.email ? (
+                    <button
+                      type="button"
+                      onClick={() => handleCopyEmail(selected.email)}
+                      className="inline-flex items-center gap-1 rounded-[8px] border border-black/15 px-2 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-black/70 transition hover:border-brand-green hover:text-brand-green"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                      {copiedEmail ? "Copied" : "Copy"}
+                    </button>
+                  ) : null}
                 </div>
               </div>
               <div>
@@ -279,7 +332,13 @@ Thank you for reaching out to the OK Movement.
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Newsletter</p>
-                <p className="mt-1 text-brand-black">{selected.newsletter ? "Opted in" : "Not subscribed"}</p>
+                <p className="mt-1 text-brand-black">
+                  {selected.source === "contact"
+                    ? selected.newsletter
+                      ? "Opted in"
+                      : "Not subscribed"
+                    : "N/A"}
+                </p>
               </div>
             </div>
 
@@ -288,22 +347,30 @@ Thank you for reaching out to the OK Movement.
               <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-black">{selected.message}</p>
             </div>
 
-            <div className="mt-5 rounded-[8px] border border-black/10 bg-[#fafaf8] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Reply and Send Email</p>
-              <textarea
-                value={replyMessage}
-                onChange={(event) => setReplyMessage(event.target.value)}
-                rows={6}
-                placeholder="Write your response..."
-                className="mt-2 w-full rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
-              />
-              {replyNotice ? <p className="mt-2 text-sm text-brand-green">{replyNotice}</p> : null}
-              {selected.lastRepliedAt ? (
-                <p className="mt-2 text-xs text-black/55">
-                  Last reply: {new Date(selected.lastRepliedAt).toLocaleString()} ({selected.replyCount ?? 1} total)
+            {canReplyToSelected ? (
+              <div className="mt-5 rounded-[8px] border border-black/10 bg-[#fafaf8] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">
+                  Reply and Send Email
                 </p>
-              ) : null}
-            </div>
+                <textarea
+                  value={replyMessage}
+                  onChange={(event) => setReplyMessage(event.target.value)}
+                  rows={6}
+                  placeholder="Write your response..."
+                  className="mt-2 w-full rounded-[8px] border border-black/12 bg-white px-3 py-2 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                />
+                {replyNotice ? <p className="mt-2 text-sm text-brand-green">{replyNotice}</p> : null}
+                {selected.lastRepliedAt ? (
+                  <p className="mt-2 text-xs text-black/55">
+                    Last reply: {new Date(selected.lastRepliedAt).toLocaleString()} ({selected.replyCount ?? 1} total)
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-[8px] border border-black/10 bg-[#fafaf8] p-4 text-sm text-black/60">
+                Reply by email is only available for contact submissions with a valid email address.
+              </div>
+            )}
 
             {selected.replies && selected.replies.length > 0 ? (
               <div className="mt-4 rounded-[8px] border border-black/10 p-4">
@@ -332,11 +399,11 @@ Thank you for reaching out to the OK Movement.
               <button
                 type="button"
                 onClick={handleSendReply}
-                disabled={sendingReply}
+                disabled={!canReplyToSelected || sendingReply}
                 className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-green px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
               >
                 {sendingReply ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Send reply email
+                {canReplyToSelected ? "Send reply email" : "Email reply unavailable"}
               </button>
               <button
                 type="button"

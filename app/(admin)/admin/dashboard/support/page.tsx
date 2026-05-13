@@ -7,9 +7,9 @@ export default async function AdminSupportPage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-red">
           Support
         </p>
-        <h2 className="mt-3 text-3xl font-semibold text-brand-black">Contact Submissions</h2>
+        <h2 className="mt-3 text-3xl font-semibold text-brand-black">Support Submissions</h2>
         <p className="mt-2 text-sm text-black/65">
-          All messages submitted from the Contact Us form.
+          Contact form messages and Get Your PVC complaint submissions.
         </p>
       </header>
       <SupportSubmissionsManager />
