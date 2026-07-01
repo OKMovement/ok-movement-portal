@@ -38,6 +38,8 @@ import {
   type UpcomingEvent,
 } from "./upcoming-events-data";
 import PhoneInput from "@/components/ui/phone-input";
+import { nigeriaStateOptions, getLgaOptionsByState } from "@/lib/nigeria-locations";
+import { countryOptions } from "@/lib/world-locations";
 
 /* ----------------------------------------------------------------- */
 /* Helpers                                                            */
@@ -269,6 +271,7 @@ type PublicEventApiItem = {
   city: string;
   state: string;
   lga: string;
+  flierImageUrl: string;
   venue: string;
   address: string;
   why: string;
@@ -350,6 +353,7 @@ function mapApiEventToUpcomingEvent(
     language: fallback.language,
     featured: index === 0,
     imageQuery: `${item.city} ${item.state} community event`,
+    flierImageUrl: item.flierImageUrl ?? "",
   };
 }
 
@@ -404,44 +408,51 @@ function EventCard({
   const isFull = event.registered >= event.capacity;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)]">
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
+    <article className="group max-h-[50vh] relative flex flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] md:flex-row">
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px] md:inset-y-0 md:left-0 md:h-auto md:w-[3px] md:flex-col">
         <span className="h-full flex-1 bg-brand-green" />
         <span className="h-full flex-1 bg-brand-black" />
         <span className="h-full flex-1 bg-brand-red" />
       </span>
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full ${t.glow} blur-2xl`}
-      />
 
-      <div className="relative flex flex-1 flex-col gap-5 p-6 sm:p-7">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[12px] border border-black/8 bg-[#f7f7f4] text-brand-black">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-red">
+      {event.flierImageUrl ? (
+        <div className="relative h-44 w-full overflow-hidden md:h-auto md:w-1/2">
+          <img
+            src={event.flierImageUrl}
+            alt={`${event.title} flier`}
+            className="h-full w-full object-contain"
+          />
+        </div>
+      ) : null}
+
+      <div className={`relative flex flex-col gap-3 p-5 sm:p-6 ${event.flierImageUrl ? "md:w-1/2" : "flex-1"}`}>
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full ${t.glow} blur-2xl`}
+        />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-[10px] border border-black/8 bg-[#f7f7f4] text-brand-black">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-red">
                 {monthShort[dt.getMonth()]}
               </span>
-              <span className="text-2xl font-semibold leading-none">{dt.getDate()}</span>
-              <span className="mt-0.5 text-[9px] uppercase tracking-[0.16em] text-black/55">
-                {dayShort[dt.getDay()]}
-              </span>
+              <span className="text-lg font-semibold leading-none">{dt.getDate()}</span>
             </div>
             <div>
               <span
-                className={`inline-flex items-center gap-1.5 rounded-full ${t.pillBg} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]`}
+                className={`inline-flex items-center gap-1.5 rounded-full ${t.pillBg} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]`}
               >
                 <Icon aria-hidden="true" className="h-3 w-3" />
                 {event.type}
               </span>
-              <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55">
+              <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55">
                 <Clock aria-hidden="true" className="h-3 w-3" />
                 {event.startTime} · {event.durationLabel}
               </p>
             </div>
           </div>
           <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-full border ${t.ring} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${t.eyebrow}`}
+            className={`inline-flex shrink-0 items-center gap-1 rounded-full border ${t.ring} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${t.eyebrow}`}
           >
             <Sparkles aria-hidden="true" className="h-3 w-3" />
             {event.fiveC}
@@ -449,10 +460,10 @@ function EventCard({
         </div>
 
         <div>
-          <h3 className="text-xl font-medium leading-tight text-brand-black sm:text-2xl">
+          <h3 className="text-lg font-medium leading-tight text-brand-black">
             {event.title}
           </h3>
-          <p className="mt-2 flex items-start gap-1.5 text-sm text-black/65">
+          <p className="mt-1 flex items-start gap-1.5 text-xs text-black/65">
             <MapPin
               aria-hidden="true"
               className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-green"
@@ -463,34 +474,34 @@ function EventCard({
           </p>
         </div>
 
-        <p className="text-sm leading-relaxed text-black/65">
+        <p className="text-xs leading-relaxed text-black/65 line-clamp-2">
           <span className="font-semibold text-brand-black">The why · </span>
           {event.why}
         </p>
 
-        <div className="mt-auto space-y-4 pt-2">
+        <div className="mt-auto space-y-3 pt-1">
           <CapacityBar event={event} />
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => onRsvp(event)}
-              className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-semibold uppercase tracking-[0.16em] text-white transition ${
+              className={`inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-[10px] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-white transition ${
                 isFull
                   ? "bg-brand-black hover:bg-brand-red"
                   : "bg-brand-green hover:bg-brand-black"
               }`}
             >
               {isFull ? "Join waitlist" : "RSVP / Register"}
-              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+              <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
             <a
               href={googleMapsUrl(event)}
               target="_blank"
               rel="noreferrer"
               aria-label="Open venue in Google Maps"
-              className="inline-flex min-h-12 w-12 items-center justify-center rounded-[10px] border border-black/12 bg-white text-brand-black transition hover:border-brand-green hover:text-brand-green"
+              className="inline-flex min-h-10 w-10 items-center justify-center rounded-[10px] border border-black/12 bg-white text-brand-black transition hover:border-brand-green hover:text-brand-green"
             >
-              <MapPinned aria-hidden="true" className="h-4 w-4" />
+              <MapPinned aria-hidden="true" className="h-3.5 w-3.5" />
             </a>
           </div>
         </div>
@@ -513,6 +524,17 @@ function FeaturedEvent({
 
   return (
     <article className="relative overflow-hidden rounded-[20px] border border-white/10 bg-brand-black text-white shadow-[0_28px_60px_-28px_rgb(0_0_0/0.6)]">
+      {event.flierImageUrl ? (
+        <>
+          <img
+            src={event.flierImageUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover opacity-20"
+          />
+          <div aria-hidden="true" className="absolute inset-0 bg-brand-black/75" />
+        </>
+      ) : null}
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgb(0_166_81/0.32),transparent_55%)]"
@@ -703,7 +725,11 @@ function RsvpModal({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [locationType, setLocationType] = useState<"nigeria" | "diaspora">("nigeria");
+  const [nigeriaState, setNigeriaState] = useState("");
   const [lga, setLga] = useState("");
+  const [diasporaCountry, setDiasporaCountry] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [organise, setOrganise] = useState(false);
   const [status, setStatus] = useState<RsvpStatus>("idle");
@@ -712,6 +738,7 @@ function RsvpModal({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
+  const lgaOptions = useMemo(() => getLgaOptionsByState(nigeriaState), [nigeriaState]);
   const isFull = event.registered >= event.capacity;
   const action = isFull ? "Join the waitlist" : "Confirm my RSVP";
 
@@ -780,8 +807,11 @@ function RsvpModal({
           name,
           email,
           phone: phone.trim() || undefined,
-          state: event.state,
-          lga: lga.trim(),
+          address: address.trim() || undefined,
+          locationType,
+          country: locationType === "diaspora" ? diasporaCountry : "Nigeria",
+          state: locationType === "nigeria" ? nigeriaState : undefined,
+          lga: locationType === "nigeria" ? lga.trim() : undefined,
           notes: notes.join(" "),
         }),
       });
@@ -851,6 +881,15 @@ function RsvpModal({
         </button>
 
         <div className="flex w-full flex-col overflow-y-auto">
+          {event.flierImageUrl ? (
+            <div className="relative h-48 w-full overflow-hidden border-b border-black/8">
+              <img
+                src={event.flierImageUrl}
+                alt={`${event.title} flier`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : null}
           {/* Event recap header */}
           <div className="border-b border-black/8 bg-[#f7f7f4] px-6 py-6 sm:px-10 sm:py-7">
             <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-green">
@@ -1057,7 +1096,7 @@ function RsvpModal({
                     className={inputClass}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5">
+                <label className="flex flex-col gap-1.5 sm:col-span-2">
                   <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
                     Phone number{" "}
                     {/* <span className="text-black/40">(optional · for SMS reminders)</span> */}
@@ -1069,20 +1108,104 @@ function RsvpModal({
                     placeholder="e.g. 8012345678"
                   />
                 </label>
-                <label className="flex flex-col gap-1.5">
+                <label className="flex flex-col gap-1.5 sm:col-span-2">
                   <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
-                    Local Government Area (LGA){" "}
-                    <span className="text-brand-red">*</span>
+                    Residential address <span className="text-brand-red">*</span>
                   </span>
                   <input
                     type="text"
                     required
-                    value={lga}
-                    onChange={(e) => setLga(e.target.value)}
-                    placeholder="e.g. Ikeja"
+                    autoComplete="street-address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. 12 Adeola Odeku Street, Victoria Island"
                     className={inputClass}
                   />
                 </label>
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                    Where are you based? <span className="text-brand-red">*</span>
+                  </span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-black/10 px-4 py-2.5 text-sm text-brand-black transition hover:border-brand-green/40 hover:bg-brand-green/5">
+                      <input
+                        type="radio"
+                        name="locationType"
+                        value="nigeria"
+                        checked={locationType === "nigeria"}
+                        onChange={() => { setLocationType("nigeria"); setDiasporaCountry(""); }}
+                        className="accent-brand-green"
+                      />
+                      Nigeria
+                    </label>
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-black/10 px-4 py-2.5 text-sm text-brand-black transition hover:border-brand-green/40 hover:bg-brand-green/5">
+                      <input
+                        type="radio"
+                        name="locationType"
+                        value="diaspora"
+                        checked={locationType === "diaspora"}
+                        onChange={() => { setLocationType("diaspora"); setNigeriaState(""); setLga(""); }}
+                        className="accent-brand-green"
+                      />
+                      Diaspora
+                    </label>
+                  </div>
+                </div>
+
+                {locationType === "nigeria" ? (
+                  <>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                        State <span className="text-brand-red">*</span>
+                      </span>
+                      <select
+                        required
+                        value={nigeriaState}
+                        onChange={(e) => { setNigeriaState(e.target.value); setLga(""); }}
+                        className={inputClass}
+                      >
+                        <option value="" disabled>Select your state</option>
+                        {nigeriaStateOptions.map((s) => (
+                          <option key={s.value} value={s.label}>{s.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                        LGA <span className="text-brand-red">*</span>
+                      </span>
+                      <select
+                        required
+                        value={lga}
+                        onChange={(e) => setLga(e.target.value)}
+                        disabled={!nigeriaState}
+                        className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
+                      >
+                        <option value="" disabled>{nigeriaState ? "Select your LGA" : "Select state first"}</option>
+                        {lgaOptions.map((l) => (
+                          <option key={l.value} value={l.label}>{l.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </>
+                ) : (
+                  <label className="flex flex-col gap-1.5 sm:col-span-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                      Country <span className="text-brand-red">*</span>
+                    </span>
+                    <select
+                      required
+                      value={diasporaCountry}
+                      onChange={(e) => setDiasporaCountry(e.target.value)}
+                      className={inputClass}
+                    >
+                      <option value="" disabled>Select your country</option>
+                      {countryOptions.map((name) => (
+                        <option key={name} value={name}>{name}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               </div>
 
               <div className="mt-6 grid gap-3">
@@ -1627,7 +1750,7 @@ export default function UpcomingEventsPage() {
               </button>
             </div>
           ) : (
-            <div className="mt-10 grid gap-5 lg:mt-12 lg:grid-cols-2">
+            <div className="mt-10 grid gap-5 lg:mt-12">
               {visibleEvents.map((event) => (
                 <EventCard
                   key={event.id}

@@ -32,6 +32,7 @@ export async function GET() {
       lga: event.lga ?? "",
       venue: event.venue,
       address: event.address,
+      flierImageUrl: event.flierImageUrl ?? "",
       why: event.why,
       capacity: event.capacity,
       registrationOpen: event.registrationOpen,

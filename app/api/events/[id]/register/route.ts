@@ -15,8 +15,11 @@ export async function POST(request: NextRequest, { params }: Params) {
     name?: string;
     email?: string;
     phone?: string;
+    locationType?: string;
+    country?: string;
     state?: string;
     lga?: string;
+    address?: string;
     notes?: string;
   };
 
@@ -45,13 +48,17 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   try {
+    const locationType = body.locationType === "diaspora" ? "diaspora" : "nigeria";
     const registration = await EventRegistrationModel.create({
       eventId: event._id,
       name,
       email,
       phone,
+      locationType,
+      country: locationType === "diaspora" ? (body.country?.trim() || undefined) : "Nigeria",
       state: body.state?.trim() || undefined,
-      lga: body.lga?.trim() || undefined,
+      lga: locationType === "nigeria" ? (body.lga?.trim() || undefined) : undefined,
+      address: body.address?.trim() || undefined,
       notes: body.notes?.trim() || undefined,
     });
 

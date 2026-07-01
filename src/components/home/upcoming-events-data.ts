@@ -52,6 +52,7 @@ export type UpcomingEvent = {
   language: string;
   featured?: boolean;
   imageQuery: string;
+  flierImageUrl: string;
 };
 
 export const eventTypes: EventType[] = [
@@ -187,6 +188,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     ],
     featured: true,
     imageQuery: "town hall meeting Lagos",
+    flierImageUrl: "",
   },
   {
     id: "fct-voter-education",
@@ -218,6 +220,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Amina Yusuf", role: "FCT Coordinator" },
     ],
     imageQuery: "voter card Nigeria",
+    flierImageUrl: "",
   },
   {
     id: "kano-grassroots-training",
@@ -249,6 +252,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Fatimah Bello", role: "Digital Strategist" },
     ],
     imageQuery: "training workshop Nigeria",
+    flierImageUrl: "",
   },
   {
     id: "ph-fiscal-town-hall",
@@ -280,6 +284,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Comr. Ifeanyi Odili", role: "South-South Convener" },
     ],
     imageQuery: "Niger Delta community meeting",
+    flierImageUrl: "",
   },
   {
     id: "kaduna-support-group",
@@ -311,6 +316,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Joy Adamu", role: "Mentor Lead, Kaduna" },
     ],
     imageQuery: "support group Nigeria women",
+    flierImageUrl: "",
   },
   {
     id: "enugu-volunteer-bootcamp",
@@ -342,6 +348,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Ngozi Eze", role: "Volunteer Operations" },
     ],
     imageQuery: "volunteer training Enugu",
+    flierImageUrl: "",
   },
   {
     id: "oyo-pvc-clinic",
@@ -373,6 +380,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Bisi Owolabi", role: "Oyo State Coordinator" },
     ],
     imageQuery: "Ibadan voter education",
+    flierImageUrl: "",
   },
   {
     id: "borno-town-hall",
@@ -404,6 +412,7 @@ export const upcomingEvents: UpcomingEvent[] = [
       { name: "Dr. Hadiza Modu", role: "North-East Convener" },
     ],
     imageQuery: "Maiduguri community meeting",
+    flierImageUrl: "",
   },
 ];
 
