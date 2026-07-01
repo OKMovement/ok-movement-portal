@@ -33,9 +33,10 @@ export async function GET(request: NextRequest, { params }: Params) {
       date: event.date,
       startTime: event.startTime,
       endTime: event.endTime,
+      country: event.country ?? "",
       city: event.city,
       state: event.state,
-      lga: event.lga,
+      lga: event.lga ?? "",
       venue: event.venue,
       address: event.address,
       flierImageUrl: event.flierImageUrl ?? "",
@@ -62,6 +63,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     date?: string;
     startTime?: string;
     endTime?: string;
+    country?: string;
     city?: string;
     state?: string;
     lga?: string;
@@ -85,6 +87,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   if (typeof body.date === "string") event.date = body.date.trim();
   if (typeof body.startTime === "string") event.startTime = body.startTime.trim();
   if (typeof body.endTime === "string") event.endTime = body.endTime.trim();
+  if (typeof body.country === "string") event.country = body.country.trim();
   if (typeof body.city === "string") event.city = body.city.trim();
   if (typeof body.state === "string") event.state = body.state.trim();
   if (typeof body.lga === "string") event.lga = body.lga.trim();
@@ -112,9 +115,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       date: event.date,
       startTime: event.startTime,
       endTime: event.endTime,
+      country: event.country ?? "",
       city: event.city,
       state: event.state,
-      lga: event.lga,
+      lga: event.lga ?? "",
       venue: event.venue,
       address: event.address,
       flierImageUrl: event.flierImageUrl ?? "",

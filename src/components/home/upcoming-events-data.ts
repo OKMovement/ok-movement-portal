@@ -37,6 +37,7 @@ export type UpcomingEvent = {
   startTime: string;
   endTime: string;
   durationLabel: string;
+  country: string;
   city: string;
   state: string;
   lga: string;
@@ -163,6 +164,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "10:00 AM",
     endTime: "1:00 PM",
     durationLabel: "3 hrs",
+    country: "Nigeria",
     city: "Ikeja",
     state: "Lagos",
     lga: "Ikeja",
@@ -194,6 +196,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "9:00 AM",
     endTime: "2:00 PM",
     durationLabel: "5 hrs",
+    country: "Nigeria",
     city: "Abuja",
     state: "FCT (Abuja)",
     lga: "AMAC",
@@ -224,6 +227,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "11:00 AM",
     endTime: "4:00 PM",
     durationLabel: "5 hrs",
+    country: "Nigeria",
     city: "Kano",
     state: "Kano",
     lga: "Nassarawa",
@@ -254,6 +258,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "5:00 PM",
     endTime: "8:00 PM",
     durationLabel: "3 hrs",
+    country: "Nigeria",
     city: "Port Harcourt",
     state: "Rivers",
     lga: "Port Harcourt",
@@ -284,6 +289,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "2:00 PM",
     endTime: "5:00 PM",
     durationLabel: "3 hrs",
+    country: "Nigeria",
     city: "Kaduna",
     state: "Kaduna",
     lga: "Kaduna North",
@@ -314,6 +320,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "10:00 AM",
     endTime: "3:00 PM",
     durationLabel: "5 hrs",
+    country: "Nigeria",
     city: "Enugu",
     state: "Enugu",
     lga: "Enugu North",
@@ -344,6 +351,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "9:00 AM",
     endTime: "1:00 PM",
     durationLabel: "4 hrs",
+    country: "Nigeria",
     city: "Ibadan",
     state: "Oyo",
     lga: "Ibadan North",
@@ -374,6 +382,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     startTime: "4:00 PM",
     endTime: "7:00 PM",
     durationLabel: "3 hrs",
+    country: "Nigeria",
     city: "Maiduguri",
     state: "Borno",
     lga: "Maiduguri",

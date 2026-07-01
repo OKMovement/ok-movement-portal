@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
-import { getLgaOptionsByState, nigeriaStateOptions } from "@/lib/nigeria-locations";
+import { countryOptions, getStatesByCountry } from "@/lib/world-locations";
 
 type EventItem = {
   id: string;
@@ -12,6 +12,7 @@ type EventItem = {
   date: string;
   startTime: string;
   endTime: string;
+  country: string;
   city: string;
   state: string;
   lga: string;
@@ -36,6 +37,7 @@ const initialForm = {
   date: "",
   startTime: "",
   endTime: "",
+  country: "",
   city: "",
   state: "",
   lga: "",
@@ -55,7 +57,7 @@ export default function EventsManager() {
   const [error, setError] = useState("");
   const [form, setForm] = useState(initialForm);
   const [viewMode, setViewMode] = useState<"list" | "form">("list");
-  const lgaOptions = useMemo(() => getLgaOptionsByState(form.state), [form.state]);
+  const stateOptions = useMemo(() => getStatesByCountry(form.country), [form.country]);
 
   async function loadEvents() {
     setLoading(true);
@@ -159,9 +161,10 @@ export default function EventsManager() {
       date: item.date,
       startTime: item.startTime,
       endTime: item.endTime,
+      country: item.country ?? "",
       city: item.city,
       state: item.state,
-      lga: item.lga,
+      lga: item.lga ?? "",
       venue: item.venue,
       address: item.address,
       flierImageUrl: item.flierImageUrl ?? "",
@@ -206,7 +209,7 @@ export default function EventsManager() {
                   <div>
                     <h4 className="text-base font-semibold text-brand-black">{item.title}</h4>
                     <p className="mt-1 text-sm text-black/65">
-                      {item.date} • {item.startTime} - {item.endTime} • {item.city}, {item.state}
+                      {item.date} • {item.startTime} - {item.endTime} • {item.city}, {item.state}, {item.country}
                     </p>
                     <p className="mt-2 text-sm text-black/70">{item.venue}</p>
                     {item.flierImageUrl ? (
@@ -320,6 +323,58 @@ export default function EventsManager() {
             </label>
 
             <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">Country</span>
+              <select
+                required
+                value={form.country}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, country: event.target.value, state: "" }))
+                }
+                className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
+              >
+                <option value="" disabled>
+                  Select a country
+                </option>
+                {countryOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">State / Region</span>
+              {stateOptions.length > 0 ? (
+                <select
+                  required
+                  value={form.state}
+                  onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+                  disabled={!form.country}
+                  className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 disabled:cursor-not-allowed disabled:opacity-60`}
+                >
+                  <option value="" disabled>
+                    {form.country ? "Select a state / region" : "Select country first"}
+                  </option>
+                  {stateOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  required
+                  value={form.state}
+                  onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+                  placeholder={form.country ? "Enter state or region" : "Select country first"}
+                  disabled={!form.country}
+                  className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-60`}
+                />
+              )}
+            </label>
+
+            <label className="grid gap-1.5">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">City</span>
               <input
                 required
@@ -327,47 +382,6 @@ export default function EventsManager() {
                 onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
                 className={inputClass}
               />
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">State</span>
-              <select
-                required
-                value={form.state}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, state: event.target.value, lga: "" }))
-                }
-                className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10`}
-              >
-                <option value="" disabled>
-                  Select a state
-                </option>
-                {nigeriaStateOptions.map((state) => (
-                  <option key={state.value} value={state.label}>
-                    {state.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">LGA</span>
-              <select
-                required
-                value={form.lga}
-                onChange={(event) => setForm((prev) => ({ ...prev, lga: event.target.value }))}
-                disabled={!form.state}
-                className={`${inputClass} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%2300a651%22><path%20d=%22M5.5%208l4.5%204.5L14.5%208z%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 disabled:cursor-not-allowed disabled:opacity-60`}
-              >
-                <option value="" disabled>
-                  {form.state ? "Select an LGA" : "Select state first"}
-                </option>
-                {lgaOptions.map((lga) => (
-                  <option key={lga.value} value={lga.label}>
-                    {lga.label}
-                  </option>
-                ))}
-              </select>
             </label>
 
             <label className="grid gap-1.5">

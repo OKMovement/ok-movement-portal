@@ -30,9 +30,10 @@ export async function GET(request: NextRequest) {
       date: event.date,
       startTime: event.startTime,
       endTime: event.endTime,
+      country: event.country ?? "",
       city: event.city,
       state: event.state,
-      lga: event.lga,
+      lga: event.lga ?? "",
       venue: event.venue,
       address: event.address,
       flierImageUrl: event.flierImageUrl ?? "",
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
     date?: string;
     startTime?: string;
     endTime?: string;
+    country?: string;
     city?: string;
     state?: string;
     lga?: string;
@@ -75,9 +77,9 @@ export async function POST(request: NextRequest) {
     body.date,
     body.startTime,
     body.endTime,
+    body.country,
     body.city,
     body.state,
-    body.lga,
     body.venue,
     body.address,
     body.flierImageUrl,
@@ -101,9 +103,10 @@ export async function POST(request: NextRequest) {
     date: body.date!.trim(),
     startTime: body.startTime!.trim(),
     endTime: body.endTime!.trim(),
+    country: body.country!.trim(),
     city: body.city!.trim(),
     state: body.state!.trim(),
-    lga: body.lga!.trim(),
+    lga: body.lga?.trim() || "",
     venue: body.venue!.trim(),
     address: body.address!.trim(),
     flierImageUrl: body.flierImageUrl!.trim(),
@@ -122,9 +125,10 @@ export async function POST(request: NextRequest) {
       date: event.date,
       startTime: event.startTime,
       endTime: event.endTime,
+      country: event.country ?? "",
       city: event.city,
       state: event.state,
-      lga: event.lga,
+      lga: event.lga ?? "",
       venue: event.venue,
       address: event.address,
       flierImageUrl: event.flierImageUrl ?? "",

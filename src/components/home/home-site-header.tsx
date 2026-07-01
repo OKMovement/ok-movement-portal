@@ -29,12 +29,12 @@ type NavItem = {
 };
 
 const navItems: readonly NavItem[] = [
-  {
-    label: "Our Movement",
-    href: "/home/our-movement",
-    icon: Compass,
-    description: "Vision, values & the 5 C's",
-  },
+  // {
+  //   label: "Our Movement",
+  //   href: "/home/our-movement",
+  //   icon: Compass,
+  //   description: "Vision, values & the 5 C's",
+  // },
   {
     label: "Media Gallery",
     href: "/home/media-gallery",

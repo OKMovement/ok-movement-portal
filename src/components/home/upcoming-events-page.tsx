@@ -265,6 +265,7 @@ type PublicEventApiItem = {
   date: string;
   startTime: string;
   endTime: string;
+  country: string;
   city: string;
   state: string;
   lga: string;
@@ -330,9 +331,10 @@ function mapApiEventToUpcomingEvent(
     startTime: item.startTime,
     endTime: item.endTime,
     durationLabel: parseDurationLabel(item.startTime, item.endTime),
+    country: item.country ?? "",
     city: item.city,
     state: item.state,
-    lga: item.lga,
+    lga: item.lga ?? "",
     venue: item.venue,
     address: item.address,
     why: safeWhy,
@@ -456,7 +458,7 @@ function EventCard({
               className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-green"
             />
             <span>
-              {event.venue} · {event.city}, {event.state}
+              {event.venue} · {event.city}, {event.state}{event.country ? `, ${event.country}` : ""}
             </span>
           </p>
         </div>
@@ -1230,6 +1232,7 @@ export default function UpcomingEventsPage() {
         if (!q) return true;
         return (
           event.title.toLowerCase().includes(q) ||
+          event.country.toLowerCase().includes(q) ||
           event.city.toLowerCase().includes(q) ||
           event.state.toLowerCase().includes(q) ||
           event.lga.toLowerCase().includes(q) ||
@@ -1768,7 +1771,7 @@ export default function UpcomingEventsPage() {
                 {
                   icon: MapPinned,
                   title: "Geolocation aware",
-                  body: "Use your phone's location to surface events near you, or filter by city, state or LGA.",
+                  body: "Use your phone's location to surface events near you, or filter by city, state or country.",
                 },
                 {
                   icon: CalendarPlus,
