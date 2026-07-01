@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Sparkles,
   Users,
+  Vote,
   X,
 } from "lucide-react";
 import { principalLinks } from "./home-data";
@@ -67,6 +68,50 @@ const navItems: readonly NavItem[] = [
   },
 ] as const;
 
+type ResourceLink = { label: string; href: string };
+
+const electionResourceLinks: readonly ResourceLink[] = [
+  { label: "Get Your PVC", href: "/home/getyourpvc" },
+  { label: "Voting Procedures", href: "/home/votingprocedures" },
+  { label: "Election Calendar", href: "/home/electioncalendar" },
+] as const;
+
+function ElectionResourceDropdown() {
+  return (
+    <details className="group relative">
+      <summary className="flex cursor-pointer list-none items-center gap-1.5 whitespace-nowrap py-2 text-[13px] font-medium tracking-wide text-brand-black transition hover:text-brand-green [&::-webkit-details-marker]:hidden">
+        Election Resource
+        <ChevronDown
+          aria-hidden="true"
+          className="h-3.5 w-3.5 transition group-open:rotate-180"
+        />
+      </summary>
+      <div className="absolute left-1/2 top-full z-40 mt-3 w-72 -translate-x-1/2 overflow-hidden rounded-2xl border border-black/5 bg-white p-2 shadow-[0_24px_48px_-16px_rgb(0_0_0/0.18)]">
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-4 top-0 flex h-px"
+        >
+          <span className="h-full flex-1 bg-brand-green" />
+          <span className="h-full flex-1 bg-brand-black/30" />
+          <span className="h-full flex-1 bg-brand-red" />
+        </span>
+        {electionResourceLinks.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className="group/item flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium text-brand-black transition hover:bg-brand-green/10 hover:text-brand-green"
+          >
+            <span>{link.label}</span>
+            <ArrowUpRight
+              aria-hidden="true"
+              className="h-3.5 w-3.5 -translate-x-1 opacity-0 transition group-hover/item:translate-x-0 group-hover/item:opacity-100"
+            />
+          </a>
+        ))}
+      </div>
+    </details>
+  );
+}
 function CampaignLogo() {
   return (
     <a
@@ -145,7 +190,7 @@ function PrincipalDropdown() {
 export default function HomeSiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobilePrincipalsOpen, setMobilePrincipalsOpen] = useState(false);
-
+  const [mobileElectionOpen, setMobileElectionOpen] = useState(false);
   useEffect(() => {
     if (!mobileOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -176,6 +221,8 @@ export default function HomeSiteHeader() {
               {item.label}
             </NavLink>
           ))}
+          <ElectionResourceDropdown />
+
           <PrincipalDropdown />
         </nav>
 
@@ -326,6 +373,57 @@ export default function HomeSiteHeader() {
 
               {/* Principals expandable */}
               <div aria-hidden="true" className="mx-4 h-px bg-black/[0.06]" />
+
+               <li>
+                <button
+                  type="button"
+                  onClick={() => setMobileElectionOpen((v) => !v)}
+                  aria-expanded={mobileElectionOpen}
+                  aria-controls="mobile-election-panel"
+                  className="group flex w-full items-center gap-3.5 px-4 py-3.5 text-left text-brand-black transition active:bg-brand-green/5"
+                >
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green transition group-hover:bg-brand-green group-hover:text-white">
+                    <Vote aria-hidden="true" className="h-5 w-5" />
+                  </span>
+                  <span className="flex flex-1 flex-col leading-tight">
+                    <span className="text-[15px] font-semibold tracking-tight">
+                      Election Resource
+                    </span>
+                    <span className="mt-0.5 text-[12px] text-brand-black/55">
+                      PVC, voter status, procedures & calendar
+                    </span>
+                  </span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`h-4 w-4 text-brand-black/40 transition ${mobileElectionOpen ? "rotate-180 text-brand-green" : ""}`}
+                  />
+                </button>
+                <div
+                  id="mobile-election-panel"
+                  aria-hidden={!mobileElectionOpen}
+                  className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
+                    mobileElectionOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                  }`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="mx-4 mb-3 mt-1 rounded-xl bg-brand-green/[0.05] p-1 ring-1 ring-brand-green/10">
+                      {electionResourceLinks.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          tabIndex={mobileElectionOpen ? 0 : -1}
+                          aria-hidden={!mobileElectionOpen}
+                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-brand-black/80 transition hover:bg-white hover:text-brand-green"
+                        >
+                          <span>{link.label}</span>
+                          <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 opacity-60" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </li>
               <li>
                 <button
                   type="button"

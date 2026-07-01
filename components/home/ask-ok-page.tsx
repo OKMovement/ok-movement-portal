@@ -15,8 +15,8 @@ import {
   XCircle,
   AlertTriangle,
 } from "lucide-react";
-import HomeSiteHeader from "./home-site-header";
-import HomeFooterSection from "./home-footer-section";
+import HomeSiteHeader from "@/components/home/home-site-header";
+import HomeFooterSection from "@/components/home/home-footer-section";
 
 type Message = {
   id: string;
