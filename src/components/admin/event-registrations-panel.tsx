@@ -34,6 +34,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
   const [error, setError] = useState("");
   const [addStatus, setAddStatus] = useState<"idle" | "loading">("idle");
   const [addError, setAddError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [addForm, setAddForm] = useState({
     name: "",
     email: "",
@@ -102,6 +103,20 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
       notes: "",
     });
     setAddStatus("idle");
+    await loadData();
+  }
+
+  async function handleDeleteRegistration(registrationId: string) {
+    if (!confirm("Are you sure you want to delete this registrant?")) return;
+    setDeletingId(registrationId);
+    const response = await fetch(`/api/admin/events/${eventId}/registrations/${registrationId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      alert(data?.error ?? "Unable to delete registrant.");
+    }
+    setDeletingId(null);
     await loadData();
   }
 
@@ -270,6 +285,7 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
                   <th className="px-4 py-3">Address</th>
                   <th className="px-4 py-3">Notes</th>
                   <th className="px-4 py-3">Registered</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -286,6 +302,16 @@ export default function EventRegistrationsPanel({ eventId }: { eventId: string }
                     <td className="px-4 py-3 text-black/70">{registration.address || "-"}</td>
                     <td className="px-4 py-3 text-black/70">{registration.notes || "-"}</td>
                     <td className="px-4 py-3 text-black/60">{new Date(registration.createdAt).toLocaleString()}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        disabled={deletingId === registration.id}
+                        onClick={() => handleDeleteRegistration(registration.id)}
+                        className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-red transition hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingId === registration.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

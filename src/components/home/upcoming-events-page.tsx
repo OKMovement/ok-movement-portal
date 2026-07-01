@@ -408,7 +408,7 @@ function EventCard({
   const isFull = event.registered >= event.capacity;
 
   return (
-    <article className="group max-h-[50vh] relative flex flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] md:flex-row">
+    <article className="group relative flex flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] md:max-h-[50vh] md:flex-row">
       <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px] md:inset-y-0 md:left-0 md:h-auto md:w-[3px] md:flex-col">
         <span className="h-full flex-1 bg-brand-green" />
         <span className="h-full flex-1 bg-brand-black" />
@@ -416,7 +416,7 @@ function EventCard({
       </span>
 
       {event.flierImageUrl ? (
-        <div className="relative h-44 w-full overflow-hidden md:h-auto md:w-1/2">
+        <div className="relative h-64 w-full overflow-hidden md:h-auto md:w-1/2">
           <img
             src={event.flierImageUrl}
             alt={`${event.title} flier`}
