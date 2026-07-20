@@ -118,9 +118,10 @@ const contactChannels = [
   {
     icon: Phone,
     label: "Phone",
-    primary: "+234 909 999 9361",
+    // primary: "+234 909 999 9361",
+    primary: "+234 701 881 0634",
     secondary: "Mon–Fri, 9:00 – 18:00 WAT",
-    href: "tel:+2349099999361",
+    href: "tel:+2347018810634",
     accent: "bg-brand-red/10 text-brand-red",
   },
   // {
