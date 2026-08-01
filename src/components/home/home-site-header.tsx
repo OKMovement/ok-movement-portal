@@ -30,18 +30,18 @@ type NavItem = {
 };
 
 const navItems: readonly NavItem[] = [
-  // {
-  //   label: "Our Movement",
-  //   href: "/home/our-movement",
-  //   icon: Compass,
-  //   description: "Vision, values & the 5 C's",
-  // },
   {
-    label: "Media Gallery",
-    href: "/home/media-gallery",
-    icon: ImageIcon,
-    description: "Photos & campaign moments",
+    label: "Our Movement",
+    href: "/home/our-movement",
+    icon: Compass,
+    description: "Vision, values & the 5 C's",
   },
+  // {
+  //   label: "Media Gallery",
+  //   href: "/home/media-gallery",
+  //   icon: ImageIcon,
+  //   description: "Photos & campaign moments",
+  // },
   {
     label: "Get Involved",
     href: "/home/get-involved",
@@ -223,7 +223,7 @@ export default function HomeSiteHeader() {
           ))}
           <ElectionResourceDropdown />
 
-          <PrincipalDropdown />
+          {/* <PrincipalDropdown /> */}
         </nav>
 
         {/* Desktop right cluster */}
