@@ -1,6 +1,5 @@
 "use client";
-
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowUpRight,
   Award,
@@ -53,9 +52,22 @@ const pillarIcons = {
   vision: Compass,
   values: Heart,
 } as const;
+function initialsOf(name: string): string {
+  const parts = name
+    .replace(/^(Hon\.|Amb\.|Barr\.|Dr\.|Hajiya|Alhaji|Chief|Engr\.)\s+/i, "")
+    .split(/\s+/)
+    .filter(Boolean);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
+// Toggle to bring back the Zonal Structure section (and its hero button).
+const SHOW_ZONAL_STRUCTURE = false;
 
 export default function OurMovementPage() {
   const [activeZoneId, setActiveZoneId] = useState(zones[0].id);
+
   const activeZone = useMemo(
     () => zones.find((zone) => zone.id === activeZoneId)!,
     [activeZoneId],
@@ -122,12 +134,14 @@ export default function OurMovementPage() {
                 Join the Movement
                 <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
               </a>
-              <a
-                href="#zonal-structure"
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] border border-white/30 bg-white/5 px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white backdrop-blur transition hover:bg-white hover:text-brand-black"
-              >
-                Meet the Coordinators
-              </a>
+              {SHOW_ZONAL_STRUCTURE && (
+                <a
+                  href="#zonal-structure"
+                  className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] border border-white/30 bg-white/5 px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white backdrop-blur transition hover:bg-white hover:text-brand-black"
+                >
+                  Meet the Coordinators
+                </a>
+              )}
             </div>
           </div>
 
@@ -437,13 +451,33 @@ export default function OurMovementPage() {
                     </span>
                     <Award aria-hidden="true" className="h-4 w-4 text-black/30" />
                   </div>
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-black/55">
-                    {member.role}
-                  </p>
-                  <p className="mt-1 text-lg font-medium leading-tight text-brand-black">
-                    {member.name}
-                  </p>
+
+                  {/* Profile photo */}
+                  <div className="mt-4 flex items-start gap-4">
+                    <span className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-black/10 bg-gradient-to-br from-brand-green/10 via-white to-brand-red/10">
+                      {member.photo ? (
+                        <img
+                          src={member.photo}
+                          alt={`Portrait of ${member.name}`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xl font-semibold tracking-wide text-brand-green">
+                          {initialsOf(member.name)}
+                        </span>
+                      )}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-black/55">
+                        {member.role}
+                      </p>
+                      <p className="mt-1 text-lg font-medium leading-tight text-brand-black">
+                        {member.name}
+                      </p>
+                    </div>
+                  </div>
                   <div className="mt-5 flex flex-col gap-1.5">
+                    {/* Phone hidden for now — re-enable when confirmed numbers are available.
                     <a
                       href={`tel:+234${member.phone.replace(/^0/, "")}`}
                       className="inline-flex items-center gap-2 text-sm font-medium text-black/70 transition hover:text-brand-green"
@@ -451,6 +485,7 @@ export default function OurMovementPage() {
                       <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                       {formatPhone(member.phone)}
                     </a>
+                    */}
                     <a
                       href={`mailto:${member.email}`}
                       className="inline-flex items-center gap-2 break-all text-sm font-medium text-black/70 transition hover:text-brand-green"
@@ -466,7 +501,9 @@ export default function OurMovementPage() {
         </div>
       </section>
 
-      {/* ZONAL STRUCTURE ----------------------------------------- */}
+      {/* ZONAL STRUCTURE (hidden for now — set SHOW_ZONAL_STRUCTURE
+          to true to bring it back) ------------------------------- */}
+      {SHOW_ZONAL_STRUCTURE && (
       <section
         id="zonal-structure"
         className="relative scroll-mt-28 bg-white py-16 sm:py-20 lg:py-24"
@@ -623,6 +660,7 @@ export default function OurMovementPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CLOSING CTA --------------------------------------------- */}
       <section
@@ -681,3 +719,4 @@ export default function OurMovementPage() {
     </main>
   );
 }
+

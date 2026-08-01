@@ -3,6 +3,7 @@ export type CouncilMember = {
   name: string;
   phone: string;
   email: string;
+  photo: string;
 };
 
 export const ADMIN_EMAIL = "admin@okmovement.org";
@@ -138,13 +139,11 @@ export const movementStats = [
 ];
 
 export const executiveCouncil: CouncilMember[] = [
-  { role: "Director General", name: "Hon. John Ozyl Ughulu", phone: "09099999362", email: ADMIN_EMAIL },
-  { role: "Deputy DG (North)", name: "Amb. Muhammad Auwal Musa", phone: "07064771347", email: ADMIN_EMAIL },
-  { role: "Deputy DG (South)", name: "Onabanjo Olusola", phone: "08182375926", email: ADMIN_EMAIL },
-  { role: "National Secretary", name: "Hajiya Amina Kuta", phone: "09032450092", email: ADMIN_EMAIL },
-  { role: "Legal Adviser", name: "Barr. Kingdom Okere", phone: "08036288528", email: ADMIN_EMAIL },
-  { role: "Media & Publicity Secretary", name: "Justin Ijeh", phone: "08023053854", email: ADMIN_EMAIL },
-  { role: "National Treasury", name: "Telma Iheme", phone: "08136903416", email: ADMIN_EMAIL },
+  { role: "Director General", name: "High Chief Peter Ameh", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-peter-ameh.jpeg" },
+  { role: "Head of Advisory Council", name: "Dr. Sam Amadi", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-sam-amadi.jpeg" },
+  { role: "National Convener", name: "Jackie Wayas", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-jackie-wayas.jpeg" },
+  { role: "National Secretary", name: "Dr. Muhammad Hamisu", phone: "09032450092", email: ADMIN_EMAIL, photo: "/images/nec-muhammad-hamisu.jpg" },
+  { role: "Director of Diaspora", name: "Kayode Kolade", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-kayode-kolade.jpg" },
 ];
 
 export const zones: Zone[] = [
