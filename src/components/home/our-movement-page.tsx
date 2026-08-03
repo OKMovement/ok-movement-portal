@@ -210,11 +210,11 @@ export default function OurMovementPage() {
         <div className="mx-auto w-[min(100%-1.5rem,80rem)]">
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto inline-flex items-center gap-3">
-              <span className="h-[2px] w-10 rounded-full bg-brand-green" />
+              <span className="h-0.5 w-10 rounded-full bg-brand-green" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-red">
                 What we stand for
               </span>
-              <span className="h-[2px] w-10 rounded-full bg-brand-red" />
+              <span className="h-0.5 w-10 rounded-full bg-brand-red" />
             </div>
             <h2 className="mt-5 text-3xl font-medium leading-tight text-brand-black sm:text-4xl lg:text-[2.75rem]">
               Mandate. Vision. Values.
