@@ -144,6 +144,13 @@ export const executiveCouncil: CouncilMember[] = [
   { role: "National Convener", name: "Jackie Wayas", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-jackie-wayas.jpeg" },
   { role: "National Secretary", name: "Dr. Muhammad Hamisu", phone: "09032450092", email: ADMIN_EMAIL, photo: "/images/nec-muhammad-hamisu.jpg" },
   { role: "Director of Diaspora", name: "Kayode Kolade", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-kayode-kolade.jpg" },
+  { role: "Director of Political Engagement", name: "Ashiwaju Mashood Shittu", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-mashood-shittu.jpg" },
+  { role: "National Deputy Secretary", name: "Hauwa Ashafa", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-hauwa-ashafa.jpg" },
+  { role: "Director of Youth Affairs", name: "Elijah Umanu", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-elijah-umanu.jpg" },
+  { role: "Director of Media & Publicity", name: "Nana Kazure", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-nana-kazure.jpeg" },
+  { role: "North Central Coordinator", name: "Prince Suleiman Abubakar", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-suleiman-abubakar.jpg" },
+  { role: "South South Coordinator", name: "Amb. Christopher Ighodaro", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-christopher-ighodaro.jpg" },
+  { role: "South East Coordinator", name: "El-Shaddai Ikeh", phone: "09099999362", email: ADMIN_EMAIL, photo: "/images/nec-el-shaddai-ikeh.jpg" },
 ];
 
 export const zones: Zone[] = [

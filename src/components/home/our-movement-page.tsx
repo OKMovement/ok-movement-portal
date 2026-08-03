@@ -486,13 +486,13 @@ export default function OurMovementPage() {
                       {formatPhone(member.phone)}
                     </a>
                     */}
-                    <a
+                    {/* <a
                       href={`mailto:${member.email}`}
                       className="inline-flex items-center gap-2 break-all text-sm font-medium text-black/70 transition hover:text-brand-green"
                     >
                       <Mail aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                       {member.email}
-                    </a>
+                    </a> */}
                   </div>
                 </article>
               </li>
