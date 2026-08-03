@@ -16,11 +16,13 @@ import {
   Sparkles,
   Target,
   Users,
+  X,
 } from "lucide-react";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import {
   aboutMovement,
+  type CouncilMember,
   executiveCouncil,
   fiveCs,
   formatPhone,
@@ -67,11 +69,21 @@ const SHOW_ZONAL_STRUCTURE = false;
 
 export default function OurMovementPage() {
   const [activeZoneId, setActiveZoneId] = useState(zones[0].id);
+  const [selectedMember, setSelectedMember] = useState<CouncilMember | null>(null);
 
   const activeZone = useMemo(
     () => zones.find((zone) => zone.id === activeZoneId)!,
     [activeZoneId],
   );
+
+  useEffect(() => {
+    if (!selectedMember) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedMember(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [selectedMember]);
 
   return (
     <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
@@ -439,7 +451,19 @@ export default function OurMovementPage() {
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {executiveCouncil.map((member, idx) => (
               <li key={member.role}>
-                <article className="group relative h-full overflow-hidden rounded-[16px] border border-black/8 bg-white p-6 shadow-[0_18px_36px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_42px_-22px_rgb(0_0_0/0.4)]">
+                <article
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedMember(member)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedMember(member);
+                    }
+                  }}
+                  aria-label={`View ${member.name}, ${member.role}`}
+                  className="group relative h-full cursor-pointer overflow-hidden rounded-[16px] border border-black/8 bg-white p-6 shadow-[0_18px_36px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_42px_-22px_rgb(0_0_0/0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
+                >
                   <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[2px]">
                     <span className="h-full flex-1 bg-brand-green" />
                     <span className="h-full flex-1 bg-brand-black" />
@@ -716,6 +740,59 @@ export default function OurMovementPage() {
       </section>
 
       <HomeFooterSection />
+
+      {/* EXECUTIVE PROFILE MODAL ---------------------------------- */}
+      {selectedMember && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${selectedMember.name}, ${selectedMember.role}`}
+          onClick={() => setSelectedMember(null)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg overflow-hidden rounded-[20px] bg-white shadow-[0_40px_80px_-20px_rgb(0_0_0/0.5)]"
+          >
+            <span aria-hidden="true" className="absolute inset-x-0 top-0 z-10 flex h-[3px]">
+              <span className="h-full flex-1 bg-brand-green" />
+              <span className="h-full flex-1 bg-brand-black" />
+              <span className="h-full flex-1 bg-brand-red" />
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedMember(null)}
+              aria-label="Close"
+              className="absolute right-4 top-6 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-brand-black shadow-sm transition hover:bg-white"
+            >
+              <X aria-hidden="true" className="h-5 w-5" />
+            </button>
+
+            <div className="flex aspect-square w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-green/10 via-white to-brand-red/10 sm:aspect-[4/3]">
+              {selectedMember.photo ? (
+                <img
+                  src={selectedMember.photo}
+                  alt={`Portrait of ${selectedMember.name}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-7xl font-semibold tracking-wide text-brand-green">
+                  {initialsOf(selectedMember.name)}
+                </span>
+              )}
+            </div>
+
+            <div className="p-6 text-center sm:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-green">
+                {selectedMember.role}
+              </p>
+              <h3 className="mt-2 text-2xl font-medium leading-tight text-brand-black sm:text-3xl">
+                {selectedMember.name}
+              </h3>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
