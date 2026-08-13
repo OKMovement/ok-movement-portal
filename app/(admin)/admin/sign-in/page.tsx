@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 
 type SignInResponse = {
   error?: string;
@@ -21,6 +21,7 @@ export default function AdminSignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [challengeToken, setChallengeToken] = useState("");
 
@@ -137,14 +138,23 @@ export default function AdminSignInPage() {
                   <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-green" />
                   <input
                     name="password"
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     required
                     autoComplete="current-password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                    className="min-h-12 w-full rounded-[8px] border border-black/12 bg-white px-11 pr-11 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((visible) => !visible)}
+                    className="absolute right-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-[6px] text-black/55 transition hover:bg-black/5 hover:text-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
+                    aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                    title={isPasswordVisible ? "Hide password" : "Show password"}
+                  >
+                    {isPasswordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </span>
               </label>
 
