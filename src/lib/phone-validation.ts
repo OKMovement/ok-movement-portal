@@ -9,3 +9,11 @@ export function isPhoneValid(phone: string) {
     return false;
   }
 }
+
+export function isNigerianPhoneNumber(phone: string) {
+  try {
+    return phoneUtil.getRegionCodeForNumber(phoneUtil.parseAndKeepRawInput(phone)) === "NG";
+  } catch {
+    return false;
+  }
+}

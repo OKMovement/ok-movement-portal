@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Code2, FileText, Images, LifeBuoy, Users } from "lucide-react";
+import { CalendarDays, Code2, FileText, Globe2, Images, LifeBuoy, Users } from "lucide-react";
 import { connectToDatabase } from "@/lib/db";
 import { MemberModel } from "@/lib/models/member";
 import { TechVolunteerModel } from "@/lib/models/tech-volunteer";
@@ -12,8 +12,9 @@ import StateStatsBarChart from "@/components/admin/state-stats-bar-chart";
 export default async function AdminDashboardPage() {
   await connectToDatabase();
 
-  const [members, techVolunteers, pressReleases, mediaItems, events, supportSubmissions, membersByState] = await Promise.all([
+  const [members, diasporaMembers, techVolunteers, pressReleases, mediaItems, events, supportSubmissions, membersByState] = await Promise.all([
     MemberModel.countDocuments({}),
+    MemberModel.countDocuments({ isDiaspora: true }),
     TechVolunteerModel.countDocuments({}),
     PressReleaseModel.countDocuments({}),
     MediaItemModel.countDocuments({}),
@@ -41,6 +42,14 @@ export default async function AdminDashboardPage() {
       icon: Users,
       href: "/admin/dashboard/members",
       tone: "bg-brand-green/10 text-brand-green",
+    },
+    {
+      label: "Diaspora Registrations",
+      value: diasporaMembers,
+      helper: "Members registered from abroad",
+      icon: Globe2,
+      href: "/admin/dashboard/diaspora",
+      tone: "bg-brand-red/10 text-brand-red",
     },
     {
       label: "Tech Volunteers",
@@ -94,7 +103,7 @@ export default async function AdminDashboardPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-7">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

@@ -23,11 +23,12 @@ type MemberItem = {
 
 type MembersManagerProps = {
   donationsOnly?: boolean;
+  diasporaOnly?: boolean;
 };
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
-export default function MembersManager({ donationsOnly = false }: MembersManagerProps) {
+export default function MembersManager({ donationsOnly = false, diasporaOnly = false }: MembersManagerProps) {
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -141,8 +142,10 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
   }
 
   const scopedMembers = useMemo(
-    () => members.filter((member) => (donationsOnly ? /donate/i.test(member.engagement) : true)),
-    [members, donationsOnly],
+    () => members.filter((member) =>
+      (!donationsOnly || /donate/i.test(member.engagement)) && (!diasporaOnly || member.isDiaspora),
+    ),
+    [members, donationsOnly, diasporaOnly],
   );
 
   const engagementOptions = useMemo(() => {
@@ -152,12 +155,16 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     return values.sort((a, b) => a.localeCompare(b));
   }, [scopedMembers]);
 
-  const stateOptions = useMemo(() => {
+  const locationOptions = useMemo(() => {
     const values = Array.from(
-      new Set(scopedMembers.map((member) => member.votingState?.trim()).filter(Boolean) as string[]),
+      new Set(
+        scopedMembers
+          .map((member) => (diasporaOnly ? member.country?.trim() : member.votingState?.trim()))
+          .filter(Boolean) as string[],
+      ),
     );
     return values.sort((a, b) => a.localeCompare(b));
-  }, [scopedMembers]);
+  }, [scopedMembers, diasporaOnly]);
 
   useEffect(() => {
     if (engagementFilter !== "all" && !engagementOptions.includes(engagementFilter)) {
@@ -166,10 +173,10 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
   }, [engagementFilter, engagementOptions]);
 
   useEffect(() => {
-    if (stateFilter !== "all" && !stateOptions.includes(stateFilter)) {
+    if (stateFilter !== "all" && !locationOptions.includes(stateFilter)) {
       setStateFilter("all");
     }
-  }, [stateFilter, stateOptions]);
+  }, [stateFilter, locationOptions]);
 
   const filteredMembers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -181,7 +188,8 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
       if (diasporaFilter === "diaspora" && !member.isDiaspora) return false;
       if (diasporaFilter === "local" && member.isDiaspora) return false;
-      if (stateFilter !== "all" && (member.votingState?.trim() ?? "") !== stateFilter) return false;
+      const memberLocation = diasporaOnly ? member.country?.trim() ?? "" : member.votingState?.trim() ?? "";
+      if (stateFilter !== "all" && memberLocation !== stateFilter) return false;
 
       if (!query) return true;
 
@@ -201,7 +209,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
       return searchable.includes(query);
     });
-  }, [scopedMembers, searchQuery, engagementFilter, diasporaFilter, stateFilter]);
+  }, [scopedMembers, searchQuery, engagementFilter, diasporaFilter, stateFilter, diasporaOnly]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(filteredMembers.length / pageSize)),
@@ -215,7 +223,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, engagementFilter, diasporaFilter, stateFilter, pageSize, donationsOnly]);
+  }, [searchQuery, engagementFilter, diasporaFilter, stateFilter, pageSize, donationsOnly, diasporaOnly]);
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -228,6 +236,8 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
       setError(
         donationsOnly
           ? "No donation submissions match the current filters."
+          : diasporaOnly
+            ? "No diaspora registrations match the current filters."
           : "No members match the current filters.",
       );
       return;
@@ -279,6 +289,8 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     link.href = url;
     link.download = donationsOnly
       ? `ok-movement-donations-${dateLabel}.csv`
+      : diasporaOnly
+        ? `ok-movement-diaspora-${dateLabel}.csv`
       : `ok-movement-members-${dateLabel}.csv`;
     document.body.appendChild(link);
     link.click();
@@ -292,7 +304,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
     <>
       <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
-          <h3 className="text-lg font-semibold text-brand-black">Members</h3>
+          <h3 className="text-lg font-semibold text-brand-black">{diasporaOnly ? "Diaspora registrations" : "Members"}</h3>
           <button
             type="button"
             onClick={handleExportCsv}
@@ -330,7 +342,7 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
               ))}
             </select>
           </label>
-          <label className="grid min-w-[10rem] gap-1.5">
+          {!diasporaOnly ? <label className="grid min-w-[10rem] gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">Audience</span>
             <select
               value={diasporaFilter}
@@ -341,18 +353,18 @@ export default function MembersManager({ donationsOnly = false }: MembersManager
               <option value="local">Local</option>
               <option value="diaspora">Diaspora</option>
             </select>
-          </label>
+          </label> : null}
           <label className="grid min-w-[12rem] gap-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">State</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-black/60">{diasporaOnly ? "Country" : "State"}</span>
             <select
               value={stateFilter}
               onChange={(event) => setStateFilter(event.target.value)}
               className="min-h-10 rounded-[8px] border border-black/12 bg-white px-3 text-sm text-brand-black focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50"
             >
-              <option value="all">All states</option>
-              {stateOptions.map((state) => (
-                <option key={state} value={state}>
-                  {state}
+              <option value="all">{diasporaOnly ? "All countries" : "All states"}</option>
+              {locationOptions.map((location) => (
+                <option key={location} value={location}>
+                  {location}
                 </option>
               ))}
             </select>

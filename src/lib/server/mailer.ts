@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { DIASPORA_WHATSAPP_URL } from "@/lib/diaspora";
 
 type SendMailArgs = {
   to: string;
@@ -19,6 +20,12 @@ type MemberWelcomeArgs = {
   name: string;
   email: string;
   engagement: string;
+};
+
+type DiasporaWelcomeArgs = {
+  name: string;
+  email: string;
+  country: string;
 };
 
 type DonationAdminNotificationArgs = {
@@ -327,6 +334,45 @@ ${website} | ${twitterHandle}`,
         </div>
       </div>
     `,
+  });
+}
+
+export async function sendDiasporaWelcomeEmail({ name, email, country }: DiasporaWelcomeArgs) {
+  const firstName = name.trim().split(/\s+/)[0] ?? "Supporter";
+  const safeFirstName = escapeHtml(firstName);
+  const safeCountry = escapeHtml(country);
+  const safeWhatsappUrl = escapeHtml(DIASPORA_WHATSAPP_URL);
+
+  await sendEmail({
+    to: email,
+    subject: "Welcome to the OK Movement Diaspora Community",
+    text: `Hello ${firstName},
+
+Thank you for joining the OK Movement Diaspora community from ${country}.
+
+Join the WhatsApp community here: ${DIASPORA_WHATSAPP_URL}
+
+We are glad to have your voice in the conversation for Nigeria's future.
+
+- OK Movement Team`,
+    html: `
+      <div style="margin:0; padding:24px 12px; background:#f2f4f3; font-family:Arial, Helvetica, sans-serif; color:#121212;">
+        <div style="max-width:640px; margin:0 auto; overflow:hidden; border:1px solid #e8ece9; border-radius:14px; background:#ffffff;">
+          <div style="padding:20px 24px; background:#111111;">
+            <p style="margin:0; color:#ffffff; font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;">OK Movement</p>
+            <h1 style="margin:10px 0 0; color:#ffffff; font-size:24px; line-height:1.25;">Welcome to the Diaspora Community</h1>
+          </div>
+          <div style="padding:24px;">
+            <p style="margin:0 0 14px; line-height:1.7;">Hello ${safeFirstName},</p>
+            <p style="margin:0 0 14px; line-height:1.7;">Thank you for joining the OK Movement Diaspora community from ${safeCountry}. Your voice matters wherever in the world you are.</p>
+            <div style="margin:20px 0; border-left:4px solid #0a7f3f; border-radius:8px; background:#f7fbf8; padding:16px; text-align:center;">
+              <p style="margin:0 0 12px; color:#121212; font-weight:700;">Join the WhatsApp community</p>
+              <a href="${safeWhatsappUrl}" style="display:inline-block; border-radius:8px; background:#0a7f3f; padding:11px 18px; color:#ffffff; font-weight:700; text-decoration:none;">Open WhatsApp</a>
+            </div>
+            <p style="margin:0; color:#5a5a5a; line-height:1.6;">We look forward to building a New Dawn for Nigeria together.</p>
+          </div>
+        </div>
+      </div>`,
   });
 }
 

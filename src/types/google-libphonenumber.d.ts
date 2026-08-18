@@ -3,5 +3,6 @@ declare module "google-libphonenumber" {
     static getInstance(): PhoneNumberUtil;
     parseAndKeepRawInput(phoneNumber: string): unknown;
     isValidNumber(phoneNumber: unknown): boolean;
+    getRegionCodeForNumber(phoneNumber: unknown): string | null;
   }
 }

@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   Compass,
+  Globe2,
   HeartHandshake,
   Image as ImageIcon,
   Menu,
@@ -47,6 +48,12 @@ const navItems: readonly NavItem[] = [
     href: "/home/get-involved",
     icon: HeartHandshake,
     description: "Volunteer, donate, organize",
+  },
+  {
+    label: "Diaspora",
+    href: "/diaspora",
+    icon: Globe2,
+    description: "Join Nigerians around the world",
   },
   {
     label: "Tech Volunteers",

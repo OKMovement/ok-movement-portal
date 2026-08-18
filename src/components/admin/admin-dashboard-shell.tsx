@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Code2,
   FileText,
+  Globe2,
   Images,
   LayoutDashboard,
   LifeBuoy,
@@ -28,6 +29,7 @@ type AdminDashboardShellProps = {
 const baseLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/dashboard/members", label: "Members", icon: Users },
+  { href: "/admin/dashboard/diaspora", label: "Diaspora", icon: Globe2 },
   { href: "/admin/dashboard/tech-volunteers", label: "Tech Volunteers", icon: Code2 },
   { href: "/admin/dashboard/donations", label: "Donations", icon: HandCoins },
   { href: "/admin/dashboard/press-releases", label: "Press Releases", icon: FileText },
