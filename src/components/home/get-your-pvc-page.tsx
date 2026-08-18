@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import HomeSiteHeader from "./home-site-header";
 import HomeFooterSection from "./home-footer-section";
+import { pvcFaqs as faqs } from "./faq-data";
+
 const heroPortrait = "/assets/GET_PVC_1778603766490.png";
 const pvcExplainer = "/assets/Gemini_Generated_Image_c9pt25c9pt25c9pt_1778604912217.png";
 
@@ -159,41 +161,6 @@ const collectionDocs: readonly string[] = [
   "Acknowledgement slip from CVR registration",
   "Any government-issued photo ID (NIN, driver's licence, int'l passport)",
   "Knowledge of your registration state, LGA and ward",
-];
-
-const faqs: readonly { q: string; a: string }[] = [
-  {
-    q: "Who is eligible to receive a PVC?",
-    a: "Any Nigerian citizen who is 18 years or older, mentally sound and not under any legal disqualification can register and collect a PVC from INEC.",
-  },
-  {
-    q: "Where do I collect my PVC?",
-    a: "PVCs are issued at the INEC Local Government Area (LGA) office where you registered. During special collection windows INEC may decentralise to ward level — check INEC's announcements for your state.",
-  },
-  {
-    q: "What documents do I need on collection day?",
-    a: "Bring your acknowledgement slip from registration and a valid government-issued photo ID. If you registered during the latest CVR, your fingerprint or facial scan will also be used for verification.",
-  },
-  {
-    q: "Can someone else collect my PVC for me?",
-    a: "No. INEC requires the registered voter to appear in person so biometrics can be verified. Authorisation letters or third-party pickups are not accepted.",
-  },
-  {
-    q: "I have moved to a new state. How do I transfer my registration?",
-    a: "Apply for a transfer through INEC's online portal or visit the LGA office in your new location. You will need your old voter details and proof of new residence. Transfers must be completed before the official cut-off ahead of an election.",
-  },
-  {
-    q: "I lost my PVC. What should I do?",
-    a: "Report the loss at your nearest INEC LGA office and request a replacement. INEC may require an affidavit or police report. Your registration and biometrics remain valid — only the physical card is reissued.",
-  },
-  {
-    q: "How long does it take to receive my PVC after registration?",
-    a: "INEC typically prints PVCs in batches after each Continuous Voter Registration phase. Cards are usually ready 4–12 weeks after registration closes — INEC announces collection windows in each state.",
-  },
-  {
-    q: "Is the PVC required for every election?",
-    a: "Yes. Whether it is a local government, state assembly, governorship or presidential election, your PVC is the only accepted credential at the polling unit.",
-  },
 ];
 
 function HeroSection() {

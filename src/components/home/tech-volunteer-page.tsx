@@ -49,7 +49,7 @@ const initialForm = {
   consent: false,
 };
 
-export default function TechVolunteersPage() {
+export default function TechVolunteerPage() {
   const [activeCat, setActiveCat] = useState<RoleCategory | "all">("all");
   const [form, setForm] = useState(initialForm);
   const [secondarySkills, setSecondarySkills] = useState<string[]>([]);

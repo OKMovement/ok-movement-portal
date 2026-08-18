@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import HomeSiteHeader from "./home-site-header";
 import HomeFooterSection from "./home-footer-section";
+import { votingProcedureFaqs as faqs } from "./faq-data";
+
 const heroImage = "/assets/electoral-items-scaled-1_1778613796372.webp";
 const stepByStepImage = "/assets/The_Step-by-Step_Process_1778612523386.png";
 const rightsImage = "/assets/Your_Rights_as_a_Voter_1778612523386.png";
@@ -133,33 +135,6 @@ const whatNotToBring: readonly string[] = [
   "Party-branded clothing, caps or scarves",
   "Weapons of any kind",
   "Cash or items you do not want to lose in a crowd",
-];
-
-const faqs: readonly { q: string; a: string }[] = [
-  {
-    q: "What time does voting start and end?",
-    a: "Accreditation and voting run from 8:30 AM to 2:30 PM. If you are already in the queue at 2:30 PM, you must be allowed to vote — do not leave the line.",
-  },
-  {
-    q: "What if BVAS fails to recognise my fingerprint?",
-    a: "The Presiding Officer will attempt facial recognition. If both fail and you appear on the register, INEC procedure allows manual verification, but you cannot be turned away simply because the device misreads.",
-  },
-  {
-    q: "Can I vote at any polling unit?",
-    a: "No. You can only vote at the specific polling unit where you registered, indicated by the code on your PVC. Voting elsewhere is not permitted.",
-  },
-  {
-    q: "What happens if my ballot is rejected?",
-    a: "Ballots are rejected for double thumbprints, marks outside the box, or unstamped papers. You generally cannot get a replacement, so mark carefully — one clear thumbprint inside one box.",
-  },
-  {
-    q: "Can I take photos at the polling unit?",
-    a: "Yes — you may photograph the publicly pasted result sheet (Form EC8A) and the general environment, but not your own ballot inside the cubicle.",
-  },
-  {
-    q: "Who can I report irregularities to?",
-    a: "Report to the Presiding Officer first, then to accredited observers, INEC's situation room, the police, or independent monitors like Yiaga Africa. Document with photos and timestamps.",
-  },
 ];
 
 function HeroSection() {

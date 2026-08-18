@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import HomeSiteHeader from "./home-site-header";
 import HomeFooterSection from "./home-footer-section";
+import { electionCalendarFaqs as FAQS } from "./faq-data";
+
 const heroImage = "/assets/Ballot-box_1778616430781.png";
 
 type ElectionCategory = "general" | "off-cycle";
@@ -256,29 +258,6 @@ const ELECTION_DAY_TIMELINE: readonly { time: string; title: string; detail: str
     title: "Results uploaded to IReV",
     detail:
       "Form EC8A polling-unit result sheets are scanned and uploaded to the INEC Result Viewing Portal.",
-  },
-];
-
-const FAQS: readonly { q: string; a: string }[] = [
-  {
-    q: "Why are some states not included in the February 2027 governorship vote?",
-    a: "Eight states (Anambra, Bayelsa, Edo, Ekiti, Imo, Kogi, Ondo, and Osun) hold their governorship elections on separate 'off-cycle' dates because of past court rulings that shifted their inauguration dates.",
-  },
-  {
-    q: "Can I vote in both the January and February 2027 elections?",
-    a: "Yes. If you are a registered voter, you are entitled to vote in every election that affects your polling unit — Presidential and NASS in January 2027, then Governorship and State Assembly in February 2027 (subject to whether your state is off-cycle).",
-  },
-  {
-    q: "What time should I arrive at my polling unit?",
-    a: "Polling units open at 8:30 AM nationwide. We recommend arriving at least 30 minutes early to beat the queue. Anyone in line by 2:30 PM closing time is allowed to vote.",
-  },
-  {
-    q: "Where do I find my polling unit?",
-    a: "Use the polling unit code printed on your PVC, or check the INEC Voter Verification Portal (cvr.inecnigeria.org/vvs) to confirm your assigned unit before election day.",
-  },
-  {
-    q: "Are off-cycle dates final?",
-    a: "Off-cycle governorship dates (Ekiti, Osun in 2026; Bayelsa, Imo, Kogi in 2027) are based on the most recent INEC schedule. INEC may adjust the exact day closer to the election — always confirm on inecnigeria.org.",
   },
 ];
 
