@@ -10,6 +10,8 @@ type CountryPickerProps = {
   onValueChange: (country: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  options?: readonly string[];
+  ariaLabel?: string;
 };
 
 const allCountries = countries
@@ -22,13 +24,16 @@ export default function CountryPicker({
   onValueChange,
   placeholder = "Select your country",
   disabled = false,
+  options,
+  ariaLabel = "Country of residence",
 }: CountryPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const visibleCountries = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return normalized ? allCountries.filter((country) => country.toLowerCase().includes(normalized)) : allCountries;
-  }, [query]);
+    const source = options ?? allCountries;
+    return normalized ? source.filter((option) => option.toLowerCase().includes(normalized)) : source;
+  }, [options, query]);
 
   function selectCountry(country: string) {
     onValueChange(country);
@@ -42,7 +47,7 @@ export default function CountryPicker({
         <button
           type="button"
           disabled={disabled}
-          aria-label="Country of residence"
+          aria-label={ariaLabel}
           className="flex min-h-12 w-full items-center justify-between rounded-[10px] border border-black/12 bg-white px-4 text-left text-sm text-brand-black transition focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className={value ? "truncate" : "truncate text-black/35"}>{value || placeholder}</span>
@@ -65,7 +70,7 @@ export default function CountryPicker({
               className="w-full bg-transparent text-sm text-brand-black outline-none placeholder:text-black/40"
             />
           </div>
-          <div role="listbox" aria-label="Countries" className="max-h-60 overflow-y-auto p-1.5">
+          <div role="listbox" aria-label={ariaLabel} className="max-h-60 overflow-y-auto p-1.5">
             {visibleCountries.length ? visibleCountries.map((country) => {
               const selected = country === value;
               return (

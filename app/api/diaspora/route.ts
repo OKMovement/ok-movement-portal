@@ -11,15 +11,21 @@ export async function POST(request: Request) {
       name?: string;
       email?: string;
       phone?: string;
+      engagement?: string;
       country?: string;
+      city?: string;
+      stateOfOrigin?: string;
     };
 
     const name = payload.name?.trim();
     const email = payload.email?.trim().toLowerCase();
     const phone = payload.phone?.trim();
+    const engagement = payload.engagement?.trim();
     const country = payload.country?.trim();
+    const city = payload.city?.trim();
+    const stateOfOrigin = payload.stateOfOrigin?.trim() || undefined;
 
-    if (!name || !email || !phone || !country) {
+    if (!name || !email || !phone || !engagement || !country || !city) {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
     }
 
@@ -42,6 +48,17 @@ export async function POST(request: Request) {
       );
     }
 
+    if (country.toLowerCase() === "nigeria") {
+      return NextResponse.json(
+        {
+          error: "People living in Nigeria should register through the member registration page.",
+          code: "nigerian_resident",
+          redirect: "/home/get-involved",
+        },
+        { status: 400 },
+      );
+    }
+
     await connectToDatabase();
 
     if (await MemberModel.exists({ email })) {
@@ -53,12 +70,14 @@ export async function POST(request: Request) {
       email,
       phone,
       country,
+      city,
+      stateOfOrigin,
       isDiaspora: true,
-      engagement: DIASPORA_ENGAGEMENT,
+      engagement: engagement || DIASPORA_ENGAGEMENT,
     });
 
     try {
-      await sendDiasporaWelcomeEmail({ name, email, country });
+      await sendDiasporaWelcomeEmail({ name, email, country, city, engagement });
     } catch (emailError) {
       // A mail provider problem should not undo a successful registration.
       console.error("Failed to send diaspora welcome email:", emailError);

@@ -26,6 +26,8 @@ export async function GET(request: NextRequest) {
       donationMaterialOther: member.donationMaterialOther ?? null,
       isDiaspora: member.isDiaspora,
       country: member.country ?? null,
+      city: member.city ?? null,
+      stateOfOrigin: member.stateOfOrigin ?? null,
       votingState: member.votingState ?? null,
       votingLga: member.votingLga ?? null,
       votingWard: member.votingWard ?? null,

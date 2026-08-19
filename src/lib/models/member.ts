@@ -17,6 +17,8 @@ const memberSchema = new Schema(
     donationMaterialOther: { type: String, required: false, trim: true },
     isDiaspora: { type: Boolean, required: true, default: false },
     country: { type: String, required: false, trim: true },
+    city: { type: String, required: false, trim: true },
+    stateOfOrigin: { type: String, required: false, trim: true },
     votingState: { type: String, required: false, trim: true },
     votingLga: { type: String, required: false, trim: true },
     votingWard: { type: String, required: false, trim: true },

@@ -26,6 +26,8 @@ type DiasporaWelcomeArgs = {
   name: string;
   email: string;
   country: string;
+  city: string;
+  engagement: string;
 };
 
 type DonationAdminNotificationArgs = {
@@ -337,10 +339,12 @@ ${website} | ${twitterHandle}`,
   });
 }
 
-export async function sendDiasporaWelcomeEmail({ name, email, country }: DiasporaWelcomeArgs) {
+export async function sendDiasporaWelcomeEmail({ name, email, country, city, engagement }: DiasporaWelcomeArgs) {
   const firstName = name.trim().split(/\s+/)[0] ?? "Supporter";
   const safeFirstName = escapeHtml(firstName);
   const safeCountry = escapeHtml(country);
+  const safeCity = escapeHtml(city);
+  const safeEngagement = escapeHtml(engagement);
   const safeWhatsappUrl = escapeHtml(DIASPORA_WHATSAPP_URL);
 
   await sendEmail({
@@ -348,7 +352,9 @@ export async function sendDiasporaWelcomeEmail({ name, email, country }: Diaspor
     subject: "Welcome to the OK Movement Diaspora Community",
     text: `Hello ${firstName},
 
-Thank you for joining the OK Movement Diaspora community from ${country}.
+Thank you for joining the OK Movement Diaspora community from ${city}, ${country}.
+
+How you chose to serve: ${engagement}
 
 Join the WhatsApp community here: ${DIASPORA_WHATSAPP_URL}
 
@@ -364,7 +370,8 @@ We are glad to have your voice in the conversation for Nigeria's future.
           </div>
           <div style="padding:24px;">
             <p style="margin:0 0 14px; line-height:1.7;">Hello ${safeFirstName},</p>
-            <p style="margin:0 0 14px; line-height:1.7;">Thank you for joining the OK Movement Diaspora community from ${safeCountry}. Your voice matters wherever in the world you are.</p>
+            <p style="margin:0 0 14px; line-height:1.7;">Thank you for joining the OK Movement Diaspora community from ${safeCity}, ${safeCountry}. Your voice matters wherever in the world you are.</p>
+            <p style="margin:0 0 14px; line-height:1.7;"><strong>How you chose to serve:</strong> ${safeEngagement}</p>
             <div style="margin:20px 0; border-left:4px solid #0a7f3f; border-radius:8px; background:#f7fbf8; padding:16px; text-align:center;">
               <p style="margin:0 0 12px; color:#121212; font-weight:700;">Join the WhatsApp community</p>
               <a href="${safeWhatsappUrl}" style="display:inline-block; border-radius:8px; background:#0a7f3f; padding:11px 18px; color:#ffffff; font-weight:700; text-decoration:none;">Open WhatsApp</a>

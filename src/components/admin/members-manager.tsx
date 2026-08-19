@@ -15,6 +15,8 @@ type MemberItem = {
   donationMaterialOther: string | null;
   isDiaspora: boolean;
   country: string | null;
+  city: string | null;
+  stateOfOrigin: string | null;
   votingState: string | null;
   votingLga: string | null;
   votingWard: string | null;
@@ -105,7 +107,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
 
   function resolveLocation(member: MemberItem) {
     if (member.isDiaspora) {
-      return member.country ?? "Diaspora";
+      return [member.city, member.country].filter(Boolean).join(", ") || "Diaspora";
     }
     return [member.votingState, member.votingLga, member.votingWard].filter(Boolean).join(", ");
   }
@@ -200,6 +202,8 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
         member.engagement,
         resolveLocation(member),
         member.country ?? "",
+        member.city ?? "",
+        member.stateOfOrigin ?? "",
         member.votingState ?? "",
         member.votingLga ?? "",
         member.votingWard ?? "",
@@ -253,6 +257,8 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
       "Donation Material",
       "Diaspora",
       "Country",
+      "City",
+      "State of Origin",
       "Voting State",
       "Voting LGA",
       "Voting Ward",
@@ -270,6 +276,8 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
       formatDonationMaterial(member),
       member.isDiaspora ? "Yes" : "No",
       member.country ?? "",
+      member.city ?? "",
+      member.stateOfOrigin ?? "",
       member.votingState ?? "",
       member.votingLga ?? "",
       member.votingWard ?? "",
@@ -524,6 +532,16 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Engagement</p>
                 <p className="mt-1 text-brand-black">{selected.engagement}</p>
               </div>
+              {selected.isDiaspora ? <>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Location</p>
+                  <p className="mt-1 text-brand-black">{resolveLocation(selected)}</p>
+                </div>
+                {selected.stateOfOrigin ? <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">State of Origin</p>
+                  <p className="mt-1 text-brand-black">{selected.stateOfOrigin}</p>
+                </div> : null}
+              </> : null}
 
               {selected.donationType ? (
                 <>
