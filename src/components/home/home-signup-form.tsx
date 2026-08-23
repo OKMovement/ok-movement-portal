@@ -4,6 +4,13 @@ import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { nigeriaStateOptions } from "@/lib/nigeria-locations";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type HomeSignupFormProps = {
   formIdPrefix: string;
@@ -14,6 +21,7 @@ type HomeSignupFormProps = {
   emailInputClassName?: string;
   stateSelectClassName?: string;
   buttonClassName?: string;
+  useCustomStateSelect?: boolean;
 };
 
 function NigerianStateSelect({
@@ -21,12 +29,39 @@ function NigerianStateSelect({
   className,
   value,
   onChange,
+  useCustomSelect = false,
 }: {
   formIdPrefix: string;
   className?: string;
   value: string;
   onChange: (stateValue: string) => void;
+  useCustomSelect?: boolean;
 }) {
+  if (useCustomSelect) {
+    return (
+      <Select value={value} onValueChange={onChange} name="state" required>
+        <SelectTrigger
+          id={`${formIdPrefix}-state`}
+          aria-label="Select your state"
+          className={`min-h-16 w-full rounded-r-[10px] border-0 border-l border-black/10 bg-white px-6 pr-4 text-base text-brand-black shadow-none focus:ring-0 focus:ring-offset-0 max-[430px]:rounded-b-[10px] max-[430px]:rounded-t-none max-[430px]:border-l-0 ${className ?? ""}`}
+        >
+          <SelectValue placeholder="Select state" />
+        </SelectTrigger>
+        <SelectContent className="z-[60] max-h-72 border-black/10 bg-white text-brand-black">
+          {nigeriaStateOptions.map((state) => (
+            <SelectItem
+              key={state.value}
+              value={state.value}
+              className="cursor-pointer py-2.5 pl-3 pr-8 text-base focus:bg-brand-green/10 focus:text-brand-black"
+            >
+              {state.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
+
   return (
     <div
       className={`relative min-h-16 rounded-r-[10px] border-l border-black/10 bg-white max-[430px]:rounded-b-[10px] max-[430px]:rounded-t-none max-[430px]:border-l-0 ${className ?? ""}`}
@@ -65,6 +100,7 @@ export default function HomeSignupForm({
   emailInputClassName,
   stateSelectClassName,
   buttonClassName,
+  useCustomStateSelect,
 }: HomeSignupFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -113,6 +149,7 @@ export default function HomeSignupForm({
           className={stateSelectClassName}
           value={selectedState}
           onChange={setSelectedState}
+          useCustomSelect={useCustomStateSelect}
         />
       </div>
       <button
