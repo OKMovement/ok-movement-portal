@@ -13,7 +13,6 @@ import {
   HeartHandshake,
   Image as ImageIcon,
   Menu,
-  MessageCircle,
   Sparkles,
   Users,
   Vote,
@@ -54,7 +53,7 @@ const navItems: readonly NavItem[] = [
     label: "Donations",
     href: "/home/donations",
     icon: Heart,
-    description: "Give securely through Paystack",
+    description: "Give securely online",
   },
   {
     label: "Diaspora",
@@ -73,12 +72,6 @@ const navItems: readonly NavItem[] = [
     href: "/home/upcoming-events",
     icon: CalendarDays,
     description: "Rallies, town halls & more",
-  },
-  {
-    label: "Contact Us",
-    href: "/home/contact",
-    icon: MessageCircle,
-    description: "Reach the OK team",
   },
 ] as const;
 

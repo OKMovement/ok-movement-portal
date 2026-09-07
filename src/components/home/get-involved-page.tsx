@@ -34,6 +34,7 @@ import {
   nextSteps,
 } from "./get-involved-data";
 import DonationKindCards from "./donation-kind-cards";
+import PaymentProviderSelector from "./payment-provider-selector";
 import {
   getLgaOptionsByState,
   getWardOptionsByStateAndLga,
@@ -148,6 +149,7 @@ const getInvolvedSchema = z
     ]),
     donationType: z.enum(["cash", "materials"]).or(z.literal("")),
     donationAmount: z.string().trim(),
+    paymentProvider: z.enum(["paystack", "flutterwave"]),
     donationMaterial: z
       .enum(donationMaterialOptions.map((option) => option.value) as [string, ...string[]])
       .or(z.literal("")),
@@ -251,6 +253,7 @@ const defaultFormValues: GetInvolvedFormValues = {
   engagement: "volunteer-individual",
   donationType: "",
   donationAmount: "",
+  paymentProvider: "flutterwave",
   donationMaterial: "",
   donationMaterialOther: "",
   name: "",
@@ -370,6 +373,7 @@ export default function GetInvolvedPage() {
   const engagement = watch("engagement");
   const donationType = watch("donationType");
   const donationAmount = watch("donationAmount");
+  const paymentProvider = watch("paymentProvider");
   const donationMaterial = watch("donationMaterial");
   const isDiaspora = watch("isDiaspora");
   const votingState = watch("votingState");
@@ -421,6 +425,10 @@ export default function GetInvolvedPage() {
         values.engagement === "donate" && values.donationType === "cash"
           ? values.donationAmount.trim()
           : undefined,
+      provider:
+        values.engagement === "donate" && values.donationType === "cash"
+          ? values.paymentProvider
+          : undefined,
       donationMaterial:
         values.engagement === "donate" && values.donationType === "materials"
           ? values.donationMaterial
@@ -453,7 +461,7 @@ export default function GetInvolvedPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           paying
-            ? { ...payload, provider: "paystack", checkoutKey: checkoutAttempt.current?.key }
+            ? { ...payload, checkoutKey: checkoutAttempt.current?.key }
             : payload,
         ),
       });
@@ -468,7 +476,7 @@ export default function GetInvolvedPage() {
 
       if (paying) {
         if (!data?.checkoutUrl) {
-          setSubmitError("Unable to open Paystack checkout. Please try again.");
+          setSubmitError("Unable to open payment checkout. Please try again.");
           return;
         }
         setRedirectingToPayment(true);
@@ -902,18 +910,12 @@ export default function GetInvolvedPage() {
                           {errors.donationAmount?.message ? (
                             <span className="mt-1.5 block text-xs text-brand-red">{errors.donationAmount.message}</span>
                           ) : null}
-                          <fieldset className="mt-4">
-                            <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
-                              Payment provider <span className="text-brand-red">*</span>
-                            </legend>
-                            <label className="mt-2 flex cursor-pointer items-center gap-3 rounded-[10px] border border-brand-green bg-brand-green/5 p-4">
-                              <input type="radio" name="paymentProvider" value="paystack" checked readOnly className="accent-brand-green" />
-                              <span>
-                                <span className="block text-sm font-semibold text-brand-black">Paystack</span>
-                                <span className="mt-0.5 block text-xs text-black/60">Continue to Paystack&apos;s secure checkout page.</span>
-                              </span>
-                            </label>
-                          </fieldset>
+                          <div className="mt-4">
+                            <PaymentProviderSelector
+                              value={paymentProvider}
+                              onChange={(provider) => setValue("paymentProvider", provider, { shouldValidate: true })}
+                            />
+                          </div>
                         </div>
                       ) : null}
 
@@ -1177,7 +1179,7 @@ export default function GetInvolvedPage() {
                     <p className="flex items-center gap-2 text-xs text-black/55">
                       <ShieldCheck aria-hidden="true" className="h-4 w-4 text-brand-green" />
                       {isDonate && donationType === "cash"
-                        ? "Payment is processed securely by Paystack."
+                        ? `Payment is processed securely by ${paymentProvider === "flutterwave" ? "Flutterwave" : "Paystack"}.`
                         : "Your information is private and never shared."}
                     </p>
                     <button
@@ -1188,13 +1190,13 @@ export default function GetInvolvedPage() {
                       {isSubmitting || redirectingToPayment ? (
                         <>
                           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-                          {isDonate && donationType === "cash" ? "Opening Paystack…" : "Submitting…"}
+                          {isDonate && donationType === "cash" ? "Opening checkout…" : "Submitting…"}
                         </>
                       ) : (
                         <>
                           {isDonate
                             ? donationType === "cash"
-                              ? "Pay with Paystack"
+                              ? `Pay with ${paymentProvider === "flutterwave" ? "Flutterwave" : "Paystack"}`
                               : "Pledge & Register"
                             : "Join the Movement"}
                           <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -1214,7 +1216,7 @@ export default function GetInvolvedPage() {
                         Donating?
                       </span>{" "}
                       {donationType === "cash" ? (
-                        "You’ll continue to Paystack to complete your payment in NGN. Your donation is recorded after Paystack confirms it."
+                        `You’ll continue to ${paymentProvider === "flutterwave" ? "Flutterwave" : "Paystack"} to complete your payment in NGN. Your donation is recorded after the provider confirms it.`
                       ) : (
                         <>
                           After registering we&apos;ll share verified channels for campaign

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       votingLga: payment.votingLga ?? null,
       votingWard: payment.votingWard ?? null,
       paymentStatus: payment.status,
-      paymentProvider: "Paystack",
+      paymentProvider: payment.provider === "flutterwave" ? "Flutterwave" : "Paystack",
       paymentEnvironment: payment.environment,
       paymentReference: payment.reference,
       paymentTransactionId: payment.transactionId ?? null,

@@ -4,7 +4,7 @@ const donationSchema = new Schema({
   reference: { type: String, required: true, unique: true },
   checkoutKey: { type: String, required: true, unique: true },
   payloadHash: { type: String, required: true },
-  provider: { type: String, enum: ["paystack"], required: true },
+  provider: { type: String, enum: ["paystack", "flutterwave"], required: true },
   amount: { type: Number, required: true },
   amountSubunit: { type: Number, required: true },
   currency: { type: String, enum: ["NGN"], default: "NGN", required: true },

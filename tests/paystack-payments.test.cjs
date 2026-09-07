@@ -12,6 +12,8 @@ afterEach(() => { global.fetch = originalFetch; process.env = { ...originalEnv }
 
 function harness() {
   process.env.PAYSTACK_SECRET_KEY = "sk_test_unit-test";
+  process.env.FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-unit-test-X";
+  process.env.FLUTTERWAVE_SECRET_HASH = "flutterwave-webhook-test-hash";
   process.env.APP_BASE_URL = "https://example.com";
   const records = [];
   const pledges = [];
@@ -70,6 +72,16 @@ function harness() {
 
   global.fetch = async (url, options) => {
     providerCalls.push({ url, options });
+    if (url.startsWith("https://api.flutterwave.com")) {
+      assert.equal(options.headers.Authorization, "Bearer FLWSECK_TEST-unit-test-X");
+      if (url.endsWith("/payments")) {
+        return Response.json({ status: "success", data: {
+          link: "https://checkout-v2.dev-flutterwave.com/v3/hosted/pay/test-link",
+        } });
+      }
+      if (transaction) return Response.json({ status: "success", data: transaction });
+      return Response.json({ status: "error", message: "Transaction not completed" }, { status: 400 });
+    }
     assert.equal(options.headers.Authorization, "Bearer sk_test_unit-test");
     if (url.endsWith("/transaction/initialize")) {
       const body = JSON.parse(options.body);
@@ -86,6 +98,7 @@ function harness() {
   const checkoutRoute = load("app/api/donations/checkout/route.ts");
   const statusRoute = load("app/api/donations/status/route.ts");
   const webhookRoute = load("app/api/donations/paystack/webhook/route.ts");
+  const flutterwaveWebhookRoute = load("app/api/donations/flutterwave/webhook/route.ts");
   const adminRoute = load("app/api/admin/donations/route.ts");
   const post = (url, payload, headers = {}) => new Request(`https://example.com${url}`, {
     method: "POST", headers, body: JSON.stringify(payload),
@@ -99,6 +112,14 @@ function harness() {
       return webhookRoute.POST(new Request("https://example.com/api/donations/paystack/webhook", {
         method: "POST",
         headers: { "x-paystack-signature": signature ?? createHmac("sha512", "sk_test_unit-test").update(raw).digest("hex") },
+        body: raw,
+      }));
+    },
+    flutterwaveWebhook: (payload, hash = "flutterwave-webhook-test-hash") => {
+      const raw = JSON.stringify(payload);
+      return flutterwaveWebhookRoute.POST(new Request("https://example.com/api/donations/flutterwave/webhook", {
+        method: "POST",
+        headers: { "verif-hash": hash },
         body: raw,
       }));
     },
@@ -132,6 +153,22 @@ const verified = (record, changes = {}) => ({
   ...changes,
 });
 const event = (record) => ({ event: "charge.success", data: { reference: record.reference } });
+const flutterwavePayload = {
+  ...payload,
+  checkoutKey: "d6379d41-5a75-430a-b994-b306ccf8bc33",
+  provider: "flutterwave",
+};
+const flutterwaveVerified = (record, changes = {}) => ({
+  id: 8123456,
+  status: "successful",
+  tx_ref: record.reference,
+  amount: record.amount,
+  currency: "NGN",
+  payment_type: "card",
+  created_at: "2026-09-07T12:00:00.000Z",
+  customer: { email: "payer-can-differ@example.com" },
+  ...changes,
+});
 
 test("initializes hosted checkout in kobo and reuses the same attempt", async () => {
   const h = harness();
@@ -155,11 +192,48 @@ test("rejects invalid amounts, donor details and unsupported providers before in
   for (const donationAmount of ["0", "99", "NaN", "1.234", "100000001"]) {
     assert.equal((await h.checkout({ ...payload, donationAmount })).status, 400);
   }
-  for (const changes of [{ provider: "flutterwave" }, { email: "bad" }, { phone: "123" }, { country: "" }, { isDiaspora: false }]) {
+  for (const changes of [{ provider: "stripe" }, { email: "bad" }, { phone: "123" }, { country: "" }, { isDiaspora: false }]) {
     assert.equal((await h.checkout({ ...payload, ...changes })).status, 400);
   }
   assert.equal(h.records.length, 0);
   assert.equal(h.providerCalls.length, 0);
+});
+
+test("initializes Flutterwave hosted checkout and records its verified webhook", async () => {
+  const h = harness();
+  const response = await h.checkout(flutterwavePayload);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).checkoutUrl, "https://checkout-v2.dev-flutterwave.com/v3/hosted/pay/test-link");
+  const body = JSON.parse(h.providerCalls[0].options.body);
+  assert.equal(body.amount, 1234.56);
+  assert.equal(body.currency, "NGN");
+  assert.equal(body.tx_ref, h.records[0].reference);
+  assert.equal(new URL(body.redirect_url).pathname, "/home/donations/payment");
+
+  h.setTransaction(flutterwaveVerified(h.records[0]));
+  const notification = { event: "charge.completed", data: { tx_ref: h.records[0].reference } };
+  assert.equal((await h.flutterwaveWebhook(notification, "wrong")).status, 401);
+  assert.equal((await h.flutterwaveWebhook(notification)).status, 200);
+  assert.equal(h.records[0].status, "successful");
+  assert.equal(h.records[0].transactionId, "8123456");
+  const rows = (await (await h.admin()).json()).members;
+  assert.equal(rows[0].paymentProvider, "Flutterwave");
+});
+
+test("does not record mismatched Flutterwave transactions", async () => {
+  const mismatches = [
+    { amount: 1234.55 },
+    { currency: "USD" },
+    { tx_ref: "other-reference" },
+  ];
+  for (const changes of mismatches) {
+    const h = harness();
+    await h.checkout(flutterwavePayload);
+    h.setTransaction(flutterwaveVerified(h.records[0], changes));
+    const notification = { event: "charge.completed", data: { tx_ref: h.records[0].reference } };
+    assert.equal((await h.flutterwaveWebhook(notification)).status, 503);
+    assert.equal(h.records[0].status, "pending");
+  }
 });
 
 test("does not trust callback query status without server verification", async () => {

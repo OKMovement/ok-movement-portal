@@ -11,6 +11,7 @@ type PaymentResult = {
   amount: number;
   currency: string;
   reference: string;
+  provider: "paystack" | "flutterwave";
   environment: "test" | "live";
   paidAt: string | null;
   checkoutUrl: string | null;
@@ -25,7 +26,7 @@ export default function DonationPaymentResult({
   backLabel?: string;
 }) {
   const searchParams = useSearchParams();
-  const reference = searchParams.get("reference") ?? "";
+  const reference = searchParams.get("reference") ?? searchParams.get("tx_ref") ?? "";
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
@@ -59,6 +60,9 @@ export default function DonationPaymentResult({
 
   useEffect(() => { void checkPayment(); }, [checkPayment]);
   const paid = result?.status === "successful";
+  const providerLabel = result?.provider === "flutterwave" || (!result && searchParams.has("tx_ref"))
+    ? "Flutterwave"
+    : "Paystack";
 
   useEffect(() => {
     if (paid || !reference) return;
@@ -78,7 +82,7 @@ export default function DonationPaymentResult({
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-green/10 text-brand-green">
             {paid ? <CheckCircle2 className="h-8 w-8" /> : checking ? <Loader2 className="h-8 w-8 animate-spin" /> : <Heart className="h-8 w-8" />}
           </span>
-          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-brand-green">Paystack</p>
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-brand-green">{providerLabel}</p>
           <h1 className="mt-2 text-3xl font-medium">
             {paid ? "Thank you for your donation" : checking ? "Checking your payment" : "Payment not yet confirmed"}
           </h1>
@@ -86,8 +90,8 @@ export default function DonationPaymentResult({
             {paid
               ? "Your payment has been verified and your donation is recorded. Thank you for supporting the OK Movement."
               : result?.status === "failed"
-                ? "This payment was not completed. You can return to Paystack or start a new donation."
-                : "We’re waiting for confirmation from Paystack. If you have paid, check the status before making another payment."}
+                ? `This payment was not completed. You can return to ${providerLabel} or start a new donation.`
+                : `We’re waiting for confirmation from ${providerLabel}. If you have paid, check the status before making another payment.`}
           </p>
           {result ? (
             <p className="mt-5 text-2xl font-semibold">
@@ -106,7 +110,7 @@ export default function DonationPaymentResult({
                   {checking ? "Checking…" : "Check payment status"}
                 </button>
                 {result?.checkoutUrl ? (
-                  <a href={result.checkoutUrl} className="inline-flex min-h-12 items-center rounded-[10px] border border-brand-green px-5 text-sm font-semibold text-brand-green">Return to Paystack</a>
+                  <a href={result.checkoutUrl} className="inline-flex min-h-12 items-center rounded-[10px] border border-brand-green px-5 text-sm font-semibold text-brand-green">Return to {providerLabel}</a>
                 ) : null}
               </>
             ) : null}

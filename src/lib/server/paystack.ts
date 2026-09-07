@@ -1,11 +1,10 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { PaymentServiceError } from "./payment-service";
+
+export { PaymentServiceError } from "./payment-service";
 
 const API_URL = "https://api.paystack.co";
-
-export class PaymentServiceError extends Error {
-  constructor(message: string, public status = 502) { super(message); }
-}
 
 export function getPaystackConfig() {
   const secretKey = process.env.PAYSTACK_SECRET_KEY?.trim();

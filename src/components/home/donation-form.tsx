@@ -1,14 +1,15 @@
 "use client";
 
 import { FormEvent, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, Check, Globe2, Loader2, Plane, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Globe2, Loader2, Plane, ShieldCheck } from "lucide-react";
 import PhoneInput from "@/components/ui/phone-input";
-import { donationCheckoutSchema } from "@/lib/donation-validation";
+import { donationCheckoutSchema, type PaymentProvider } from "@/lib/donation-validation";
 import {
   getLgaOptionsByState,
   getWardOptionsByStateAndLga,
   nigeriaStateOptions,
 } from "@/lib/nigeria-locations";
+import PaymentProviderSelector from "./payment-provider-selector";
 
 const inputClass =
   "min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50 disabled:cursor-not-allowed disabled:opacity-60";
@@ -60,6 +61,7 @@ function fieldLabel(label: string) {
 
 export default function DonationForm() {
   const [form, setForm] = useState<FormState>(initialState);
+  const [provider, setProvider] = useState<PaymentProvider>("flutterwave");
   const [error, setError] = useState("");
   const [redirecting, setRedirecting] = useState(false);
   const checkoutAttempt = useRef<{ payload: string; key: string } | null>(null);
@@ -79,7 +81,7 @@ export default function DonationForm() {
     if (redirecting) return;
     setError("");
 
-    const payload = JSON.stringify(form);
+    const payload = JSON.stringify({ ...form, provider });
     if (checkoutAttempt.current?.payload !== payload) {
       checkoutAttempt.current = { payload, key: crypto.randomUUID() };
     }
@@ -87,7 +89,7 @@ export default function DonationForm() {
     const requestBody = {
       ...form,
       checkoutKey: checkoutAttempt.current.key,
-      provider: "paystack" as const,
+      provider,
     };
     const parsed = donationCheckoutSchema.safeParse(requestBody);
     if (!parsed.success) {
@@ -104,7 +106,7 @@ export default function DonationForm() {
       });
       const data = (await response.json().catch(() => null)) as { checkoutUrl?: string; error?: string } | null;
       if (!response.ok || !data?.checkoutUrl) {
-        setError(data?.error ?? "Unable to open Paystack checkout. Please try again.");
+        setError(data?.error ?? `Unable to open ${provider === "flutterwave" ? "Flutterwave" : "Paystack"} checkout. Please try again.`);
         setRedirecting(false);
         return;
       }
@@ -127,7 +129,7 @@ export default function DonationForm() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-red">Secure donation</p>
           <h2 className="mt-3 text-2xl font-medium sm:text-3xl">Make your contribution</h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-black/60">
-            Enter your details, then continue to Paystack&apos;s hosted checkout to complete payment in NGN.
+            Enter your details, choose a payment provider, then complete payment on its secure hosted checkout in NGN.
           </p>
         </div>
         <span className="hidden shrink-0 rounded-full bg-brand-green/10 p-3 text-brand-green sm:inline-flex">
@@ -232,26 +234,19 @@ export default function DonationForm() {
         </div>
       )}
 
-      <fieldset className="mt-7">
-        <legend className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">Payment provider</legend>
-        <label className="mt-2 flex items-center justify-between gap-4 rounded-[12px] border border-brand-green bg-brand-green/5 p-4">
-          <span className="flex items-center gap-3">
-            <input type="radio" name="donationProvider" checked readOnly className="accent-brand-green" />
-            <span><span className="block text-sm font-semibold">Paystack</span><span className="mt-0.5 block text-xs text-black/55">Secure hosted checkout</span></span>
-          </span>
-          <Check aria-hidden="true" className="h-5 w-5 text-brand-green" />
-        </label>
-      </fieldset>
+      <div className="mt-7">
+        <PaymentProviderSelector value={provider} onChange={(nextProvider) => { setProvider(nextProvider); setError(""); }} />
+      </div>
 
       {error ? <p role="alert" className="mt-5 rounded-[10px] border border-brand-red/20 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">{error}</p> : null}
 
       <div className="mt-7 flex flex-col gap-4 border-t border-black/8 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex max-w-sm items-start gap-2 text-xs leading-relaxed text-black/55">
           <ShieldCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />
-          Payment details are entered only on Paystack. We record your donation after Paystack confirms it.
+          Payment details are entered only on the provider&apos;s hosted checkout. We record your donation after the provider confirms it.
         </p>
         <button type="submit" disabled={redirecting} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-green px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_36px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black disabled:cursor-wait disabled:opacity-70">
-          {redirecting ? <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />Opening Paystack…</> : <>Continue to Paystack<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></>}
+          {redirecting ? <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />Opening checkout…</> : <>Continue to {provider === "flutterwave" ? "Flutterwave" : "Paystack"}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></>}
         </button>
       </div>
     </form>

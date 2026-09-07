@@ -69,7 +69,7 @@ export default function DonationsPage() {
             <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-red">Give securely</p>
             <h2 className="mt-3 text-3xl font-medium leading-tight sm:text-4xl">Your support starts here.</h2>
             <p className="mt-4 text-base leading-relaxed text-black/65">
-              Cash donations are processed on Paystack&apos;s secure hosted page. Card, bank, USSD, and other available methods are presented there based on your account and location.
+              Continue to Flutterwave&apos;s secure hosted page to complete your donation. Available card, bank, USSD, and other methods depend on your location.
             </p>
             <div className="mt-7 rounded-[14px] border border-brand-green/20 bg-brand-green/5 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-green">How it works</p>

@@ -7,9 +7,12 @@ export const donationAmountSchema = z.string().trim()
   .transform(Number)
   .refine((value) => value >= 100 && value <= 100_000_000, "Enter an amount between ₦100 and ₦100,000,000.");
 
+export const paymentProviderSchema = z.enum(["paystack", "flutterwave"]);
+export type PaymentProvider = z.infer<typeof paymentProviderSchema>;
+
 export const donationCheckoutSchema = z.object({
   checkoutKey: z.string().uuid(),
-  provider: z.literal("paystack"),
+  provider: paymentProviderSchema,
   donationAmount: donationAmountSchema,
   name: z.string().trim().min(1).max(150),
   email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),

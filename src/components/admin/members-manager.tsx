@@ -330,7 +330,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
     URL.revokeObjectURL(url);
   }
 
-  const columnCount = donationsOnly ? 10 : 6;
+  const columnCount = donationsOnly ? 7 : 6;
 
   return (
     <>
@@ -415,17 +415,16 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Phone</th>
+                {!donationsOnly ? <th className="px-4 py-3">Phone</th> : null}
                 <th className="px-4 py-3">Engagement</th>
                 {donationsOnly ? <th className="px-4 py-3">Donation</th> : null}
                 {donationsOnly ? (
                   <>
                     <th className="px-4 py-3">Payment status</th>
-                    <th className="px-4 py-3">Reference</th>
                     <th className="px-4 py-3">Paid at</th>
                   </>
                 ) : null}
-                <th className="px-4 py-3">Location</th>
+                {!donationsOnly ? <th className="px-4 py-3">Location</th> : null}
                 <th className="px-4 py-3">Submitted</th>
               </tr>
             </thead>
@@ -451,7 +450,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                     >
                       <td className="px-4 py-3 font-medium">{member.name}</td>
                       <td className="px-4 py-3 text-black/70">{member.email}</td>
-                      <td className="px-4 py-3 text-black/70">{member.phone}</td>
+                      {!donationsOnly ? <td className="px-4 py-3 text-black/70">{member.phone}</td> : null}
                       <td className="px-4 py-3">
                         <span className="rounded-[8px] bg-brand-green/10 px-2.5 py-1 text-xs font-semibold text-brand-green">
                           {member.engagement}
@@ -470,11 +469,10 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                               {member.paymentProvider}{member.paymentEnvironment === "test" ? " · Test" : ""}
                             </span>
                           </td>
-                          <td className="max-w-[15rem] break-all px-4 py-3 text-xs text-black/65">{member.paymentReference ?? "—"}</td>
                           <td className="px-4 py-3 text-black/60">{member.paidAt ? new Date(member.paidAt).toLocaleString() : "—"}</td>
                         </>
                       ) : null}
-                      <td className="px-4 py-3 text-black/70">{location || "-"}</td>
+                      {!donationsOnly ? <td className="px-4 py-3 text-black/70">{location || "-"}</td> : null}
                       <td className="px-4 py-3 text-black/60">
                         {member.createdAt ? new Date(member.createdAt).toLocaleString() : "-"}
                       </td>

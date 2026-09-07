@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { donationReferenceSchema } from "@/lib/donation-validation";
 import { DonationModel } from "@/lib/models/donation";
 import { donationPaymentSummary, reconcileDonation } from "@/lib/server/donations";
-import { PaymentServiceError } from "@/lib/server/paystack";
+import { PaymentServiceError } from "@/lib/server/payment-service";
 
 export const runtime = "nodejs";
 

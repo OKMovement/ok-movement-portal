@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { donationCheckoutSchema } from "@/lib/donation-validation";
 import { DonationModel } from "@/lib/models/donation";
-import { getPaystackConfig, initializePaystackTransaction, PaymentServiceError } from "@/lib/server/paystack";
+import { getFlutterwaveConfig, initializeFlutterwaveTransaction } from "@/lib/server/flutterwave";
+import { getPaystackConfig, initializePaystackTransaction } from "@/lib/server/paystack";
+import { PaymentServiceError } from "@/lib/server/payment-service";
 
 export const runtime = "nodejs";
 
@@ -13,7 +15,8 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid donation details." }, { status: 400 });
     }
-    const { environment } = getPaystackConfig();
+    const { provider } = parsed.data;
+    const { environment } = provider === "flutterwave" ? getFlutterwaveConfig() : getPaystackConfig();
     const baseUrl = process.env.APP_BASE_URL?.trim();
     if (!baseUrl) throw new PaymentServiceError("Online donations are temporarily unavailable.", 503);
 
@@ -45,16 +48,28 @@ export async function POST(request: Request) {
 
     if (!donation.checkoutUrl) {
       const callbackUrl = new URL("/home/donations/payment", baseUrl);
-      const checkout = await initializePaystackTransaction({
-        reference: donation.reference,
-        amountSubunit,
-        name: donor.name,
-        email: donor.email,
-        phone: donor.phone,
-        callbackUrl: callbackUrl.toString(),
-      });
-      donation.checkoutUrl = checkout.checkoutUrl;
-      donation.accessCode = checkout.accessCode;
+      if (provider === "flutterwave") {
+        const checkout = await initializeFlutterwaveTransaction({
+          reference: donation.reference,
+          amount,
+          name: donor.name,
+          email: donor.email,
+          phone: donor.phone,
+          callbackUrl: callbackUrl.toString(),
+        });
+        donation.checkoutUrl = checkout.checkoutUrl;
+      } else {
+        const checkout = await initializePaystackTransaction({
+          reference: donation.reference,
+          amountSubunit,
+          name: donor.name,
+          email: donor.email,
+          phone: donor.phone,
+          callbackUrl: callbackUrl.toString(),
+        });
+        donation.checkoutUrl = checkout.checkoutUrl;
+        donation.accessCode = checkout.accessCode;
+      }
       await donation.save();
     }
 
