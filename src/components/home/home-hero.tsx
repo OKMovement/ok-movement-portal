@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronLeft, ChevronRight, Play, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Heart, Play, ShieldCheck, X } from "lucide-react";
 
 const heroDuoImage = "/assets/hero_duo_trimmed.png";
 const ndcImage = "/assets/NDC_-_Peter_and_Kwankwaso_1_1778425496977.png";
@@ -9,6 +9,7 @@ const  duoImage = "/assets/obi_kwankwaso_duo_hires_trimmed.png";
 // const ndcImage = "/assets/NDC_-_Peter_and_Kwankwaso_1_1778425496977.png";
 // const pvcImage = "/assets/Get_your_voters_card_1778431731228.png";
 import type { TestimonialPair } from "@/lib/get-testimonial-pairs";
+import HomeDonationBanner from "./home-donation-banner";
 import HomeFooterSection from "./home-footer-section";
 import HomeOurMovementSection from "./home-our-movement-section";
 import HomePrincipalsSection from "./home-principals-section";
@@ -227,16 +228,25 @@ const SLIDES: HeroSlide[] = [
       </>
     ),
     secondary: (
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-neutral-600">
+      <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
+        <Link
+          href="/home/donations"
+          className="group inline-flex min-h-11 items-center gap-2.5 rounded-full bg-brand-red px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_32px_-14px_rgb(224_40_40/0.75)] transition hover:-translate-y-0.5 hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-red"
+        >
+          <Heart aria-hidden="true" className="h-4 w-4 fill-current" />
+          Donate now
+          <ArrowRight
+            aria-hidden="true"
+            className="h-4 w-4 transition group-hover:translate-x-0.5"
+          />
+        </Link>
         <a
           href="#movement-heading"
-          className="group inline-flex items-center gap-2 font-medium text-brand-black transition hover:text-brand-green"
+          className="group inline-flex min-h-11 items-center gap-2 px-2 font-medium text-brand-black transition hover:text-brand-green"
         >
           Learn about our movement
           <ArrowRight aria-hidden="true" className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </a>
-        <span className="hidden h-3 w-px bg-brand-black/20 sm:inline-block" />
-        <span className="text-neutral-500">A people-powered campaign for 2027.</span>
       </div>
     ),
   },
@@ -824,6 +834,7 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
       </section>
       <HomeOurMovementSection />
       <HomePrincipalsSection testimonialPairs={testimonialPairs} />
+      <HomeDonationBanner />
       <HomeFooterSection />
     </main>
   );

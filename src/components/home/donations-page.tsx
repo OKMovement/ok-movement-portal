@@ -75,7 +75,7 @@ export default function DonationsPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-green">How it works</p>
               <ol className="mt-4 space-y-3 text-sm text-black/70">
                 <li className="flex gap-3"><span className="font-semibold text-brand-green">01</span>Choose an amount and enter your details.</li>
-                <li className="flex gap-3"><span className="font-semibold text-brand-green">02</span>Complete payment securely on Paystack.</li>
+                <li className="flex gap-3"><span className="font-semibold text-brand-green">02</span>Complete payment securely on Flutterwave.</li>
                 <li className="flex gap-3"><span className="font-semibold text-brand-green">03</span>We verify and record the donation automatically.</li>
               </ol>
             </div>
