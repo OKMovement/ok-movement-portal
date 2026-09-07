@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowUpRight,
@@ -23,16 +23,17 @@ import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import PhoneInput from "@/components/ui/phone-input";
 import { isPhoneValid } from "@/lib/phone-validation";
+import { donationAmountSchema } from "@/lib/donation-validation";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
 import {
-  donationKinds,
   engagementOptions,
   engagementPillars,
   involveFaqs,
   involveStats,
   nextSteps,
 } from "./get-involved-data";
+import DonationKindCards from "./donation-kind-cards";
 import {
   getLgaOptionsByState,
   getWardOptionsByStateAndLga,
@@ -181,12 +182,12 @@ const getInvolvedSchema = z
           message: "Please enter your donation amount.",
         });
       } else {
-        const amount = Number(values.donationAmount.replaceAll(",", ""));
-        if (!Number.isFinite(amount) || amount <= 0) {
+        const amount = donationAmountSchema.safeParse(values.donationAmount);
+        if (!amount.success) {
           ctx.addIssue({
             path: ["donationAmount"],
             code: z.ZodIssueCode.custom,
-            message: "Enter a valid donation amount.",
+            message: amount.error.issues[0]?.message ?? "Enter a valid donation amount.",
           });
         }
       }
@@ -263,95 +264,96 @@ const defaultFormValues: GetInvolvedFormValues = {
 };
 
 export default function GetInvolvedPage() {
-
-      const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
-    const [whatsappStep, setWhatsappStep] = useState<WhatsappStep>("ask");
-    const [whatsappPhone, setWhatsappPhone] = useState("");
-    const [whatsappError, setWhatsappError] = useState<string | null>(null);
-    const [isVerifyingWhatsappPhone, setIsVerifyingWhatsappPhone] = useState(false);
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
+  const [whatsappStep, setWhatsappStep] = useState<WhatsappStep>("ask");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [whatsappError, setWhatsappError] = useState<string | null>(null);
+  const [isVerifyingWhatsappPhone, setIsVerifyingWhatsappPhone] = useState(false);
   
-    function openWhatsappDialog() {
-      setWhatsappStep("ask");
-      setWhatsappPhone("");
-      setWhatsappError(null);
-      setIsVerifyingWhatsappPhone(false);
-      setWhatsappDialogOpen(true);
-    }
+  function openWhatsappDialog() {
+    setWhatsappStep("ask");
+    setWhatsappPhone("");
+    setWhatsappError(null);
+    setIsVerifyingWhatsappPhone(false);
+    setWhatsappDialogOpen(true);
+  }
   
-    function closeWhatsappDialog() {
-      setWhatsappDialogOpen(false);
-      setWhatsappError(null);
-      setIsVerifyingWhatsappPhone(false);
-    }
+  function closeWhatsappDialog() {
+    setWhatsappDialogOpen(false);
+    setWhatsappError(null);
+    setIsVerifyingWhatsappPhone(false);
+  }
   
-    function handleWhatsappYes() {
-      setWhatsappError(null);
-      setWhatsappStep("verify");
-    }
+  function handleWhatsappYes() {
+    setWhatsappError(null);
+    setWhatsappStep("verify");
+  }
   
-    function handleWhatsappNo() {
-      closeWhatsappDialog();
-      if (typeof window !== "undefined") {
-        const target = document.getElementById("registration");
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-          window.location.hash = "#registration";
-        }
+  function handleWhatsappNo() {
+    closeWhatsappDialog();
+    if (typeof window !== "undefined") {
+      const target = document.getElementById("registration");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.location.hash = "#registration";
       }
     }
+  }
   
-    async function handleWhatsappVerify(event: FormEvent<HTMLFormElement>) {
-      event.preventDefault();
-      if (isVerifyingWhatsappPhone) return;
+  async function handleWhatsappVerify(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isVerifyingWhatsappPhone) return;
 
-      const normalized = normalizePhone(whatsappPhone);
-      if (normalized.length < 10) {
-        setWhatsappError(
-          "Please enter a valid phone number (at least 10 digits, e.g. +234 …).",
-        );
+    const normalized = normalizePhone(whatsappPhone);
+    if (normalized.length < 10) {
+      setWhatsappError(
+        "Please enter a valid phone number (at least 10 digits, e.g. +234 …).",
+      );
+      return;
+    }
+
+    setIsVerifyingWhatsappPhone(true);
+    setWhatsappError(null);
+
+    try {
+      const response = await fetch("/api/members/verify-phone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: whatsappPhone.trim() }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { exists?: boolean; error?: string }
+        | null;
+
+      if (!response.ok) {
+        setWhatsappError(data?.error ?? "Unable to verify your number right now.");
         return;
       }
 
-      setIsVerifyingWhatsappPhone(true);
-      setWhatsappError(null);
-
-      try {
-        const response = await fetch("/api/members/verify-phone", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: whatsappPhone.trim() }),
-        });
-        const data = (await response.json().catch(() => null)) as
-          | { exists?: boolean; error?: string }
-          | null;
-
-        if (!response.ok) {
-          setWhatsappError(data?.error ?? "Unable to verify your number right now.");
-          return;
-        }
-
-        if (!data?.exists) {
-          setWhatsappError(null);
-          setWhatsappStep("denied");
-          return;
-        }
-
+      if (!data?.exists) {
         setWhatsappError(null);
-        closeWhatsappDialog();
-        if (typeof window !== "undefined") {
-          window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer");
-        }
-      } catch {
-        setWhatsappError("Unable to verify your number right now. Please try again.");
-      } finally {
-        setIsVerifyingWhatsappPhone(false);
+        setWhatsappStep("denied");
+        return;
       }
+
+      setWhatsappError(null);
+      closeWhatsappDialog();
+      if (typeof window !== "undefined") {
+        window.open(WHATSAPP_CHANNEL_URL, "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      setWhatsappError("Unable to verify your number right now. Please try again.");
+    } finally {
+      setIsVerifyingWhatsappPhone(false);
     }
+  }
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "sent">("idle");
   const [submitError, setSubmitError] = useState("");
   const [submittedName, setSubmittedName] = useState("");
+  const checkoutAttempt = useRef<{ payload: string; key: string } | null>(null);
+  const [redirectingToPayment, setRedirectingToPayment] = useState(false);
   const {
     register,
     control,
@@ -439,27 +441,55 @@ export default function GetInvolvedPage() {
       votingWard: values.isDiaspora ? "" : values.votingWard.trim(),
     };
 
-    const response = await fetch("/api/get-involved", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = (await response.json().catch(() => null)) as { error?: string } | null;
-
-    if (!response.ok) {
-      setSubmitError(data?.error ?? "Unable to submit your registration at this time.");
-      return;
+    const paying = values.engagement === "donate" && values.donationType === "cash";
+    const serializedPayload = JSON.stringify(payload);
+    if (paying && checkoutAttempt.current?.payload !== serializedPayload) {
+      checkoutAttempt.current = { payload: serializedPayload, key: crypto.randomUUID() };
     }
 
-    setStatus("sent");
-    setSubmittedName(values.name.trim());
+    try {
+      const response = await fetch(paying ? "/api/donations/checkout" : "/api/get-involved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          paying
+            ? { ...payload, provider: "paystack", checkoutKey: checkoutAttempt.current?.key }
+            : payload,
+        ),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { error?: string; checkoutUrl?: string }
+        | null;
+
+      if (!response.ok) {
+        setSubmitError(data?.error ?? "Unable to submit your registration at this time.");
+        return;
+      }
+
+      if (paying) {
+        if (!data?.checkoutUrl) {
+          setSubmitError("Unable to open Paystack checkout. Please try again.");
+          return;
+        }
+        setRedirectingToPayment(true);
+        window.location.assign(data.checkoutUrl);
+        return;
+      }
+
+      setStatus("sent");
+      setSubmittedName(values.name.trim());
+    } catch {
+      setRedirectingToPayment(false);
+      setSubmitError("Unable to connect. Please check your connection and try again.");
+    }
   };
 
   const handleReset = () => {
     setStatus("idle");
     setSubmitError("");
     setSubmittedName("");
+    checkoutAttempt.current = null;
+    setRedirectingToPayment(false);
     reset(defaultFormValues);
   };
 
@@ -845,32 +875,46 @@ export default function GetInvolvedPage() {
                       </label>
 
                       {donationType === "cash" ? (
-                        <label className="mt-5 flex flex-col gap-1.5">
-                          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
-                            Amount <span className="text-brand-red">*</span>
-                          </span>
-                          <span className="relative">
-                            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-black/65">
-                              ₦
+                        <div className="mt-5">
+                          <label className="flex flex-col gap-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                              Amount <span className="text-brand-red">*</span>
                             </span>
-                            <input
-                              type="text"
-                              inputMode="decimal"
-                              {...register("donationAmount")}
-                              value={donationAmount}
-                              onChange={(event) =>
-                                setValue("donationAmount", formatCurrencyInput(event.target.value), {
-                                  shouldValidate: true,
-                                })
-                              }
-                              placeholder="e.g. 50,000"
-                              className={`${inputClass} w-full pl-10`}
-                            />
-                          </span>
+                            <span className="relative">
+                              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-black/65">
+                                ₦
+                              </span>
+                              <input
+                                type="text"
+                                inputMode="decimal"
+                                {...register("donationAmount")}
+                                value={donationAmount}
+                                onChange={(event) =>
+                                  setValue("donationAmount", formatCurrencyInput(event.target.value), {
+                                    shouldValidate: true,
+                                  })
+                                }
+                                placeholder="e.g. 50,000"
+                                className={`${inputClass} w-full pl-10`}
+                              />
+                            </span>
+                          </label>
                           {errors.donationAmount?.message ? (
-                            <span className="text-xs text-brand-red">{errors.donationAmount.message}</span>
+                            <span className="mt-1.5 block text-xs text-brand-red">{errors.donationAmount.message}</span>
                           ) : null}
-                        </label>
+                          <fieldset className="mt-4">
+                            <legend className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">
+                              Payment provider <span className="text-brand-red">*</span>
+                            </legend>
+                            <label className="mt-2 flex cursor-pointer items-center gap-3 rounded-[10px] border border-brand-green bg-brand-green/5 p-4">
+                              <input type="radio" name="paymentProvider" value="paystack" checked readOnly className="accent-brand-green" />
+                              <span>
+                                <span className="block text-sm font-semibold text-brand-black">Paystack</span>
+                                <span className="mt-0.5 block text-xs text-black/60">Continue to Paystack&apos;s secure checkout page.</span>
+                              </span>
+                            </label>
+                          </fieldset>
+                        </div>
                       ) : null}
 
                       {donationType === "materials" ? (
@@ -1132,28 +1176,34 @@ export default function GetInvolvedPage() {
                   <div className="mt-8 flex flex-col gap-4 border-t border-black/8 pt-6 sm:flex-row sm:items-center sm:justify-between">
                     <p className="flex items-center gap-2 text-xs text-black/55">
                       <ShieldCheck aria-hidden="true" className="h-4 w-4 text-brand-green" />
-                      Your information is private and never shared.
+                      {isDonate && donationType === "cash"
+                        ? "Payment is processed securely by Paystack."
+                        : "Your information is private and never shared."}
                     </p>
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || redirectingToPayment}
                       className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      {isSubmitting ? (
+                      {isSubmitting || redirectingToPayment ? (
                         <>
                           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-                          Submitting…
+                          {isDonate && donationType === "cash" ? "Opening Paystack…" : "Submitting…"}
                         </>
                       ) : (
                         <>
-                          {isDonate ? "Pledge & Register" : "Join the Movement"}
+                          {isDonate
+                            ? donationType === "cash"
+                              ? "Pay with Paystack"
+                              : "Pledge & Register"
+                            : "Join the Movement"}
                           <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
                         </>
                       )}
                     </button>
                   </div>
                   {submitError ? (
-                    <p className="mt-4 rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
+                    <p role="alert" className="mt-4 rounded-[10px] border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm text-brand-red">
                       {submitError}
                     </p>
                   ) : null}
@@ -1163,12 +1213,18 @@ export default function GetInvolvedPage() {
                       <span className="font-semibold uppercase tracking-[0.18em] text-brand-red">
                         Donating?
                       </span>{" "}
-                      After registering we&apos;ll share verified channels for cash transfers,
-                      campaign materials and in-kind support. See the{" "}
-                      <a href="#donate" className="font-semibold text-brand-red underline">
-                        Support &amp; Donations
-                      </a>{" "}
-                      section below for a preview.
+                      {donationType === "cash" ? (
+                        "You’ll continue to Paystack to complete your payment in NGN. Your donation is recorded after Paystack confirms it."
+                      ) : (
+                        <>
+                          After registering we&apos;ll share verified channels for campaign
+                          materials and in-kind support. See the{" "}
+                          <a href="#donate" className="font-semibold text-brand-red underline">
+                            Support &amp; Donations
+                          </a>{" "}
+                          section below for a preview.
+                        </>
+                      )}
                     </p>
                   )}
                 </form>
@@ -1208,56 +1264,8 @@ export default function GetInvolvedPage() {
             </a>
           </div>
 
-          <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {donationKinds.map((kind, idx) => {
-              const tone = pillarTone(kind.tone);
-              const Icon = kind.icon;
-              return (
-                <article
-                  key={kind.title}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-black/8 bg-white p-7 shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_46px_-22px_rgb(0_0_0/0.4)] sm:p-8"
-                >
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 flex h-[3px]">
-                    <span className="h-full flex-1 bg-brand-green" />
-                    <span className="h-full flex-1 bg-brand-black" />
-                    <span className="h-full flex-1 bg-brand-red" />
-                  </span>
-                  <div
-                    aria-hidden="true"
-                    className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full ${tone.glow} blur-2xl`}
-                  />
-                  <div className="relative">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${tone.iconWrap}`}
-                      >
-                        <Icon aria-hidden="true" className="h-5 w-5" />
-                      </span>
-                      <span
-                        className={`text-[11px] font-semibold uppercase tracking-[0.32em] ${tone.eyebrow}`}
-                      >
-                        0{idx + 1}
-                      </span>
-                    </div>
-                    <h3 className="mt-6 text-xl font-medium leading-tight text-brand-black sm:text-2xl">
-                      {kind.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-black/70">{kind.short}</p>
-                    <ul className="mt-5 space-y-2 text-sm text-brand-black/80">
-                      {kind.examples.map((example) => (
-                        <li key={example} className="flex items-start gap-2">
-                          <CheckCircle2
-                            aria-hidden="true"
-                            className="mt-0.5 h-4 w-4 shrink-0 text-brand-green"
-                          />
-                          <span>{example}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
-              );
-            })}
+          <div className="mt-12">
+            <DonationKindCards />
           </div>
 
           <div className="mt-10 grid gap-3 rounded-[16px] border border-black/8 bg-[#f7f7f4] p-5 sm:grid-cols-3 sm:p-6">

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:payments": "node --test tests/paystack-payments.test.cjs",
     "migrate:media": "node scripts/migrate-public-media-to-cloudinary.mjs"
   },
   "dependencies": {

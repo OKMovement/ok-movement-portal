@@ -21,6 +21,14 @@ type MemberItem = {
   votingLga: string | null;
   votingWard: string | null;
   createdAt: string | Date;
+  paymentStatus?: "pending" | "successful" | "failed" | "pledged";
+  paymentProvider?: string | null;
+  paymentEnvironment?: "test" | "live" | null;
+  paymentReference?: string | null;
+  paymentTransactionId?: string | null;
+  paymentChannel?: string | null;
+  paidAt?: string | null;
+  isPaymentRecord?: boolean;
 };
 
 type MembersManagerProps = {
@@ -48,24 +56,28 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
     setLoading(true);
     setError("");
 
-    const response = await fetch("/api/admin/members", { cache: "no-store" });
-    const data = (await response.json().catch(() => null)) as
-      | { members?: MemberItem[]; error?: string }
-      | null;
+    try {
+      const response = await fetch(donationsOnly ? "/api/admin/donations" : "/api/admin/members", { cache: "no-store" });
+      const data = (await response.json().catch(() => null)) as
+        | { members?: MemberItem[]; error?: string }
+        | null;
 
-    if (!response.ok) {
-      setError(data?.error ?? "Unable to fetch members.");
-      setLoading(false);
-      return;
+      if (!response.ok) {
+        setError(data?.error ?? "Unable to fetch records.");
+        setLoading(false);
+        return;
+      }
+
+      setMembers(data?.members ?? []);
+    } catch {
+      setError("Unable to fetch records. Please try again.");
     }
-
-    setMembers(data?.members ?? []);
     setLoading(false);
   }
 
   useEffect(() => {
     loadMembers();
-  }, []);
+  }, [donationsOnly]);
 
   async function handleCopyEmail(email: string) {
     try {
@@ -78,7 +90,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
   }
 
   async function handleDeleteMember() {
-    if (!selected) return;
+    if (!selected || selected.isPaymentRecord) return;
 
     setDeleting(true);
     setError("");
@@ -117,7 +129,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: "NGN",
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }).format(amount);
   }
 
@@ -200,6 +212,8 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
         member.email,
         member.phone,
         member.engagement,
+        member.paymentReference ?? "",
+        member.paymentStatus ?? "",
         resolveLocation(member),
         member.country ?? "",
         member.city ?? "",
@@ -264,6 +278,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
       "Voting Ward",
       "Location",
       "Submitted At",
+      ...(donationsOnly ? ["Payment Status", "Provider", "Environment", "Reference", "Transaction ID", "Channel", "Paid At"] : []),
     ];
 
     const rows = filteredMembers.map((member) => [
@@ -283,6 +298,15 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
       member.votingWard ?? "",
       resolveLocation(member),
       member.createdAt ? new Date(member.createdAt).toISOString() : "",
+      ...(donationsOnly ? [
+        member.paymentStatus ?? "pledged",
+        member.paymentProvider ?? "",
+        member.paymentEnvironment ?? "",
+        member.paymentReference ?? "",
+        member.paymentTransactionId ?? "",
+        member.paymentChannel ?? "",
+        member.paidAt ?? "",
+      ] : []),
     ]);
 
     const csv = [
@@ -306,21 +330,28 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
     URL.revokeObjectURL(url);
   }
 
-  const columnCount = donationsOnly ? 7 : 6;
+  const columnCount = donationsOnly ? 10 : 6;
 
   return (
     <>
       <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
-          <h3 className="text-lg font-semibold text-brand-black">{diasporaOnly ? "Diaspora registrations" : "Members"}</h3>
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            disabled={loading || filteredMembers.length === 0}
-            className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Export CSV
-          </button>
+          <h3 className="text-lg font-semibold text-brand-black">
+            {donationsOnly ? "Donations" : diasporaOnly ? "Diaspora registrations" : "Members"}
+          </h3>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => void loadMembers()} disabled={loading} className="min-h-10 rounded-[8px] border border-black/15 px-4 text-xs font-semibold uppercase tracking-[0.12em] disabled:opacity-50">
+              Refresh
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={loading || filteredMembers.length === 0}
+              className="inline-flex min-h-10 items-center justify-center rounded-[8px] bg-brand-black px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:bg-brand-green disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Export CSV
+            </button>
+          </div>
         </div>
         {error ? <p className="px-4 pt-4 text-sm text-brand-red">{error}</p> : null}
         <div className="flex flex-wrap items-end gap-3 border-b border-black/8 px-4 py-4 sm:px-6">
@@ -387,6 +418,13 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Engagement</th>
                 {donationsOnly ? <th className="px-4 py-3">Donation</th> : null}
+                {donationsOnly ? (
+                  <>
+                    <th className="px-4 py-3">Payment status</th>
+                    <th className="px-4 py-3">Reference</th>
+                    <th className="px-4 py-3">Paid at</th>
+                  </>
+                ) : null}
                 <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3">Submitted</th>
               </tr>
@@ -395,7 +433,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
               {loading ? (
                 <tr>
                   <td colSpan={columnCount} className="px-4 py-8 text-center text-sm text-black/60">
-                    Loading members...
+                    Loading records...
                   </td>
                 </tr>
               ) : paginatedMembers.length > 0 ? (
@@ -421,6 +459,20 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                       </td>
                       {donationsOnly ? (
                         <td className="px-4 py-3 text-black/70">{donationSummary(member)}</td>
+                      ) : null}
+                      {donationsOnly ? (
+                        <>
+                          <td className="px-4 py-3">
+                            <span className={`rounded-[8px] px-2.5 py-1 text-xs font-semibold capitalize ${member.paymentStatus === "successful" ? "bg-brand-green/10 text-brand-green" : member.paymentStatus === "failed" ? "bg-brand-red/10 text-brand-red" : "bg-black/5 text-black/65"}`}>
+                              {member.paymentStatus === "successful" ? "Paid" : member.paymentStatus ?? "pledged"}
+                            </span>
+                            <span className="mt-2 block text-xs text-black/55">
+                              {member.paymentProvider}{member.paymentEnvironment === "test" ? " · Test" : ""}
+                            </span>
+                          </td>
+                          <td className="max-w-[15rem] break-all px-4 py-3 text-xs text-black/65">{member.paymentReference ?? "—"}</td>
+                          <td className="px-4 py-3 text-black/60">{member.paidAt ? new Date(member.paidAt).toLocaleString() : "—"}</td>
+                        </>
                       ) : null}
                       <td className="px-4 py-3 text-black/70">{location || "-"}</td>
                       <td className="px-4 py-3 text-black/60">
@@ -494,7 +546,7 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-red">
-                  Member Details
+                  {donationsOnly ? "Donation Details" : "Member Details"}
                 </p>
                 <h3 className="mt-1 text-xl font-semibold text-brand-black">{selected.name}</h3>
               </div>
@@ -562,6 +614,19 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
                   )}
                 </>
               ) : null}
+              {selected.isPaymentRecord ? (
+                <div className="border-t border-black/10 pt-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-black/55">Payment</p>
+                  <p className="mt-1 capitalize">
+                    {selected.paymentProvider} · {selected.paymentStatus === "successful" ? "Paid" : selected.paymentStatus}
+                    {selected.paymentEnvironment === "test" ? " · Test" : ""}
+                  </p>
+                  {selected.paymentChannel ? <p className="mt-1 text-xs capitalize">Channel: {selected.paymentChannel}</p> : null}
+                  <p className="mt-1 break-all text-xs">Reference: {selected.paymentReference}</p>
+                  {selected.paymentTransactionId ? <p className="mt-1 text-xs">Transaction ID: {selected.paymentTransactionId}</p> : null}
+                  {selected.paidAt ? <p className="mt-1 text-xs">Paid: {new Date(selected.paidAt).toLocaleString()}</p> : null}
+                </div>
+              ) : null}
             </div>
 
             <div className="mt-6 flex flex-wrap justify-end gap-3">
@@ -572,15 +637,17 @@ export default function MembersManager({ donationsOnly = false, diasporaOnly = f
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={handleDeleteMember}
-                disabled={deleting}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-red px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
-              >
-                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                Delete member
-              </button>
+              {!selected.isPaymentRecord ? (
+                <button
+                  type="button"
+                  onClick={handleDeleteMember}
+                  disabled={deleting}
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[8px] bg-brand-red px-4 text-xs font-semibold uppercase tracking-[0.15em] text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-75"
+                >
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Delete member
+                </button>
+              ) : null}
             </div>
           </div>
         </div>

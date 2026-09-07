@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Compass,
   Globe2,
+  Heart,
   HeartHandshake,
   Image as ImageIcon,
   Menu,
@@ -48,6 +49,12 @@ const navItems: readonly NavItem[] = [
     href: "/home/get-involved",
     icon: HeartHandshake,
     description: "Volunteer, donate, organize",
+  },
+  {
+    label: "Donations",
+    href: "/home/donations",
+    icon: Heart,
+    description: "Give securely through Paystack",
   },
   {
     label: "Diaspora",

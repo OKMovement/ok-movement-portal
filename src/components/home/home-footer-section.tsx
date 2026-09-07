@@ -9,6 +9,7 @@ const quickLinks = [
   { label: "Meet Your Principals", href: "/home#candidates" },
   { label: "Media Gallery", href: "/home/media-gallery" },
   { label: "Get Involved", href: "/home/get-involved" },
+  { label: "Donations", href: "/home/donations" },
   { label: "Upcoming Events", href: "/home/upcoming-events" },
   { label: "Contact Us", href: "/home/contact" },
 ];

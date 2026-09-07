@@ -50,7 +50,20 @@ npm run start
 2. In Vercel, import the repo — it'll auto-detect Next.js, no extra configuration needed.
 3. Click **Deploy**.
 
-That's it. No env vars are required for the public site.
+Configure the environment variables in `.env.example` for registration, donations, and admin features.
+
+## Donation payments
+
+Cash donations in Get Involved use [Paystack Redirect checkout](https://paystack.com/docs/payments/accept-payments/#redirect). The server initializes the transaction and sends the donor to Paystack’s hosted payment page. The site never receives card, PIN, OTP, or bank account credentials.
+
+- Set `PAYSTACK_SECRET_KEY` in `.env.local` and your deployment environment. An `sk_test_…` key creates test transactions; replace it with an `sk_live_…` key only after testing. Never expose this variable with a `NEXT_PUBLIC_` prefix.
+- Set `APP_BASE_URL` to the public site origin in production. Paystack returns donors to `/home/donations/payment`.
+- In Paystack Dashboard → Settings → API Keys & Webhooks, set the live and test webhook URL to `https://YOUR_DOMAIN/api/donations/paystack/webhook`. The endpoint validates Paystack’s HMAC-SHA512 signature and then re-verifies the transaction.
+- Restart the server after changing environment variables and configure the same variables on the deployment host.
+
+Payment attempts are stored in MongoDB’s `donations` collection. The callback and signed webhook compare the reference, amount in kobo, currency, donor email, and test/live domain before marking a donation paid. Admin → Donations shows paid donations, pending or failed attempts, and existing material pledges, including references and CSV export.
+
+Run `npm run typecheck` after changes. Complete a Paystack test payment and confirm webhook delivery before switching to the live secret key.
 
 ## Notes on the migration from Vite
 
