@@ -6,7 +6,7 @@ import { breadcrumbSchema, buildPageMetadata, jsonLdGraph, webPageSchema } from 
 const path = "/home/media-gallery";
 const title = "Media Gallery";
 const description =
-  "Photos, videos and press material from OK Movement rallies, town halls and community engagements across Nigeria and the diaspora.";
+  "Photos videos and press material from OK Movement rallies, town halls and community engagements across Nigeria and the diaspora.";
 
 export const metadata: Metadata = buildPageMetadata({
   title,
