@@ -245,7 +245,7 @@ export default function DonationForm() {
           <ShieldCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />
           Payment details are entered only on the provider&apos;s hosted checkout. We record your donation after the provider confirms it.
         </p>
-        <button type="submit" disabled={redirecting} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-green px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_36px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black disabled:cursor-wait disabled:opacity-70">
+        <button type="submit" disabled={redirecting} className="inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[12px] bg-brand-green px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_18px_36px_-14px_rgb(0_166_81/0.55)] transition hover:bg-brand-black disabled:cursor-wait disabled:opacity-70 sm:w-auto sm:px-7 sm:text-sm sm:tracking-[0.16em]">
           {redirecting ? <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />Opening checkout…</> : <>Continue to {provider === "flutterwave" ? "Flutterwave" : "Paystack"}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></>}
         </button>
       </div>
