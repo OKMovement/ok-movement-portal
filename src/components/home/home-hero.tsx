@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronLeft, ChevronRight, Heart, ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 
 const heroDuoImage = "/assets/hero_duo_trimmed.png";
 const ndcImage = "/assets/NDC_-_Peter_and_Kwankwaso_1_1778425496977.png";
@@ -13,7 +13,6 @@ import HomeDonationBanner from "./home-donation-banner";
 import HomeFooterSection from "./home-footer-section";
 import HomeOurMovementSection from "./home-our-movement-section";
 import HomePrincipalsSection from "./home-principals-section";
-import HomeSignupForm from "./home-signup-form";
 import HomeSiteHeader from "./home-site-header";
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
@@ -29,89 +28,27 @@ function TricolorRule() {
   );
 }
 
-function TicketCallToAction() {
+function HeroPrimaryActions() {
   return (
-    <div className="mt-8 flex w-full max-w-[34rem] flex-col gap-4">
+    <div className="mt-8 grid w-full max-w-[34rem] gap-3 sm:grid-cols-2">
       <Link
-        href="/get-involved"
-        className="group inline-flex w-fit items-center gap-3 rounded-full bg-brand-green px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-white shadow-[0_22px_46px_-14px_rgb(0_166_81/0.5)] transition hover:bg-brand-black hover:text-white sm:px-8 sm:py-4 sm:text-[13px]"
+        href="/home/get-involved"
+        className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-brand-green px-6 text-sm font-semibold text-white shadow-[0_16px_30px_-16px_rgb(0_166_81/0.65)] transition hover:-translate-y-0.5 hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-green"
       >
-        Stand With the Ticket
-        <ArrowRight aria-hidden="true" className="h-4 w-4 transition group-hover:translate-x-0.5" />
+        Get Involved
+        <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </Link>
-      <p className="flex items-center gap-2 text-[12px] leading-relaxed text-neutral-600">
-        <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-neutral-500" />
-        <span>Peter Obi &amp; Rabiu Kwankwaso · A united front for 2027.</span>
-      </p>
+      <Link
+        href="/home/donations"
+        className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-brand-red px-6 text-sm font-semibold text-white shadow-[0_16px_30px_-16px_rgb(224_40_40/0.65)] transition hover:-translate-y-0.5 hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-red"
+      >
+        <Heart aria-hidden="true" className="h-4 w-4 fill-current" />
+        Donate to the Movement
+      </Link>
     </div>
   );
 }
 
-
-function HeroSignupCard() {
-  return (
-    <div className="mt-8 w-full max-w-[34rem]">
-      <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-3 backdrop-blur-md shadow-[0_30px_60px_-20px_rgb(0_0_0/0.55)] sm:p-4">
-        <div className="mb-3 flex items-center gap-2 px-2 sm:px-3">
-          <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-brand-green" />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-            Join the movement
-          </p>
-        </div>
-        <HomeSignupForm
-          formIdPrefix="hero"
-          submitLabel="Get Involved"
-          ariaLabel="Get involved"
-          className="w-full"
-          buttonClassName="bg-brand-green hover:bg-brand-green/90 shadow-[0_18px_36px_-10px_rgb(0_166_81/0.55)]"
-          useCustomStateSelect
-        />
-      </div>
-      <p className="mt-3 flex items-center gap-2 px-1 text-[12px] leading-relaxed text-white/75">
-        <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-white/65" />
-        <span>Your details are private. We never sell or share your information.</span>
-      </p>
-    </div>
-  );
-}
-function PvcCallToAction() {
-  return (
-    <div className="mt-8 flex w-full max-w-[34rem] flex-col gap-4">
-      <a
-        href="https://www.inecnigeria.org/guidelines-for-registration/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group inline-flex w-fit items-center gap-3 rounded-full bg-brand-green px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-white shadow-[0_22px_46px_-14px_rgb(0_166_81/0.7)] transition hover:bg-white hover:text-brand-black sm:px-8 sm:py-4 sm:text-[13px]"
-      >
-        Start the Process Today
-        <ArrowRight aria-hidden="true" className="h-4 w-4 transition group-hover:translate-x-0.5" />
-      </a>
-      <p className="flex items-center gap-2 text-[12px] leading-relaxed text-white/75">
-        <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-white/65" />
-        <span>Your PVC, Your Voice, Your Power!</span>
-      </p>
-    </div>
-  );
-}
-function NdcCallToAction() {
-  return (
-    <div className="mt-8 flex w-full max-w-[34rem] flex-col gap-4">
-      <a
-        href="https://membership.ndcnigeria.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group inline-flex w-fit items-center gap-3 rounded-full bg-brand-green px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-white shadow-[0_22px_46px_-14px_rgb(0_166_81/0.7)] transition hover:bg-white hover:text-brand-black sm:px-8 sm:py-4 sm:text-[13px]"
-      >
-        Join the NDC Now
-        <ArrowRight aria-hidden="true" className="h-4 w-4 transition group-hover:translate-x-0.5" />
-      </a>
-      <p className="flex items-center gap-2 text-[12px] leading-relaxed text-white/75">
-        <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-white/65" />
-        <span>Nigeria Democratic Congress · The new opposition platform.</span>
-      </p>
-    </div>
-  );
-}
 interface HeroSlide {
   id: string;
   /** Light slides render on white backgrounds with dark text. */
@@ -155,7 +92,7 @@ const SLIDES: HeroSlide[] = [
     ),
     tagline:
       "The OK Movement unveils national and state structures to unite Nigerians, restore accountable leadership, and drive a true national rebirth.",
-    cta: <HeroSignupCard />,
+    cta: <HeroPrimaryActions />,
     desktopBackground: (
       <>
         {/* White poster base */}
@@ -197,28 +134,6 @@ const SLIDES: HeroSlide[] = [
         </div>
       </>
     ),
-    secondary: (
-      <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
-        <Link
-          href="/home/donations"
-          className="group inline-flex min-h-11 items-center gap-2.5 rounded-full bg-brand-red px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_32px_-14px_rgb(224_40_40/0.75)] transition hover:-translate-y-0.5 hover:bg-brand-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-red"
-        >
-          <Heart aria-hidden="true" className="h-4 w-4 fill-current" />
-          Donate now
-          <ArrowRight
-            aria-hidden="true"
-            className="h-4 w-4 transition group-hover:translate-x-0.5"
-          />
-        </Link>
-        <a
-          href="#movement-heading"
-          className="group inline-flex min-h-11 items-center gap-2 px-2 font-medium text-brand-black transition hover:text-brand-green"
-        >
-          Learn about our movement
-          <ArrowRight aria-hidden="true" className="h-4 w-4 transition group-hover:translate-x-0.5" />
-        </a>
-      </div>
-    ),
   },
   {
     id: "the-ticket",
@@ -241,7 +156,7 @@ const SLIDES: HeroSlide[] = [
     ),
     tagline:
       "Peter Obi and Rabiu Kwankwaso — north and south, experience and integrity — standing together on a single ticket to rebuild Nigeria.",
-    cta: <TicketCallToAction />,
+    cta: <HeroPrimaryActions />,
     mobileVisual: (
       <div className="relative mt-7 w-full max-w-[21rem] lg:hidden">
         <div
@@ -307,7 +222,7 @@ const SLIDES: HeroSlide[] = [
     ),
     tagline:
       "Our two principals has finally aligned with the Nigeria Democratic Congress (NDC) to form a formidable opposition that will drive the new Nigeria we all desire.",
-    cta: <NdcCallToAction />,
+    cta: <HeroPrimaryActions />,
     desktopBackground: (
       <>
         <div className="absolute inset-0 bg-white" />
