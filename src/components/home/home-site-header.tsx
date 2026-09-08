@@ -112,12 +112,12 @@ function CampaignLogo() {
       aria-label="OK Movement home"
       className="group relative z-10 inline-flex items-center gap-4 text-brand-black"
     >
-      <span className="relative -my-6 flex h-36 w-36 shrink-0 translate-y-9 items-center justify-center rounded-full bg-white p-1 shadow-[0_24px_44px_-16px_rgb(0_0_0/0.54)] ring-1 ring-brand-black/10 transition-transform duration-200 group-hover:rotate-2 group-hover:scale-[1.03] sm:-my-7 sm:h-40 sm:w-40 sm:translate-y-10 sm:p-1.5">
+      <span className="relative -my-2 flex size-20 shrink-0 translate-y-4 items-center justify-center rounded-full bg-white p-1 shadow-[0_18px_32px_-16px_rgb(0_0_0/0.48)] ring-1 ring-brand-black/10 transition-transform duration-200 group-hover:rotate-2 group-hover:scale-[1.03] sm:-my-4 sm:size-28 sm:translate-y-7 sm:p-1.5 xl:-my-7 xl:size-40 xl:translate-y-10">
         <span aria-hidden="true" className="absolute -inset-1 -z-10 rounded-full border border-brand-green/20 bg-white/80 shadow-[0_12px_26px_-18px_rgb(0_0_0/0.35)]" />
         <img src="/images/new-logo.png" alt="" className="h-full w-full rounded-full object-cover" />
       </span>
       <span className="flex flex-col leading-none">
-        <span className="whitespace-nowrap text-lg font-semibold tracking-tight sm:text-xl">
+        <span className="whitespace-nowrap text-base font-semibold tracking-tight  sm:text-xl">
           OK Movement
         </span>
         <span className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-green">
