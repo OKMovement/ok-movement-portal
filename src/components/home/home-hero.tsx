@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronLeft, ChevronRight, Heart, Play, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Heart, ShieldCheck } from "lucide-react";
 
 const heroDuoImage = "/assets/hero_duo_trimmed.png";
 const ndcImage = "/assets/NDC_-_Peter_and_Kwankwaso_1_1778425496977.png";
@@ -15,11 +15,9 @@ import HomeOurMovementSection from "./home-our-movement-section";
 import HomePrincipalsSection from "./home-principals-section";
 import HomeSignupForm from "./home-signup-form";
 import HomeSiteHeader from "./home-site-header";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 const SLIDE_INTERVAL_MS = 4000;
-const HERO_VIDEO_ID = "mroDrdQaTUk";
-const HERO_VIDEO_THUMB = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
 
 function TricolorRule() {
   return (
@@ -91,34 +89,6 @@ function PvcCallToAction() {
       <p className="flex items-center gap-2 text-[12px] leading-relaxed text-white/75">
         <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-white/65" />
         <span>Your PVC, Your Voice, Your Power!</span>
-      </p>
-    </div>
-  );
-}
-function VideoCallToAction({
-  onPlay,
-  buttonRef,
-}: {
-  onPlay: () => void;
-  buttonRef?: React.Ref<HTMLButtonElement>;
-}) {
-  return (
-    <div className="mt-8 flex w-full max-w-[34rem] flex-col gap-4">
-      <button
-        type="button"
-        ref={buttonRef}
-        onClick={onPlay}
-        data-testid="button-hero-play-video"
-        className="group inline-flex w-fit items-center gap-3 rounded-full bg-brand-red px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-white shadow-[0_22px_46px_-14px_rgb(224_40_40/0.7)] transition hover:bg-white hover:text-brand-black sm:px-8 sm:py-4 sm:text-[13px]"
-      >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 transition group-hover:bg-brand-red group-hover:text-white">
-          <Play aria-hidden="true" className="h-4 w-4 fill-current" />
-        </span>
-        Watch the Film
-      </button>
-      <p className="flex items-center gap-2 text-[12px] leading-relaxed text-white/75">
-        <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-white/65" />
-        <span>Two minutes that explain why this movement exists.</span>
       </p>
     </div>
   );
@@ -357,46 +327,6 @@ const SLIDES: HeroSlide[] = [
       </>
     ),
   },
-  {
-    id: "watch-film",
-    theme: "dark",
-    number: "04",
-    eyebrow: "The Story · In Motion · 2027",
-    accentChipClass: "border-red-300/45 text-red-100",
-    accentTaglineClass: "border-brand-red",
-    accentDotActiveClass: "bg-brand-red shadow-[0_0_12px_rgb(224_40_40/0.6)]",
-    headline: (
-      <>
-        <span className="text-white/90">See the</span>
-        <br />
-        <span className="text-red-400">
-          Movement
-        </span>
-        <br />
-        <span className="text-white/90">for Yourself</span>
-      </>
-    ),
-    tagline:
-      "Watch the official OK Movement film — the vision, the principals, and the millions of Nigerians ready for a new direction.",
-    cta: null, // rendered as a play button wired to the video player
-    desktopBackground: (
-      <>
-        <img
-          src={HERO_VIDEO_THUMB}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-r from-brand-black/95 via-brand-black/65 to-brand-black/25"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_55%,rgb(224_40_40/0.22)_0%,transparent_55%)]"
-        />
-      </>
-    ),
-  },
 ];
 
 
@@ -448,66 +378,17 @@ type HomeHeroProps = {
 export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
  const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const playButtonRef = useRef<HTMLButtonElement | null>(null);
-  const dialogRef = useRef<HTMLDivElement | null>(null);
   const activeSlideId = SLIDES[activeSlide]?.id;
   const isLight = SLIDES[activeSlide]?.theme === "light";
 
-  function openVideo() {
-    setIsVideoOpen(true);
-  }
-
-  function closeVideo() {
-    setIsVideoOpen(false);
-    playButtonRef.current?.focus();
-  }
-
   useEffect(() => {
-    if (isPaused || isVideoOpen || SLIDES.length <= 1) return;
+    if (isPaused || SLIDES.length <= 1) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => {
       setActiveSlide((i) => (i + 1) % SLIDES.length);
     }, SLIDE_INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [isPaused, isVideoOpen]);
-
-  useEffect(() => {
-    if (!isVideoOpen) return;
-    closeButtonRef.current?.focus();
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setIsVideoOpen(false);
-        playButtonRef.current?.focus();
-        return;
-      }
-      if (e.key === "Tab") {
-        // Keep focus inside the video dialog while it is open.
-        const dialog = dialogRef.current;
-        if (!dialog) return;
-        const focusables = Array.from(
-          dialog.querySelectorAll<HTMLElement>("iframe, button, [href], [tabindex]:not([tabindex='-1'])"),
-        );
-        if (focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        const active = document.activeElement;
-        if (!dialog.contains(active)) {
-          e.preventDefault();
-          first.focus();
-        } else if (e.shiftKey && active === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && active === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isVideoOpen]);
+  }, [isPaused]);
 
   function goTo(index: number) {
     setActiveSlide(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
@@ -562,21 +443,6 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
           <div className="absolute inset-0 opacity-[0.05] [background-image:radial-gradient(rgba(4,18,11,0.7)_1px,transparent_1px)] [background-size:24px_24px]" />
         </div>
 
-        {/* MOBILE / TABLET — film slide background (cinematic black + red glow) */}
-        <div
-          aria-hidden="true"
-          className={`absolute inset-0 transition-opacity duration-700 ease-out lg:hidden ${
-            activeSlideId === "watch-film" ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,#0a0a0a_0%,#171214_45%,#241416_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_8%,rgb(224_40_40/0.40)_0%,transparent_55%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_88%_18%,rgb(248_113_113/0.22)_0%,transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_92%_88%,rgb(0_166_81/0.20)_0%,transparent_45%)]" />
-          <div className="absolute inset-0 opacity-[0.10] [background-image:radial-gradient(rgba(254,226,226,0.5)_1px,transparent_1px)] [background-size:22px_22px]" />
-          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-brand-black via-brand-black/55 to-transparent" />
-        </div>
-
         {/* MOBILE / TABLET — NDC slide background (white + light blue) */}
         <div
           aria-hidden="true"
@@ -617,18 +483,6 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
             isLight ? "opacity-0" : "opacity-100"
           }`}
         />
-
-        {/* DESKTOP — ghost slide number */}
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute right-10 top-16 z-10 hidden select-none text-[11rem] font-bold leading-none tracking-tighter text-transparent lg:block ${
-            isLight
-              ? "[-webkit-text-stroke:1.5px_rgba(4,18,11,0.14)]"
-              : "[-webkit-text-stroke:1.5px_rgba(255,255,255,0.12)]"
-          }`}
-        >
-          {SLIDES[activeSlide]?.number}
-        </div>
 
         {/* Slide content (cross-fades) */}
         <div className="relative z-10 mx-auto flex w-[min(100%-2rem,80rem)] flex-col pb-16 pt-12 sm:pb-20 sm:pt-14 lg:min-h-[54rem] lg:justify-center lg:pb-28 lg:pt-24">
@@ -721,27 +575,15 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
                     </div>
                   ) : null}
 
-                  {slide.id === "watch-film" ? (
-                    <VideoCallToAction onPlay={openVideo} buttonRef={playButtonRef} />
-                  ) : (
-                    slide.cta
-                  )}
+                  {slide.cta}
                   {slide.secondary}
                 </article>
               );
             })}
           </div>
 
-          {/* Slideshow controls — counter + arrows + bar indicators */}
+          {/* Slideshow controls */}
           <div className="relative z-30 mt-8 flex items-center gap-4 lg:absolute lg:bottom-28 lg:right-10 lg:mt-0 lg:justify-end">
-            <span
-              aria-hidden="true"
-              className={`hidden text-[11px] font-semibold tabular-nums tracking-[0.3em] sm:block ${
-                isLight ? "text-neutral-500" : "text-white/60"
-              }`}
-            >
-              {SLIDES[activeSlide]?.number} / {String(SLIDES.length).padStart(2, "0")}
-            </span>
             <button
               type="button"
               aria-label="Previous slide"
@@ -792,43 +634,6 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
             </button>
           </div>
         </div>
-
-        {/* Inline video player overlay */}
-        {isVideoOpen ? (
-          <div
-            ref={dialogRef}
-            className="absolute inset-0 z-40 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm sm:p-8"
-            role="dialog"
-            aria-modal="true"
-            aria-label="OK Movement film"
-            onClick={closeVideo}
-          >
-            <div
-              className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-white/15 shadow-[0_40px_90px_-20px_rgb(0_0_0/0.8)]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="aspect-video w-full bg-black">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${HERO_VIDEO_ID}?autoplay=1&rel=0`}
-                  title="OK Movement — official film"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="h-full w-full"
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              aria-label="Close video"
-              data-testid="button-hero-close-video"
-              ref={closeButtonRef}
-              onClick={closeVideo}
-              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white hover:text-brand-black sm:right-8 sm:top-8"
-            >
-              <X aria-hidden="true" className="h-5 w-5" />
-            </button>
-          </div>
-        ) : null}
 
         <HeroStats isLight={isLight} />
       </section>

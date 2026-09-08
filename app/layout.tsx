@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: [{ url: "/images/new-logo.png", type: "image/png" }],
+    shortcut: "/images/new-logo.png",
+    apple: "/images/new-logo.png",
   },
   manifest: "/manifest.webmanifest",
   formatDetection: { telephone: false, email: false, address: false },

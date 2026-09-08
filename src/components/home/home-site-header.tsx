@@ -11,7 +11,6 @@ import {
   Globe2,
   Heart,
   HeartHandshake,
-  Image as ImageIcon,
   Menu,
   Sparkles,
   Users,
@@ -50,22 +49,10 @@ const navItems: readonly NavItem[] = [
     description: "Volunteer, donate, organize",
   },
   {
-    label: "Donations",
-    href: "/home/donations",
-    icon: Heart,
-    description: "Give securely online",
-  },
-  {
     label: "Diaspora",
     href: "/diaspora",
     icon: Globe2,
     description: "Join Nigerians around the world",
-  },
-  {
-    label: "Tech Volunteers",
-    href: "/home/tech-volunteer",
-    icon: Users,
-    description: "Use your skills to power the movement",
   },
   {
     label: "Upcoming Events",
@@ -83,11 +70,11 @@ const electionResourceLinks: readonly ResourceLink[] = [
   { label: "Election Calendar", href: "/home/electioncalendar" },
 ] as const;
 
-function ElectionResourceDropdown() {
+function CampaignMaterialsDropdown() {
   return (
     <details className="group relative">
       <summary className="flex cursor-pointer list-none items-center gap-1.5 whitespace-nowrap py-2 text-[13px] font-medium tracking-wide text-brand-black transition hover:text-brand-green [&::-webkit-details-marker]:hidden">
-        Election Resource
+        Campaign Materials
         <ChevronDown
           aria-hidden="true"
           className="h-3.5 w-3.5 transition group-open:rotate-180"
@@ -228,7 +215,7 @@ export default function HomeSiteHeader() {
               {item.label}
             </NavLink>
           ))}
-          <ElectionResourceDropdown />
+          <CampaignMaterialsDropdown />
 
           {/* <PrincipalDropdown /> */}
         </nav>
@@ -256,6 +243,13 @@ export default function HomeSiteHeader() {
               </a>
             ))}
           </div>
+          <a
+            href="/home/donations"
+            className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-brand-red/25 bg-brand-red px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_12px_28px_-10px_rgb(224_40_40/0.5)] transition hover:bg-brand-black"
+          >
+            Donate
+            <Heart aria-hidden="true" className="h-3.5 w-3.5 fill-current" />
+          </a>
           <a
             href="/home/get-involved"
             className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-brand-green px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_12px_28px_-10px_rgb(0_166_81/0.55)] transition hover:bg-brand-black"
@@ -394,10 +388,10 @@ export default function HomeSiteHeader() {
                   </span>
                   <span className="flex flex-1 flex-col leading-tight">
                     <span className="text-[15px] font-semibold tracking-tight">
-                      Election Resource
+                      Campaign Materials
                     </span>
                     <span className="mt-0.5 text-[12px] text-brand-black/55">
-                      PVC, voter status, procedures & calendar
+                      Voter guides, procedures & calendar
                     </span>
                   </span>
                   <ChevronDown
