@@ -64,10 +64,9 @@ const navItems: readonly NavItem[] = [
 
 type ResourceLink = { label: string; href: string };
 
-const electionResourceLinks: readonly ResourceLink[] = [
-  { label: "Get Your PVC", href: "/home/getyourpvc" },
-  { label: "Voting Procedures", href: "/home/votingprocedures" },
-  { label: "Election Calendar", href: "/home/electioncalendar" },
+const campaignMaterialLinks: readonly ResourceLink[] = [
+  { label: "Fliers & Banner Designs", href: "/home/campaign-materials" },
+  { label: "Campaign Videos", href: "/home/campaign-videos" },
 ] as const;
 
 function CampaignMaterialsDropdown() {
@@ -89,7 +88,7 @@ function CampaignMaterialsDropdown() {
           <span className="h-full flex-1 bg-brand-black/30" />
           <span className="h-full flex-1 bg-brand-red" />
         </span>
-        {electionResourceLinks.map((link) => (
+        {campaignMaterialLinks.map((link) => (
           <a
             key={link.href}
             href={link.href}
@@ -111,10 +110,11 @@ function CampaignLogo() {
     <a
       href="/home"
       aria-label="OK Movement home"
-      className="inline-flex items-center gap-3 text-brand-black"
+      className="group relative z-10 inline-flex items-center gap-4 text-brand-black"
     >
-      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_-12px_rgb(0_0_0/0.35)] ring-1 ring-black/5 sm:h-14 sm:w-14">
-        <img src="/images/new-logo.png" alt="" className="h-full w-full object-cover" />
+      <span className="relative -my-6 flex h-36 w-36 shrink-0 translate-y-9 items-center justify-center rounded-full bg-white p-1 shadow-[0_24px_44px_-16px_rgb(0_0_0/0.54)] ring-1 ring-brand-black/10 transition-transform duration-200 group-hover:rotate-2 group-hover:scale-[1.03] sm:-my-7 sm:h-40 sm:w-40 sm:translate-y-10 sm:p-1.5">
+        <span aria-hidden="true" className="absolute -inset-1 -z-10 rounded-full border border-brand-green/20 bg-white/80 shadow-[0_12px_26px_-18px_rgb(0_0_0/0.35)]" />
+        <img src="/images/new-logo.png" alt="" className="h-full w-full rounded-full object-cover" />
       </span>
       <span className="flex flex-col leading-none">
         <span className="whitespace-nowrap text-lg font-semibold tracking-tight sm:text-xl">
@@ -200,7 +200,7 @@ export default function HomeSiteHeader() {
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/5 bg-white text-brand-black shadow-[0_1px_0_0_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(0_0_0/0.18)]">
+    <header className="sticky top-0 z-50 overflow-visible border-b border-black/5 bg-white text-brand-black shadow-[0_1px_0_0_rgb(0_0_0/0.04),0_8px_24px_-16px_rgb(0_0_0/0.18)]">
       {/* Announcement strip */}
   
 
@@ -391,7 +391,7 @@ export default function HomeSiteHeader() {
                       Campaign Materials
                     </span>
                     <span className="mt-0.5 text-[12px] text-brand-black/55">
-                      Voter guides, procedures & calendar
+                      Official designs and videos
                     </span>
                   </span>
                   <ChevronDown
@@ -408,7 +408,7 @@ export default function HomeSiteHeader() {
                 >
                   <div className="min-h-0 overflow-hidden">
                     <div className="mx-4 mb-3 mt-1 rounded-xl bg-brand-green/[0.05] p-1 ring-1 ring-brand-green/10">
-                      {electionResourceLinks.map((link) => (
+                      {campaignMaterialLinks.map((link) => (
                         <a
                           key={link.href}
                           href={link.href}

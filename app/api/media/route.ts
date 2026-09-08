@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import { MediaItemModel } from "@/lib/models/media-item";
 
 type MediaKind = "image" | "news" | "video";
+const campaignCategories = ["campaign-flier", "campaign-banner", "campaign-video"] as const;
 
 function isMediaKind(value: string): value is MediaKind {
   return value === "image" || value === "news" || value === "video";
@@ -44,9 +45,14 @@ export async function GET(request: NextRequest) {
   await connectToDatabase();
 
   const kindQuery = request.nextUrl.searchParams.get("kind")?.trim() ?? "";
+  const categoryQuery = request.nextUrl.searchParams.get("category")?.trim() ?? "";
   const query = isMediaKind(kindQuery)
     ? { isPublished: true, kind: kindQuery }
     : { isPublished: true };
+
+  if (campaignCategories.includes(categoryQuery as (typeof campaignCategories)[number])) {
+    Object.assign(query, { category: categoryQuery });
+  }
 
   const media = await MediaItemModel.find(query)
     .sort({ publishedAt: -1, createdAt: -1 })

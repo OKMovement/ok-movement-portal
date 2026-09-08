@@ -34,6 +34,7 @@ const baseLinks = [
   { href: "/admin/dashboard/donations", label: "Donations", icon: HandCoins },
   { href: "/admin/dashboard/press-releases", label: "Press Releases", icon: FileText },
   { href: "/admin/dashboard/media-gallery", label: "Media Gallery", icon: Images },
+  { href: "/admin/dashboard/campaign-materials", label: "Campaign Materials", icon: Images },
   { href: "/admin/dashboard/events", label: "Events", icon: CalendarDays },
   { href: "/admin/dashboard/support", label: "Support", icon: LifeBuoy },
   { href: "/admin/dashboard/notifications", label: "Notifications", icon: Mail },

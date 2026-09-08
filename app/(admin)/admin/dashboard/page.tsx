@@ -12,12 +12,13 @@ import StateStatsBarChart from "@/components/admin/state-stats-bar-chart";
 export default async function AdminDashboardPage() {
   await connectToDatabase();
 
-  const [members, diasporaMembers, techVolunteers, pressReleases, mediaItems, events, supportSubmissions, membersByState] = await Promise.all([
+  const [members, diasporaMembers, techVolunteers, pressReleases, mediaItems, campaignMaterials, events, supportSubmissions, membersByState] = await Promise.all([
     MemberModel.countDocuments({}),
     MemberModel.countDocuments({ isDiaspora: true }),
     TechVolunteerModel.countDocuments({}),
     PressReleaseModel.countDocuments({}),
     MediaItemModel.countDocuments({}),
+    MediaItemModel.countDocuments({ category: { $in: ["campaign-flier", "campaign-banner", "campaign-video"] } }),
     EventModel.countDocuments({}),
     ContactSubmissionModel.countDocuments({}),
     MemberModel.aggregate<{ _id: string; count: number }>([
@@ -74,6 +75,14 @@ export default async function AdminDashboardPage() {
       icon: Images,
       href: "/admin/dashboard/media-gallery",
       tone: "bg-brand-black/10 text-brand-black",
+    },
+    {
+      label: "Campaign Materials",
+      value: campaignMaterials,
+      helper: "Upload fliers, banners and videos",
+      icon: Images,
+      href: "/admin/dashboard/campaign-materials",
+      tone: "bg-brand-green/10 text-brand-green",
     },
     {
       label: "Events",

@@ -48,8 +48,9 @@ const kindLabels: Record<MediaKind, string> = {
 };
 
 const PAGE_SIZE = 10;
+const campaignCategories = ["campaign-flier", "campaign-banner", "campaign-video"] as const;
 
-export default function MediaGalleryManager() {
+export default function MediaGalleryManager({ campaignMaterialsOnly = false }: { campaignMaterialsOnly?: boolean }) {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -89,9 +90,12 @@ export default function MediaGalleryManager() {
   }, []);
 
   const filteredItems = useMemo(() => {
-    if (filter === "all") return items;
-    return items.filter((item) => item.kind === filter);
-  }, [items, filter]);
+    const campaignItems = campaignMaterialsOnly
+      ? items.filter((item) => campaignCategories.includes(item.category as (typeof campaignCategories)[number]))
+      : items;
+    if (filter === "all") return campaignItems;
+    return campaignItems.filter((item) => item.kind === filter);
+  }, [items, filter, campaignMaterialsOnly]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE)),
@@ -192,7 +196,7 @@ export default function MediaGalleryManager() {
   }
 
   function handleCreateNew() {
-    setForm(initialForm);
+    setForm(campaignMaterialsOnly ? { ...initialForm, category: "campaign-flier" } : initialForm);
     setViewMode("form");
   }
 
@@ -355,7 +359,7 @@ export default function MediaGalleryManager() {
     <div className="space-y-5">
       <section className="overflow-hidden rounded-[8px] border border-black/10 bg-white shadow-[0_20px_34px_-24px_rgb(0_0_0/0.3)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/8 px-6 py-4">
-          <h3 className="text-lg font-semibold text-brand-black">All media items</h3>
+          <h3 className="text-lg font-semibold text-brand-black">{campaignMaterialsOnly ? "Campaign materials" : "All media items"}</h3>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -623,12 +627,27 @@ export default function MediaGalleryManager() {
 
             <label className="grid gap-1.5">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/65">Category</span>
-              <input
+              {campaignMaterialsOnly ? (
+              <select
                 value={form.category}
-                onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
+                onChange={(event) => {
+                  const category = event.target.value;
+                  setForm((prev) => ({ ...prev, category, kind: category === "campaign-video" ? "video" : "image" }));
+                }}
                 className={inputClass}
-                placeholder="Press Release, Highlights, Field Update"
-              />
+              >
+                <option value="campaign-flier">Campaign flier</option>
+                <option value="campaign-banner">Campaign banner</option>
+                <option value="campaign-video">Campaign video</option>
+              </select>
+              ) : (
+                <input
+                  value={form.category}
+                  onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
+                  className={inputClass}
+                  placeholder="Press Release, Highlights, Field Update"
+                />
+              )}
             </label>
 
             <label className="grid gap-1.5 md:col-span-2">

@@ -21,6 +21,7 @@ type CampaignVideo = {
 
 const HOME_VIDEO_ID = "69f4be25da27d1ce9c50c484";
 const HOME_VIDEO_TITLE = "ok movement new song";
+const CAMPAIGN_FILM_THUMBNAIL = "https://i.ytimg.com/vi/mroDrdQaTUk/maxresdefault.jpg";
 
 export default function HomeOurMovementSection() {
   const [campaignVideo, setCampaignVideo] = useState<CampaignVideo | null>(null);
@@ -125,7 +126,7 @@ export default function HomeOurMovementSection() {
                 <video
                   ref={videoRef}
                   src={campaignVideo.linkUrl}
-                  poster={campaignVideo.imageUrl || homeIssuesSection.imageSrc}
+                  poster={campaignVideo.imageUrl || CAMPAIGN_FILM_THUMBNAIL}
                   className="absolute inset-0 h-full w-full object-cover object-center bg-black"
                   controls
                   playsInline
@@ -136,8 +137,8 @@ export default function HomeOurMovementSection() {
                 />
               ) : (
                 <img
-                  src={homeIssuesSection.imageSrc}
-                  alt={homeIssuesSection.imageAlt}
+                  src={CAMPAIGN_FILM_THUMBNAIL}
+                  alt="OK Movement campaign film preview"
                   className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               )}
