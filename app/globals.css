@@ -2,44 +2,213 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ==========================================================================
+   OK Movement design tokens
+   --------------------------------------------------------------------------
+   Direction: "campaign press" — printed-poster structure over ambient glow.
+   White ground, tinted ink, one accent (green); red is a signal colour reserved
+   for donate/urgent and the tricolour rule. The logo watermark, not a grain
+   wash, is the background device on light sections.
+   ========================================================================== */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Brand — unchanged. 15+ routes outside the landing page depend on these. */
   --color-brand-black: var(--brand-black);
   --color-brand-green: var(--brand-green);
   --color-brand-red: var(--brand-red);
   --color-brand-white: var(--brand-white);
+
+  /* Accent ramp. The 100%-saturation brand green is a *mark* colour; these are
+     the tuned values used for type and large fields so contrast holds. */
+  --color-green-deep: var(--green-deep);
+  --color-green-ink: var(--green-ink);
+  --color-green-lift: var(--green-lift);
+
+  /* Surfaces — one warm, green-leaning neutral family, no cool greys. */
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-sunk: var(--paper-sunk);
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+
+  /* Type colours on paper. */
+  --color-body: var(--body-text);
+  --color-muted: var(--muted-text);
+  --color-faint: var(--faint-text);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+
   --font-sans: var(--font-poppins), "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: var(--font-archivo), "Archivo", "Helvetica Neue", sans-serif;
+
+  /* Fluid display scale. Headlines carry the page, so they get real range. */
+  --text-display-1: clamp(2.85rem, 1.1rem + 7vw, 6.5rem);
+  --text-display-2: clamp(2.1rem, 1.15rem + 3.9vw, 4rem);
+  --text-display-3: clamp(1.75rem, 1.15rem + 2.4vw, 2.85rem);
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+
+  /* Shadows carry the ground's hue and a single overhead light source. */
+  --shadow-1: 0 1px 2px rgb(11 24 16 / 0.06), 0 1px 1px rgb(11 24 16 / 0.04);
+  --shadow-2: 0 6px 16px -8px rgb(11 24 16 / 0.18);
+  --shadow-3: 0 18px 40px -22px rgb(11 24 16 / 0.28);
+  --shadow-4: 0 34px 70px -34px rgb(11 24 16 / 0.38);
+  --shadow-green: 0 16px 34px -18px rgb(0 102 58 / 0.45);
+  --shadow-red: 0 16px 34px -18px rgb(160 28 28 / 0.42);
 }
 
 :root {
   --background: #ffffff;
-  --foreground: #000000;
+  --foreground: #101611;
+
   --brand-black: #000000;
   --brand-green: #00a651;
   --brand-red: #e02828;
   --brand-white: #ffffff;
+
+  --green-deep: #00663a;
+  --green-ink: #38b06f;
+  --green-lift: #e7f2e9;
+
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --paper-sunk: #fafaf7;
+  --ink: #0b100c;
+  --ink-raised: #161d17;
+
+  --body-text: #2c352d;
+  --muted-text: #5b665c;
+  --faint-text: #86907f;
+  --rule: #e8e7e3;
+  --rule-strong: #d5d4cf;
+
+  /* Layering scale — replaces ad-hoc z-40/z-50/z-[60] values. */
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-fab: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+
+  /* Motion */
+  --dur-fast: 160ms;
+  --dur: 260ms;
+  --dur-slow: 620ms;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets clear the sticky masthead. */
+  scroll-padding-top: 6.5rem;
 }
 
 body {
   min-height: 100dvh;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--body-text);
   font-family: var(--font-poppins), "Avenir Next", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.coming-soon__grain {
-  background-image: repeating-linear-gradient(
-    135deg,
-    rgb(255 255 255 / 0.18) 0,
-    rgb(255 255 255 / 0.18) 2px,
-    transparent 2px,
-    transparent 8px
-  );
-  mix-blend-mode: soft-light;
-  opacity: 0.55;
+::selection {
+  background: var(--brand-green);
+  color: #ffffff;
 }
 
+/* Every interactive element gets the same visible keyboard ring. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--green-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Sections referenced by in-page anchors clear the masthead on jump. */
+:where(section, footer)[id] {
+  scroll-margin-top: 6.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Skip link — keyboard users land on a real control before the masthead nav.
+   -------------------------------------------------------------------------- */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: var(--z-modal);
+  transform: translateY(-160%);
+  transition: transform var(--dur) var(--ease-out-quint);
+  background: var(--ink);
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-3);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Grain. Used on the ink blocks only — on the white ground the logo watermark
+   is the background device instead.
+   -------------------------------------------------------------------------- */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+.grain-on-ink::after {
+  mix-blend-mode: overlay;
+  opacity: 0.28;
+}
+
+/* --------------------------------------------------------------------------
+   Tricolour rule — the campaign's own vernacular, used as the recurring
+   structural device instead of a repeated eyebrow-with-hairlines pattern.
+   -------------------------------------------------------------------------- */
+.rule-tricolor {
+  display: flex;
+  overflow: hidden;
+}
+
+.rule-tricolor > span {
+  flex: 1;
+  height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Staggered scroll entry. Elements cascade rather than mounting at once.
+   Progressive enhancement: without JS or with reduced motion they are visible.
+   -------------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out-expo),
+    transform var(--dur-slow) var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Testimonial marquee + flip cards
+   -------------------------------------------------------------------------- */
 @keyframes answers-marquee {
   from {
     transform: translate3d(-50%, 0, 0);
@@ -50,11 +219,14 @@ body {
 }
 
 .answers-marquee {
-  animation: answers-marquee 42s linear infinite;
+  animation: answers-marquee 64s linear infinite;
   will-change: transform;
 }
 
-.answers-marquee:hover {
+/* Pausing on focus-within as well as hover means keyboard users can actually
+   reach a card without it sliding out from under them. */
+.answers-marquee:hover,
+.answers-marquee:focus-within {
   animation-play-state: paused;
 }
 
@@ -64,10 +236,11 @@ body {
 
 .answer-card-inner {
   transform-style: preserve-3d;
-  transition: transform 650ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 650ms var(--ease-out-quint);
 }
 
-.answer-card:focus-visible .answer-card-inner,
+/* Flip is driven by the pressed state only. Flipping on :focus-visible meant a
+   keyboard user could never read the front of a card. */
 .answer-card[data-flipped="true"] .answer-card-inner {
   transform: rotateY(180deg);
 }
@@ -83,7 +256,26 @@ body {
   transform: rotateY(180deg);
 }
 
+.coming-soon__grain {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.18) 0,
+    rgb(255 255 255 / 0.18) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — one global guard rather than per-component opt-ins.
+   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .answers-marquee {
     animation: none;
     transform: none;
@@ -91,5 +283,20 @@ body {
 
   .answer-card-inner {
     transition: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -9,8 +9,8 @@ export const homeMovementSection = {
   title: "OK Movement",
   description:
     "The OK Movement is a transformative, people-powered initiative dedicated to restoring accountability and integrity to Nigerian leadership. By redefining how leaders are selected, the movement focuses on character, competence, compassion, capacity, and commitment.",
-  ctaLabel: "Learn More",
-  ctaHref: "#movement",
+  ctaLabel: "Read our mandate",
+  ctaHref: "/home/our-movement",
 };
 
 export const homeIssuesSection = {
@@ -20,7 +20,7 @@ export const homeIssuesSection = {
   description:
     "The OK Movement unveils national and state structures to unite Nigerians, restore accountable leadership, and make good governance a reality through better healthcare, education, and lasting security.",
   ctaLabel: "Join the Movement",
-  ctaHref: "#get-involved",
+  ctaHref: "/home/get-involved",
   imageSrc: "/images/bg-5.jpeg",
   imageAlt: "OK Movement supporters gathered for a national rebirth campaign",
 };

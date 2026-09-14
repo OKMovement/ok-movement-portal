@@ -1,4 +1,3 @@
-import { Quote } from "lucide-react";
 import type { TestimonialPair } from "@/lib/get-testimonial-pairs";
 import HomeTestimonialMarquee from "./home-slider";
 
@@ -6,26 +5,23 @@ type PrincipalsVoicesSectionProps = {
   cards: TestimonialPair[];
 };
 
-export default function PrincipalsVoicesSection({
-  cards,
-}: PrincipalsVoicesSectionProps) {
-
+export default function PrincipalsVoicesSection({ cards }: PrincipalsVoicesSectionProps) {
   return (
-    <div className="mt-20 lg:mt-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-green ring-1 ring-brand-green/20 shadow-sm">
-          <Quote aria-hidden="true" className="h-3.5 w-3.5" />
-          In Their Own Words
-        </div>
-        <h3 className="mt-5 text-balance text-3xl font-medium tracking-tight text-brand-black sm:text-4xl lg:text-[2.6rem]">
-          Real positions on the issues defining{" "}
-          <span className="text-brand-green">Nigeria's future</span>
-        </h3>
-        <p className="mx-auto mt-4 max-w-2xl text-balance text-base leading-relaxed text-brand-black/65 sm:text-[17px]">
-          From governance and corruption to youth, security, and education —
-          hear directly from Peter Obi and Rabiu Kwankwaso. Tap any card to flip
-          and see more.
+    <div className="mt-24 lg:mt-32">
+      <div className="reveal grid gap-6 border-t border-rule pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16">
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-green-deep">
+          In their own words
         </p>
+        <div>
+          <h3 className="max-w-[20ch] font-display text-display-3 font-extrabold leading-[0.98] tracking-[-0.025em] text-ink text-balance">
+            Real positions on the issues defining{" "}
+            <span className="text-green-deep">Nigeria&rsquo;s future</span>
+          </h3>
+          <p className="mt-5 max-w-[62ch] leading-relaxed text-body text-pretty">
+            From governance and corruption to youth, security and education — straight from Peter
+            Obi and Rabiu Kwankwaso. Select any card to turn it over.
+          </p>
+        </div>
       </div>
       <HomeTestimonialMarquee cards={cards} />
     </div>

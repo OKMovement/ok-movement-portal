@@ -2,6 +2,8 @@
 
 import type { SVGProps } from "react";
 
+import type { SocialPlatform } from "./social-profiles";
+
 type IconProps = SVGProps<SVGSVGElement>;
 
 export function FacebookIcon(props: IconProps) {
@@ -36,8 +38,6 @@ export function YouTubeIcon(props: IconProps) {
   );
 }
 
-export type SocialPlatform = "facebook" | "x" | "instagram" | "youtube";
-
 export function SocialIcon({
   platform,
   ...props
@@ -48,29 +48,3 @@ export function SocialIcon({
   return <YouTubeIcon {...props} />;
 }
 
-export const SOCIAL_PROFILES: Array<{
-  platform: SocialPlatform;
-  label: string;
-  href: string;
-}> = [
-  {
-    platform: "facebook",
-    label: "Facebook",
-    href: "https://www.facebook.com/share/1CYctYbA2m/?mibextid=wwXIfr",
-  },
-  {
-    platform: "x",
-    label: "X",
-    href: "https://x.com/OK2027movement",
-  },
-  {
-    platform: "instagram",
-    label: "Instagram",
-    href: "https://www.instagram.com/p/DXM5eXZDKZ0/?igsh=ZWNpbmhudXJxdDJy",
-  },
-  {
-    platform: "youtube",
-    label: "YouTube",
-    href: "https://www.youtube.com/@OKMediaChannel",
-  },
-];

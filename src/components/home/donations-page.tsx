@@ -11,7 +11,7 @@ const donationFaqs = involveFaqs.filter(({ q }) =>
 
 export default function DonationsPage() {
   return (
-    <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
       <HomeSiteHeader />
 
       <section className="relative isolate overflow-hidden bg-brand-black text-white">

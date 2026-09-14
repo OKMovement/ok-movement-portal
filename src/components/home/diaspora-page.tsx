@@ -65,7 +65,7 @@ export default function DiasporaPage() {
   function resetForm() { setStatus("idle"); setError(""); setName(""); setEmail(""); setPhone(""); setCountry(""); setCity(""); setStateOfOrigin(""); setEngagement("volunteer-abroad"); }
   function closeSuccess() { setSuccessOpen(false); if (isDonate) setDonateOpen(true); }
 
-  return <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
+  return <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
     <HomeSiteHeader />
     <section className="relative isolate overflow-hidden bg-brand-black text-white">
       <div className="absolute inset-0 -z-10"><img src="/images/bg-5.jpeg" alt="" className="h-full w-full object-cover object-center opacity-40" /></div>

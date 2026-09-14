@@ -1,16 +1,20 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Play } from "lucide-react";
-import { homeIssuesSection, homeMovementSection } from "./home-data";
+import { ArrowUpRight, Play } from "lucide-react";
 
-const pillars = [
-  "Character",
-  "Competence",
-  "Compassion",
-  "Capacity",
-  "Commitment",
-] as const;
+import { homeIssuesSection, homeMovementSection } from "./home-data";
+import { useReveal } from "./use-reveal";
+
+const PILLARS = [
+  { name: "Character", note: "Leaders judged on conduct, not connections." },
+  { name: "Competence", note: "A record of delivery before a claim to office." },
+  { name: "Compassion", note: "Policy measured by who it lifts." },
+  { name: "Capacity", note: "The capability to govern a complex federation." },
+  { name: "Commitment", note: "Staying through the unglamorous work." },
+];
 
 type CampaignVideo = {
   id: string;
@@ -24,37 +28,48 @@ const HOME_VIDEO_TITLE = "ok movement new song";
 const CAMPAIGN_FILM_THUMBNAIL = "https://i.ytimg.com/vi/mroDrdQaTUk/maxresdefault.jpg";
 
 export default function HomeOurMovementSection() {
+  const sectionRef = useReveal<HTMLElement>();
   const [campaignVideo, setCampaignVideo] = useState<CampaignVideo | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
 
     async function loadFirstCampaignVideo() {
-      const response = await fetch("/api/media?kind=video", { cache: "no-store" });
-      const data = (await response.json().catch(() => null)) as
-        | { media?: CampaignVideo[] }
-        | null;
-      if (!mounted || !response.ok) return;
+      try {
+        const response = await fetch("/api/media?kind=video", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
 
-      const preferredHomeVideo =
-        data?.media?.find((item) => item.id === HOME_VIDEO_ID && item.linkUrl?.trim()) ??
-        data?.media?.find(
-          (item) =>
-            item.title?.trim().toLowerCase() === HOME_VIDEO_TITLE &&
-            item.linkUrl?.trim(),
-        ) ??
-        data?.media?.find((item) => item.title?.trim().toLowerCase() === "home-video" && item.linkUrl?.trim()) ??
-        data?.media?.find((item) => item.linkUrl?.trim()) ??
-        null;
-      setCampaignVideo(preferredHomeVideo);
+        const data = (await response.json().catch(() => null)) as
+          | { media?: CampaignVideo[] }
+          | null;
+        if (!mounted) return;
+
+        const preferred =
+          data?.media?.find((item) => item.id === HOME_VIDEO_ID && item.linkUrl?.trim()) ??
+          data?.media?.find(
+            (item) => item.title?.trim().toLowerCase() === HOME_VIDEO_TITLE && item.linkUrl?.trim(),
+          ) ??
+          data?.media?.find(
+            (item) => item.title?.trim().toLowerCase() === "home-video" && item.linkUrl?.trim(),
+          ) ??
+          data?.media?.find((item) => item.linkUrl?.trim()) ??
+          null;
+        setCampaignVideo(preferred);
+      } catch {
+        // The poster still renders; a missing media API is not a broken section.
+      }
     }
 
     loadFirstCampaignVideo();
-
     return () => {
       mounted = false;
+      controller.abort();
     };
   }, []);
 
@@ -64,70 +79,64 @@ export default function HomeOurMovementSection() {
       await videoRef.current.play();
       setIsPlaying(true);
     } catch {
-      // Ignore autoplay/playback errors and keep fallback UI.
+      // Autoplay refusals leave the poster and play button in place.
     }
   }
 
   return (
     <section
+      ref={sectionRef}
       id={homeMovementSection.id}
       aria-labelledby="movement-heading"
-      className="relative overflow-hidden bg-[#fafaf7] py-16 sm:py-20 lg:py-28"
+      className="relative overflow-hidden bg-paper py-20 sm:py-24 lg:py-32"
     >
-      {/* Background watermark logo */}
+      {/* Logo watermark — the background device on light sections. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-0 flex select-none opacity-[0.06]"
+        className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[min(60%,44rem)] select-none opacity-[0.06]"
       >
-        <img
+        <Image
           src="/images/new-logo.png"
           alt=""
-          className="h-full w-auto max-w-none object-contain object-right"
+          fill
+          sizes="(min-width: 1024px) 44rem, 60vw"
+          className="object-contain object-right"
         />
       </div>
 
-      {/* Soft top accent glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-32 left-1/2 z-0 h-72 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgb(0_166_81/0.10),transparent_70%)]"
-      />
-
-      <div className="relative z-10 mx-auto w-[min(100%-1.5rem,76rem)]">
-        {/* Intro */}
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mx-auto inline-flex items-center gap-3">
-            <span className="h-[2px] w-10 rounded-full bg-brand-green" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-red">
-              {homeMovementSection.eyebrow}
-            </span>
-            <span className="h-[2px] w-10 rounded-full bg-brand-red" />
-          </div>
-          <h2
-            id="movement-heading"
-            className="mt-5 text-balance text-4xl font-medium leading-[1.05] tracking-tight text-brand-black sm:text-5xl lg:text-[3.4rem]"
-          >
-            A People-Powered{" "}
-            <span className="text-brand-green">National Rebirth</span>
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-balance text-base leading-relaxed text-brand-black/70 sm:text-lg">
-            The OK Movement is a transformative initiative restoring
-            accountability and integrity to Nigerian leadership — redefining how
-            leaders are selected and uniting Nigerians around character,
-            competence, compassion, capacity, and commitment.
+      <div className="relative mx-auto w-[min(100%-2rem,82rem)]">
+        {/* Section header sits left, against the grid — not centred like every
+            other section on the page. */}
+        <div className="reveal grid gap-6 border-t border-rule pt-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-16">
+          <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-green-deep">
+            {homeMovementSection.eyebrow}
           </p>
+          <div>
+            <h2
+              id="movement-heading"
+              className="max-w-[18ch] font-display text-display-2 font-extrabold leading-[0.96] tracking-[-0.03em] text-ink text-balance"
+            >
+              A people-powered <span className="text-green-deep">national rebirth</span>
+            </h2>
+            <p className="mt-6 max-w-[62ch] text-lead leading-relaxed text-body text-pretty">
+              The OK Movement is restoring accountability and integrity to Nigerian leadership —
+              redefining how leaders are chosen, and uniting Nigerians around five standards we
+              refuse to negotiate.
+            </p>
+          </div>
         </div>
 
-        {/* Feature card */}
-        <div className="mt-12 overflow-hidden rounded-3xl bg-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.25)] ring-1 ring-black/5 lg:mt-16">
-          <div className="grid lg:grid-cols-[1.1fr_1fr]">
-            {/* Image side */}
-            <div className="relative min-h-[24rem] lg:min-h-[34rem]">
+        {/* Asymmetric split: the film takes the wider column and the mandate
+            panel overlaps it, rather than two equal cards side by side. */}
+        <div className="mt-14 grid items-start gap-6 lg:mt-20 lg:grid-cols-12 lg:gap-0">
+          <div className="reveal relative lg:col-span-7">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-ink shadow-3 sm:aspect-[16/10]">
               {campaignVideo ? (
                 <video
                   ref={videoRef}
                   src={campaignVideo.linkUrl}
                   poster={campaignVideo.imageUrl || CAMPAIGN_FILM_THUMBNAIL}
-                  className="absolute inset-0 h-full w-full object-cover object-center bg-black"
+                  className="absolute inset-0 h-full w-full object-cover"
                   controls
                   playsInline
                   preload="metadata"
@@ -136,93 +145,71 @@ export default function HomeOurMovementSection() {
                   onEnded={() => setIsPlaying(false)}
                 />
               ) : (
-                <img
+                <Image
                   src={CAMPAIGN_FILM_THUMBNAIL}
-                  alt="OK Movement campaign film preview"
-                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  alt="Peter Obi and Rabiu Kwankwaso addressing supporters in the OK Movement campaign film"
+                  fill
+                  sizes="(min-width: 1024px) 58vw, 100vw"
+                  className="object-cover"
                 />
               )}
-              {!isPlaying ? (
-                <div className="absolute inset-0 bg-[linear-gradient(120deg,rgb(0_0_0/0.55)_0%,rgb(0_0_0/0.2)_45%,transparent_72%)]" />
-              ) : null}
 
               {!isPlaying ? (
-                <button
-                  type="button"
-                  aria-label="Play campaign video"
-                  onClick={handlePlayVideo}
-                  disabled={!campaignVideo}
-                  className="group absolute left-1/2 top-1/2 inline-flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-brand-green shadow-[0_20px_40px_-10px_rgb(0_0_0/0.45)] backdrop-blur transition hover:scale-105 hover:bg-white sm:h-24 sm:w-24 lg:h-28 lg:w-28"
-                >
-                  <span
+                <>
+                  <div
                     aria-hidden="true"
-                    className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/40 opacity-60"
+                    className="absolute inset-0 bg-gradient-to-tr from-ink/70 via-ink/25 to-transparent"
                   />
-                  <Play
-                    aria-hidden="true"
-                    className="relative ml-1 h-7 w-7 fill-current sm:h-8 sm:w-8 lg:h-10 lg:w-10"
-                  />
-                </button>
-              ) : null}
-
-              {/* Caption pill */}
-              <div className="absolute bottom-5 left-5 inline-flex w-fit items-center gap-2 rounded-full bg-black/55 px-4 py-2 text-xs font-medium text-white backdrop-blur sm:bottom-6 sm:left-6">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
-                Watch the campaign film
-              </div>
-            </div>
-
-            {/* Green content panel */}
-            <div className="relative overflow-hidden bg-brand-green text-white">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/[0.08] blur-2xl"
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -bottom-16 -left-16 h-52 w-52 rounded-full bg-black/[0.18] blur-2xl"
-              />
-
-              <div className="relative flex h-full flex-col justify-center px-7 py-10 sm:px-10 sm:py-14 lg:px-12 lg:py-16">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/85">
-                  {homeIssuesSection.eyebrow}
-                </p>
-                <h3 className="mt-3 text-3xl font-medium leading-[1.05] tracking-tight sm:text-4xl lg:text-[2.6rem]">
-                  {homeIssuesSection.title}
-                </h3>
-                <p className="mt-4 text-base leading-relaxed text-white/85 sm:text-lg">
-                  The OK Movement unveils national and state structures to unite
-                  Nigerians, restore accountable leadership, and make good
-                  governance a reality.
-                </p>
-
-                {/* 5 C's pillars */}
-                <div className="mt-7">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/65">
-                    The 5 C's of OK Leadership
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {pillars.map((pillar) => (
-                      <span
-                        key={pillar}
-                        className="inline-flex items-center rounded-full bg-white/[0.12] px-3 py-1.5 text-xs font-medium text-white ring-1 ring-white/20 backdrop-blur-sm"
-                      >
-                        {pillar}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <a
-                    href={homeMovementSection.ctaHref}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] border border-white/30 bg-white/10 px-6 text-sm font-semibold uppercase tracking-[0.14em] text-white backdrop-blur transition hover:bg-white hover:text-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-h-[3.25rem]"
+                  <button
+                    type="button"
+                    aria-label="Play the campaign film"
+                    onClick={handlePlayVideo}
+                    disabled={!campaignVideo}
+                    className="group absolute inset-0 flex items-center justify-center disabled:cursor-not-allowed"
                   >
-                    {homeMovementSection.ctaLabel}
-                  </a>
-                </div>
-              </div>
+                    <span className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-paper-raised text-green-deep shadow-4 transition duration-200 group-hover:scale-105 group-active:scale-100 sm:h-24 sm:w-24">
+                      <Play aria-hidden="true" className="ml-1 h-7 w-7 fill-current sm:h-9 sm:w-9" />
+                    </span>
+                  </button>
+                  <p className="pointer-events-none absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-md bg-ink/70 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm">
+                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-red" />
+                    Watch the campaign film
+                  </p>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="reveal lg:col-span-5 lg:-ml-12 lg:mt-16" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
+            <div className="grain grain-on-ink relative overflow-hidden rounded-lg bg-green-deep px-7 py-9 text-white shadow-4 sm:px-9 sm:py-11">
+              <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
+                {homeIssuesSection.eyebrow}
+              </p>
+              <h3 className="mt-3 max-w-[16ch] font-display text-display-3 font-extrabold leading-[0.98] tracking-[-0.025em] text-balance">
+                {homeIssuesSection.title}
+              </h3>
+
+              <dl className="mt-8 divide-y divide-white/15 border-y border-white/15">
+                {PILLARS.map((pillar) => (
+                  <div key={pillar.name} className="flex gap-4 py-3">
+                    <dt className="w-[6.5rem] shrink-0 font-display text-sm font-bold tracking-tight">
+                      {pillar.name}
+                    </dt>
+                    <dd className="text-[13px] leading-relaxed text-white/75">{pillar.note}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <Link
+                href={homeMovementSection.ctaHref}
+                className="group mt-8 inline-flex min-h-12 items-center gap-2.5 rounded-md bg-white px-6 text-sm font-semibold tracking-wide text-green-deep transition duration-200 hover:bg-ink hover:text-white active:scale-[0.99]"
+              >
+                {homeMovementSection.ctaLabel}
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </Link>
             </div>
           </div>
         </div>

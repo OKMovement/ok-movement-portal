@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Archivo, Poppins } from "next/font/google";
 import "./globals.css";
 import "react-international-phone/style.css";
 import AskOkFab from "../components/ask-ok-fab";
 import JsonLd from "@/components/seo/json-ld";
 import { jsonLdGraph, organizationSchema, siteConfig, websiteSchema } from "@/lib/seo";
 
+// Weights match what the markup actually uses. 900 was downloaded and never
+// referenced; 500 was referenced and never loaded, so it rendered synthesised.
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "600", "900"],
+  weight: ["400", "500", "600"],
   display: "swap",
   variable: "--font-poppins",
+});
+
+// Display face for headlines, stats and index numerals. Archivo's tight
+// apertures and full weight range give the campaign headlines poster presence
+// that Poppins alone cannot carry.
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-archivo",
 });
 
 export const metadata: Metadata = {
@@ -57,8 +69,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
+        width: siteConfig.ogImageWidth,
+        height: siteConfig.ogImageHeight,
         alt: siteConfig.ogImageAlt,
       },
     ],
@@ -83,8 +95,8 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#00733a",
+  // No maximumScale: capping zoom at 1 blocks pinch-to-zoom (WCAG 1.4.4).
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -93,12 +105,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-NG" className={poppins.variable}>
+    <html lang="en-NG" className={`${poppins.variable} ${archivo.variable}`}>
       <body>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
         {children}
+        <AskOkFab />
         <JsonLd data={jsonLdGraph(organizationSchema(), websiteSchema())} />
       </body>
-      <AskOkFab />
     </html>
   );
 }

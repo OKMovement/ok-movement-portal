@@ -502,7 +502,7 @@ export default function GetInvolvedPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
       <HomeSiteHeader />
 
       {/* HERO ----------------------------------------------------- */}

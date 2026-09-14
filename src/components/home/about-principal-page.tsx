@@ -23,7 +23,7 @@ export default function AboutPrincipalPage({ principal }: AboutPrincipalPageProp
   const [galleryPrimary, gallerySecondary] = principal.gallery;
 
   return (
-    <main className="min-h-screen bg-white text-brand-black">
+    <main id="main-content" className="min-h-screen bg-white text-brand-black">
       <HomeSiteHeader />
 
       {/* HERO ------------------------------------------------------- */}

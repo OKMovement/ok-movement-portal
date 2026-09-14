@@ -831,7 +831,7 @@ export default function GetYourPvcPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white text-brand-black">
+    <main id="main-content" className="min-h-screen bg-white text-brand-black">
       <HomeSiteHeader />
       <HeroSection />
       <WhatIsPVCSection />

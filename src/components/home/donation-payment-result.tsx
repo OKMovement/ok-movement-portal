@@ -75,7 +75,7 @@ export default function DonationPaymentResult({
   }, [paid, reference, checkPayment]);
 
   return (
-    <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
       <HomeSiteHeader />
       <section className="mx-auto w-[min(100%-2rem,42rem)] py-24 sm:py-32">
         <div className="rounded-[18px] border border-black/10 bg-white p-6 text-center shadow-xl sm:p-12" aria-live="polite">

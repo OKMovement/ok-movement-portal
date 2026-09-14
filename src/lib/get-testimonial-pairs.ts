@@ -8,11 +8,33 @@ export type TestimonialPair = {
   alt: string;
 };
 
+/** Filenames that produce misleading or misspelled labels when derived. */
+const ALT_OVERRIDES: Record<string, string> = {
+  "on-hope": "hope",
+  "on-youth": "young Nigerians",
+  inevitatable: "why change is inevitable",
+  "rabiu-dias": "the diaspora",
+  "rabiu-on-poor": "poverty",
+  "rabiu-ballot": "the ballot",
+  "rabiu-children": "children and education",
+  "rabiu-hope": "hope",
+  type: "the leaders Nigeria needs",
+  collective: "collective action",
+  fight: "the fight ahead",
+};
+
+/**
+ * These cards are quote graphics, so the topic is all the alt text can honestly
+ * convey — the quote itself lives in the image and is not machine-readable.
+ */
 function formatAltFromId(id: string) {
-  return id
-    .split("-")
-    .map((part) => part[0]?.toUpperCase() + part.slice(1))
-    .join(" ");
+  const topic =
+    ALT_OVERRIDES[id] ??
+    id
+      .replace(/^(on|rabiu)-/, "")
+      .split("-")
+      .join(" ");
+  return `Quote card: the OK Movement principals on ${topic}`;
 }
 
 export function getTestimonialPairs(): TestimonialPair[] {

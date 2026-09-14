@@ -126,7 +126,7 @@ export default function TechVolunteerPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fafaf7] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#fafaf7] text-brand-black">
       <HomeSiteHeader />
 
       {/* HERO */}

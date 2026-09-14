@@ -634,7 +634,7 @@ export default function VotingProceduresPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white text-brand-black">
+    <main id="main-content" className="min-h-screen bg-white text-brand-black">
       <HomeSiteHeader />
       <HeroSection />
       <ProcedureSection />

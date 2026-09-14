@@ -1,7 +1,10 @@
 "use client";
 
+import Image from "next/image";
+
 import type { TestimonialPair } from "@/lib/get-testimonial-pairs";
-import { homeCampaignSection, homeMovementSection } from "./home-data";
+import { homeCampaignSection } from "./home-data";
+import { useReveal } from "./use-reveal";
 import PrincipalCard from "./principals/principal-card";
 import PrincipalsCtaSection from "./principals/principals-cta-section";
 import { movementStats, principalCards } from "./principals/principals-content";
@@ -13,39 +16,49 @@ type HomePrincipalsSectionProps = {
 };
 
 export default function HomePrincipalsSection({ testimonialPairs }: HomePrincipalsSectionProps) {
+  const sectionRef = useReveal<HTMLElement>();
+
   return (
     <section
+      ref={sectionRef}
       id={homeCampaignSection.id}
       aria-labelledby="principals-heading"
-      className="relative overflow-hidden bg-[#fafaf7] py-16 text-brand-black sm:py-20 lg:py-28"
+      className="relative overflow-hidden border-t border-rule bg-paper-sunk py-20 text-body sm:py-24 lg:py-32"
     >
+      {/* Logo watermark — the background device on light sections. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 z-0 flex select-none opacity-[0.05]"
+        className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[min(60%,44rem)] select-none opacity-[0.06]"
       >
-        <img src="/images/new-logo.png" alt="" className="h-full w-auto max-w-none object-contain object-right" />
+        <Image
+          src="/images/new-logo.png"
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 44rem, 60vw"
+          className="object-contain object-right"
+        />
       </div>
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-32 left-1/2 z-0 h-72 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgb(224_40_40/0.10),transparent_70%)]"
-      />
-
-      <div className="relative z-10 mx-auto w-[min(100%-1.5rem,82rem)]">
+      <div className="relative mx-auto w-[min(100%-2rem,82rem)]">
         <PrincipalsHeader
           eyebrow={homeCampaignSection.eyebrow}
           description={homeCampaignSection.description}
         />
 
-        <div className="mt-12 grid gap-6 sm:gap-8 md:grid-cols-2 lg:mt-16">
-          {principalCards.map((principal) => (
-            <PrincipalCard key={principal.name} {...principal} />
+        <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8 lg:mt-20">
+          {principalCards.map((principal, idx) => (
+            <PrincipalCard
+              key={principal.name}
+              {...principal}
+              index={String(idx + 1).padStart(2, "0")}
+              offset={idx === 1}
+            />
           ))}
         </div>
 
         <PrincipalsVoicesSection cards={testimonialPairs} />
 
-        <PrincipalsCtaSection ctaHref={homeMovementSection.ctaHref} stats={movementStats} />
+        <PrincipalsCtaSection ctaHref="/home/get-involved" stats={movementStats} />
       </div>
     </section>
   );

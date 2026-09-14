@@ -29,7 +29,8 @@ import PhoneInput from "@/components/ui/phone-input";
 import { isPhoneValid } from "@/lib/phone-validation";
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
-import { SocialIcon, SOCIAL_PROFILES } from "@/components/social-icons";
+import { SocialIcon } from "@/components/social-icons";
+import { SOCIAL_PROFILES } from "@/components/social-profiles";
 
 type RequestType =
   | "suggestion"
@@ -335,7 +336,7 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f7f4] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
       <HomeSiteHeader />
 
       {/* HERO ----------------------------------------------------- */}

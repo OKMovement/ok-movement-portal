@@ -34,7 +34,7 @@ export default function CampaignMaterialsPage({ type }: CampaignMaterialsPagePro
     : "Download official campaign fliers and banner designs to print, share, and use in your community.";
 
   return (
-    <main className="min-h-screen bg-[#fafaf7] text-brand-black">
+    <main id="main-content" className="min-h-screen bg-[#fafaf7] text-brand-black">
       <HomeSiteHeader />
       <section className="border-b border-brand-black/10 bg-brand-black px-4 py-16 text-white sm:px-6 sm:py-20">
         <div className="mx-auto max-w-5xl">
