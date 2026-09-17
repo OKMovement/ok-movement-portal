@@ -126,11 +126,10 @@ export default function HomeOurMovementSection() {
           </div>
         </div>
 
-        {/* Asymmetric split: the film takes the wider column and the mandate
-            panel overlaps it, rather than two equal cards side by side. */}
-        <div className="mt-14 grid items-start gap-6 lg:mt-20 lg:grid-cols-12 lg:gap-0">
+        {/* The film and mandate panel form one continuous container. */}
+        <div className="mt-14 grid overflow-hidden rounded-lg bg-ink shadow-4 lg:mt-20 lg:grid-cols-12">
           <div className="reveal relative lg:col-span-7">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-ink shadow-3 sm:aspect-[16/10]">
+            <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/10] lg:h-full lg:aspect-auto">
               {campaignVideo ? (
                 <video
                   ref={videoRef}
@@ -180,8 +179,8 @@ export default function HomeOurMovementSection() {
             </div>
           </div>
 
-          <div className="reveal lg:col-span-5 lg:-ml-12 lg:mt-16" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
-            <div className="grain grain-on-ink relative overflow-hidden rounded-lg bg-green-deep px-7 py-9 text-white shadow-4 sm:px-9 sm:py-11">
+          <div className="reveal lg:col-span-5" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
+            <div className="grain grain-on-ink relative h-full bg-green-deep px-7 py-9 text-white sm:px-9 sm:py-11">
               <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
                 {homeIssuesSection.eyebrow}
               </p>
