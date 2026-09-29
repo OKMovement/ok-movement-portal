@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Play } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { homeIssuesSection, homeMovementSection } from "./home-data";
 import { useReveal } from "./use-reveal";
@@ -16,72 +15,13 @@ const PILLARS = [
   { name: "Commitment", note: "Staying through the unglamorous work." },
 ];
 
-type CampaignVideo = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  linkUrl: string;
-};
-
-const HOME_VIDEO_ID = "69f4be25da27d1ce9c50c484";
-const HOME_VIDEO_TITLE = "ok movement new song";
-const CAMPAIGN_FILM_THUMBNAIL = "https://i.ytimg.com/vi/mroDrdQaTUk/maxresdefault.jpg";
+// Campaign film shown in the movement banner. Autoplays muted (browsers only
+// allow autoplay when muted) and loops.
+const CAMPAIGN_FILM_YOUTUBE_ID = "10Dc7fbmjOA";
+const CAMPAIGN_FILM_EMBED_URL = `https://www.youtube.com/embed/${CAMPAIGN_FILM_YOUTUBE_ID}?autoplay=1&mute=1&loop=1&playlist=${CAMPAIGN_FILM_YOUTUBE_ID}&playsinline=1&rel=0&modestbranding=1`;
 
 export default function HomeOurMovementSection() {
   const sectionRef = useReveal<HTMLElement>();
-  const [campaignVideo, setCampaignVideo] = useState<CampaignVideo | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    const controller = new AbortController();
-
-    async function loadFirstCampaignVideo() {
-      try {
-        const response = await fetch("/api/media?kind=video", {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        if (!response.ok) return;
-
-        const data = (await response.json().catch(() => null)) as
-          | { media?: CampaignVideo[] }
-          | null;
-        if (!mounted) return;
-
-        const preferred =
-          data?.media?.find((item) => item.id === HOME_VIDEO_ID && item.linkUrl?.trim()) ??
-          data?.media?.find(
-            (item) => item.title?.trim().toLowerCase() === HOME_VIDEO_TITLE && item.linkUrl?.trim(),
-          ) ??
-          data?.media?.find(
-            (item) => item.title?.trim().toLowerCase() === "home-video" && item.linkUrl?.trim(),
-          ) ??
-          data?.media?.find((item) => item.linkUrl?.trim()) ??
-          null;
-        setCampaignVideo(preferred);
-      } catch {
-        // The poster still renders; a missing media API is not a broken section.
-      }
-    }
-
-    loadFirstCampaignVideo();
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
-  }, []);
-
-  async function handlePlayVideo() {
-    if (!campaignVideo || !videoRef.current) return;
-    try {
-      await videoRef.current.play();
-      setIsPlaying(true);
-    } catch {
-      // Autoplay refusals leave the poster and play button in place.
-    }
-  }
 
   return (
     <section
@@ -130,52 +70,14 @@ export default function HomeOurMovementSection() {
         <div className="mt-14 grid overflow-hidden rounded-lg bg-ink shadow-4 lg:mt-20 lg:grid-cols-12">
           <div className="reveal relative lg:col-span-7">
             <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/10] lg:h-full lg:aspect-auto">
-              {campaignVideo ? (
-                <video
-                  ref={videoRef}
-                  src={campaignVideo.linkUrl}
-                  poster={campaignVideo.imageUrl || CAMPAIGN_FILM_THUMBNAIL}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  controls
-                  playsInline
-                  preload="metadata"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => setIsPlaying(false)}
-                />
-              ) : (
-                <Image
-                  src={CAMPAIGN_FILM_THUMBNAIL}
-                  alt="Peter Obi and Rabiu Kwankwaso addressing supporters in the OK Movement campaign film"
-                  fill
-                  sizes="(min-width: 1024px) 58vw, 100vw"
-                  className="object-cover"
-                />
-              )}
-
-              {!isPlaying ? (
-                <>
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-tr from-ink/70 via-ink/25 to-transparent"
-                  />
-                  <button
-                    type="button"
-                    aria-label="Play the campaign film"
-                    onClick={handlePlayVideo}
-                    disabled={!campaignVideo}
-                    className="group absolute inset-0 flex items-center justify-center disabled:cursor-not-allowed"
-                  >
-                    <span className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-paper-raised text-green-deep shadow-4 transition duration-200 group-hover:scale-105 group-active:scale-100 sm:h-24 sm:w-24">
-                      <Play aria-hidden="true" className="ml-1 h-7 w-7 fill-current sm:h-9 sm:w-9" />
-                    </span>
-                  </button>
-                  <p className="pointer-events-none absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-md bg-ink/70 px-3.5 py-2 text-xs font-medium text-white backdrop-blur-sm">
-                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-red" />
-                    Watch the campaign film
-                  </p>
-                </>
-              ) : null}
+              <iframe
+                src={CAMPAIGN_FILM_EMBED_URL}
+                title="OK Movement campaign film"
+                className="absolute inset-0 h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
             </div>
           </div>
 
