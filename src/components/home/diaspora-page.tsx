@@ -1,98 +1,446 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import QRCode from "qrcode";
-import { ArrowUpRight, CheckCircle2, Globe2, HandHeart, Heart, Loader2, Mail, MessageCircle, MessageCircleQuestion, Phone, Plane, ShieldCheck, Sparkles, Users, X } from "lucide-react";
-import CountryPicker from "@/components/ui/country-picker";
-import PhoneInput from "@/components/ui/phone-input";
-import { DIASPORA_WHATSAPP_URL } from "@/lib/diaspora";
-import { nigeriaStateOptions } from "@/lib/nigeria-locations";
-import { isNigerianPhoneNumber, isPhoneValid } from "@/lib/phone-validation";
-import DiasporaDonateModal from "../disapora/diaspora-donate-modal";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronDown,
+  HandHeart,
+  Heart,
+  Mail,
+  Phone,
+} from "lucide-react";
+
 import HomeFooterSection from "./home-footer-section";
 import HomeSiteHeader from "./home-site-header";
-import { diasporaEngagementOptions, diasporaFaqs, diasporaNextSteps, diasporaPillars, diasporaStats, diasporaSupportKinds, type DiasporaEngagementType } from "@/data/diaspora-data";
+import { useReveal } from "./use-reveal";
+import DiasporaRegistrationSection from "./diaspora/diaspora-registration";
+import { LogoWatermark, SectionHeader, TricolorRule } from "./diaspora/diaspora-shared";
+import {
+  diasporaFaqs,
+  diasporaPillars,
+  diasporaStats,
+  diasporaSupportKinds,
+} from "@/data/diaspora-data";
 
-const inputClass = "min-h-12 w-full rounded-[10px] border border-black/12 bg-white px-4 text-sm text-brand-black placeholder:text-black/35 focus-visible:border-brand-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-green/50";
-
-function TricolorRule({ light = false, wide = false }: { light?: boolean; wide?: boolean }) {
-  return <span aria-hidden="true" className={`flex h-[2px] overflow-hidden rounded-full ${wide ? "w-24" : "w-16"}`}><span className={`h-full flex-1 ${light ? "bg-white" : "bg-brand-green"}`} /><span className={`h-full flex-1 ${light ? "bg-white/65" : "bg-brand-black"}`} /><span className="h-full flex-1 bg-brand-red" /></span>;
-}
-
-function tone(accent: "green" | "red" | "black") {
-  if (accent === "green") return { wrap: "bg-brand-green text-white", eyebrow: "text-brand-green", glow: "bg-brand-green/12" };
-  if (accent === "red") return { wrap: "bg-brand-red text-white", eyebrow: "text-brand-red", glow: "bg-brand-red/12" };
-  return { wrap: "bg-brand-black text-white", eyebrow: "text-brand-black", glow: "bg-black/8" };
-}
+const HERO_IMAGE = "/images/bg-5.jpeg";
 
 export default function DiasporaPage() {
-  const [engagement, setEngagement] = useState<DiasporaEngagementType>("volunteer-abroad");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
-  const [stateOfOrigin, setStateOfOrigin] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
-  const [error, setError] = useState("");
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [donateOpen, setDonateOpen] = useState(false);
-  const [qrCode, setQrCode] = useState("");
-  const selected = useMemo(() => diasporaEngagementOptions.find((option) => option.key === engagement)!, [engagement]);
-  const isDonate = engagement === "donate";
+  const pageRef = useReveal<HTMLDivElement>();
 
-  useEffect(() => {
-    QRCode.toDataURL(DIASPORA_WHATSAPP_URL, { width: 320, margin: 1, errorCorrectionLevel: "M", color: { dark: "#121212", light: "#ffffff" } }).then(setQrCode).catch(() => setQrCode(""));
-  }, []);
+  return (
+    <div ref={pageRef}>
+      <HomeSiteHeader />
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (status === "sending") return;
-    setError("");
-    if (!name.trim() || !email.trim() || !phone || !country || !city.trim()) { setError("Please complete all required fields."); return; }
-    if (!isPhoneValid(phone)) { setError("Please enter a valid international phone number."); return; }
-    if (isNigerianPhoneNumber(phone)) { setError("Nigerian phone numbers should use the member registration page instead."); return; }
-    setStatus("sending");
-    try {
-      const response = await fetch("/api/diaspora", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, phone, engagement: selected.label, country, city, stateOfOrigin }) });
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) { setError(data?.error ?? "Unable to submit your registration right now."); setStatus("idle"); return; }
-      setStatus("sent");
-      setSuccessOpen(true);
-    } catch { setError("Unable to submit your registration. Please check your connection and try again."); setStatus("idle"); }
-  }
+      <main id="main-content" className="bg-paper text-body">
+        {/* HERO ----------------------------------------------------- */}
+        <section
+          aria-labelledby="diaspora-heading"
+          className="grain grain-on-ink relative isolate overflow-hidden bg-ink text-white"
+        >
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src={HERO_IMAGE}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center opacity-35"
+            />
+          </div>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40"
+          />
 
-  function resetForm() { setStatus("idle"); setError(""); setName(""); setEmail(""); setPhone(""); setCountry(""); setCity(""); setStateOfOrigin(""); setEngagement("volunteer-abroad"); }
-  function closeSuccess() { setSuccessOpen(false); if (isDonate) setDonateOpen(true); }
+          <div className="relative mx-auto w-[min(100%-2rem,82rem)] pb-20 pt-20 sm:pb-24 lg:pb-28 lg:pt-28">
+            <div className="max-w-[46rem]">
+              <div className="flex items-center gap-4">
+                <TricolorRule />
+                <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/70">
+                  OK Movement · Diaspora
+                </p>
+              </div>
 
-  return <main id="main-content" className="min-h-screen bg-[#f7f7f4] text-brand-black">
-    <HomeSiteHeader />
-    <section className="relative isolate overflow-hidden bg-brand-black text-white">
-      <div className="absolute inset-0 -z-10"><img src="/images/bg-5.jpeg" alt="" className="h-full w-full object-cover object-center opacity-40" /></div>
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(115deg,rgb(0_0_0/0.92)_0%,rgb(0_0_0/0.7)_45%,rgb(0_0_0/0.55)_100%)]" />
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_20%,rgb(0_166_81/0.32),transparent_45%),radial-gradient(circle_at_18%_85%,rgb(224_40_40/0.28),transparent_45%)]" />
-      <div className="relative mx-auto w-[min(100%-1.5rem,80rem)] pb-20 pt-24 sm:pb-24 sm:pt-28 lg:pb-28 lg:pt-36"><div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:gap-16">
-        <div><div className="flex items-center gap-4"><TricolorRule light wide /><p className="text-[11px] font-semibold uppercase tracking-[0.46em] text-white/75">OK Movement · Diaspora</p></div><h1 className="mt-6 text-4xl font-medium leading-[1.02] tracking-tight sm:text-5xl lg:text-[4.25rem]">Far from home.<br />Never far from the fight.</h1><p className="mt-6 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">Over seventeen million Nigerians live abroad — and every one of us still carries Nigeria. From wherever you are, mobilise, sensitise, volunteer or give so credible candidates are elected to serve the people.</p><div className="mt-9 flex flex-wrap items-center gap-3"><a href="#registration" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_36px_-12px_rgb(0_166_81/0.55)] transition hover:bg-white hover:text-brand-green">Join from abroad <ArrowUpRight className="h-4 w-4" /></a><a href="#support" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] border border-white/30 bg-white/5 px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white backdrop-blur transition hover:bg-white hover:text-brand-black">Support from abroad <Heart className="h-4 w-4" /></a></div><ul className="mt-8 flex flex-wrap gap-3 text-xs font-medium uppercase tracking-[0.16em] text-white/70"><li className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5"><Plane className="h-3.5 w-3.5 text-brand-red" />Built for the diaspora</li><li className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5"><Globe2 className="h-3.5 w-3.5 text-brand-green" />Every time zone welcome</li><li className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5"><Sparkles className="h-3.5 w-3.5" />Citizen funded</li></ul></div>
-        <dl className="grid gap-3 rounded-[16px] border border-white/15 bg-white/5 p-5 backdrop-blur sm:grid-cols-2 sm:p-6">{diasporaStats.map((stat) => <div key={stat.label} className="rounded-[12px] border border-white/10 bg-white/5 p-4"><dt className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">{stat.label}</dt><dd className="mt-2 text-3xl font-medium text-white">{stat.value}</dd><p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/50">{stat.helper}</p></div>)}</dl>
-      </div></div>
-    </section>
+              <h1
+                id="diaspora-heading"
+                className="mt-8 font-display text-display-1 font-extrabold leading-[0.94] tracking-[-0.035em] text-balance"
+              >
+                Far from home.
+                <br />
+                <span className="text-green-ink">Never far from the fight.</span>
+              </h1>
+              <p className="mt-7 max-w-[56ch] text-lead leading-relaxed text-white/75 text-pretty">
+                Over seventeen million Nigerians live abroad — and every one of us still carries
+                Nigeria. From wherever you are, mobilise, sensitise, volunteer or give so credible
+                candidates are elected to serve the people.
+              </p>
 
-    <section className="bg-white py-16 sm:py-20 lg:py-24"><div className="mx-auto w-[min(100%-1.5rem,80rem)]"><div className="mx-auto max-w-2xl text-center"><div className="inline-flex items-center gap-3"><span className="h-[2px] w-10 bg-brand-green" /><span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-red">Four ways to serve from abroad</span><span className="h-[2px] w-10 bg-brand-red" /></div><h2 className="mt-5 text-3xl font-medium leading-tight sm:text-4xl">Distance is not absence.</h2><p className="mt-4 text-base leading-relaxed text-black/65 sm:text-lg">Whether you have an hour a week, a network in your city, professional skills or the means to give — there is a direct line from where you are to the Nigeria we all want.</p></div><div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-2">{diasporaPillars.map((pillar, index) => { const style = tone(pillar.accent); const Icon = pillar.icon; return <article key={pillar.title} className="group relative overflow-hidden rounded-[18px] border border-black/8 bg-white p-7 shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)] sm:p-8"><span className="absolute inset-x-0 top-0 flex h-[3px]"><span className="flex-1 bg-brand-green" /><span className="flex-1 bg-brand-black" /><span className="flex-1 bg-brand-red" /></span><div className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full ${style.glow} blur-2xl`} /><div className="relative"><div className="flex items-center justify-between"><span className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${style.wrap}`}><Icon className="h-5 w-5" /></span><span className={`text-[11px] font-semibold uppercase tracking-[0.32em] ${style.eyebrow}`}>0{index + 1}</span></div><h3 className="mt-6 text-2xl font-medium">{pillar.title}</h3><p className="mt-3 text-sm leading-relaxed text-black/70">{pillar.body}</p><ul className="mt-5 grid gap-2 text-sm text-brand-black/80">{pillar.bullets.map((bullet) => <li key={bullet} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />{bullet}</li>)}</ul></div></article>; })}</div></div></section>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a
+                  href="#registration"
+                  className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md bg-brand-green px-7 text-sm font-semibold tracking-wide text-white transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-ink active:translate-y-0 active:scale-[0.99]"
+                >
+                  Join from abroad
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
+                </a>
+                <a
+                  href="#support"
+                  className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md border border-white/25 px-7 text-sm font-semibold tracking-wide text-white transition duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-ink active:translate-y-0"
+                >
+                  <Heart aria-hidden="true" className="h-4 w-4" />
+                  Support from abroad
+                </a>
+              </div>
+            </div>
 
-    <section id="registration" className="scroll-mt-28 bg-[#f7f7f4] py-16 sm:py-20 lg:py-24"><div className="mx-auto grid w-[min(100%-1rem,80rem)] gap-10 px-4 lg:grid-cols-[22rem_1fr] lg:gap-12"><aside className="space-y-6 lg:sticky lg:top-28 lg:self-start"><div><TricolorRule /><p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">Step in</p><h2 className="mt-3 text-3xl font-medium leading-tight sm:text-4xl">Register with the diaspora desk.</h2><p className="mt-4 text-sm leading-relaxed text-black/65">Tell us where in the world you are and how you would like to serve. Our dedicated diaspora desk will reach out within 1–2 business days — in your time zone.</p></div><ul className="space-y-3">{diasporaNextSteps.map((step, index) => { const Icon = step.icon; return <li key={step.title} className="flex gap-4 rounded-[14px] border border-black/8 bg-white p-4"><span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-green/10 text-brand-green"><Icon className="h-4 w-4" /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-green">Step 0{index + 1}</p><p className="mt-1 text-sm font-medium">{step.title}</p><p className="mt-1 text-xs leading-relaxed text-black/60">{step.description}</p></div></li>; })}</ul><div className="rounded-[14px] border border-brand-green/20 bg-brand-green/5 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-brand-green">Privacy first</p><p className="mt-2 text-xs leading-relaxed text-black/70">Your details are used solely to coordinate your involvement and are never sold or shared.</p></div></aside>
-      <div className="relative overflow-hidden rounded-[18px] border border-black/8 bg-white shadow-[0_24px_48px_-26px_rgb(0_0_0/0.3)]"><span className="absolute inset-x-0 top-0 flex h-[3px]"><span className="flex-1 bg-brand-green" /><span className="flex-1 bg-brand-black" /><span className="flex-1 bg-brand-red" /></span>{status === "sent" ? <div className="flex flex-col items-center px-6 py-16 text-center sm:px-12"><span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-green/10 text-brand-green"><CheckCircle2 className="h-8 w-8" /></span><h3 className="mt-6 text-2xl font-medium sm:text-3xl">Welcome aboard{name ? `, ${name.split(" ")[0]}` : ""} — home just got closer.</h3><p className="mt-4 max-w-md text-base leading-relaxed text-black/65">A confirmation email is on its way. The diaspora desk will reach out within 1–2 business days with your next steps and connect you with members in your city.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><button type="button" onClick={resetForm} className="min-h-12 rounded-[10px] bg-brand-black px-6 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-green">Register another</button><a href="#support" className="inline-flex min-h-12 items-center gap-2 rounded-[10px] border border-brand-green/30 bg-brand-green/5 px-6 text-sm font-semibold uppercase tracking-[0.16em] text-brand-green transition hover:bg-brand-green hover:text-white">View ways to give <Heart className="h-4 w-4" /></a></div></div> : <form onSubmit={handleSubmit} noValidate className="px-6 py-10 sm:px-10 sm:py-12"><div><p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">Diaspora registration</p><h2 className="mt-3 text-2xl font-medium sm:text-3xl">How will you serve from abroad?</h2><p className="mt-3 max-w-xl text-sm leading-relaxed text-black/65">Pick the role that fits, tell us where you are, and the diaspora desk takes it from there. Required fields are marked with an asterisk.</p></div><fieldset className="mt-8"><legend className="text-[11px] font-semibold uppercase tracking-[0.28em] text-black/65">I want to <span className="text-brand-red">*</span></legend><div className="mt-4 grid gap-2 sm:grid-cols-2">{diasporaEngagementOptions.map(({ key, label, icon: Icon }) => { const active = key === engagement; return <label key={key} className={`group flex cursor-pointer items-center gap-3 rounded-[12px] border px-4 py-3 text-sm font-medium transition ${active ? "border-brand-green bg-brand-green/5 text-brand-black shadow-[0_10px_20px_-12px_rgb(0_166_81/0.5)]" : "border-black/10 text-black/70 hover:border-brand-green/40 hover:bg-brand-green/5"}`}><input type="radio" name="engagement" value={key} checked={active} onChange={() => setEngagement(key)} className="sr-only" /><span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${active ? "bg-brand-green text-white" : "bg-black/[0.04] text-brand-black"}`}><Icon className="h-4 w-4" /></span>{label}</label>; })}</div><p className="mt-3 text-xs leading-relaxed text-black/60"><span className="font-semibold uppercase tracking-[0.18em] text-brand-green">{selected.label}:</span> {selected.description}</p></fieldset><div className="mt-8 grid gap-5 sm:grid-cols-2"><label className="grid gap-1.5"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">Full name <span className="text-brand-red">*</span></span><input required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" placeholder="Adaeze Okeke" className={inputClass} /></label><label className="grid gap-1.5"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">Email <span className="text-brand-red">*</span></span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" placeholder="you@example.com" className={inputClass} /></label><div className="grid gap-1.5 sm:col-span-2"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">Telephone / WhatsApp number <span className="text-brand-red">*</span></span><PhoneInput required defaultCountry="us" value={phone} onChange={setPhone} placeholder="International phone number" /></div></div><div className="mt-6 grid gap-5 sm:grid-cols-2"><div className="grid gap-1.5"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">Country of residence <span className="text-brand-red">*</span></span><CountryPicker value={country} onValueChange={setCountry} /></div><label className="grid gap-1.5"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">City <span className="text-brand-red">*</span></span><input required value={city} onChange={(event) => setCity(event.target.value)} autoComplete="address-level2" placeholder="London, Houston, Dubai…" className={inputClass} /></label><label className="grid gap-1.5 sm:col-span-2"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/65">State of origin in Nigeria <span className="normal-case tracking-normal text-black/40">(optional — helps us point your impact home)</span></span><CountryPicker value={stateOfOrigin} onValueChange={setStateOfOrigin} options={nigeriaStateOptions.map((state) => state.label)} placeholder="Select a state (optional)" ariaLabel="State of origin in Nigeria" /></label></div><div className="mt-8 flex flex-col gap-4 border-t border-black/8 pt-6 sm:flex-row sm:items-center sm:justify-between"><p className="flex items-center gap-2 text-xs text-black/55"><ShieldCheck className="h-4 w-4 text-brand-green" />Your information is private and never shared.</p><button type="submit" disabled={status === "sending"} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[12px] bg-brand-black px-7 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-14px_rgb(0_0_0/0.55)] transition hover:bg-brand-green disabled:opacity-70">{status === "sending" ? <><Loader2 className="h-4 w-4 animate-spin" />Submitting…</> : <>{isDonate ? "Register and Donate" : "Join from Abroad"}<ArrowUpRight className="h-4 w-4" /></>}</button></div>{error ? <p role="alert" className="mt-4 text-sm text-brand-red">{error} {isNigerianPhoneNumber(phone) ? <a href="/home/get-involved" className="font-semibold underline">Go to member registration.</a> : null}</p> : null}{isDonate ? <p className="mt-4 rounded-[10px] border border-brand-red/20 bg-brand-red/5 px-4 py-3 text-xs leading-relaxed text-brand-black/75"><span className="font-semibold uppercase tracking-[0.18em] text-brand-red">Donating?</span> After registering, a secure donation pledge flow will open for cash or campaign materials.</p> : null}</form>}</div>
-    </div></section>
+            <dl className="mt-16 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/15 pt-8 lg:mt-20 lg:grid-cols-3">
+              {diasporaStats.map((stat) => (
+                <div key={stat.label}>
+                  <dt className="sr-only">{`${stat.label} — ${stat.helper}`}</dt>
+                  <dd>
+                    <span className="block font-display text-4xl font-extrabold leading-none tracking-[-0.03em] tabular-nums sm:text-[2.75rem]">
+                      {stat.value}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-white/60"
+                    >
+                      {stat.label}
+                    </span>
+                    <span aria-hidden="true" className="mt-1 block text-[11px] text-white/40">
+                      {stat.helper}
+                    </span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
 
-    <section id="support" className="scroll-mt-28 bg-white py-16 sm:py-20 lg:py-24"><div className="mx-auto w-[min(100%-1.5rem,80rem)]"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div className="max-w-2xl"><TricolorRule /><p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">Support from abroad</p><h2 className="mt-3 text-3xl font-medium sm:text-4xl">Send more than money home.</h2><p className="mt-4 text-base leading-relaxed text-black/65 sm:text-lg">The diaspora already sustains millions of families back home. Pointed at citizen organising, that same generosity funds voter education, ward-level mobilisation and credible representation.</p></div><a href="#registration" onClick={() => setEngagement("donate")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-6 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-black"><Heart className="h-4 w-4" />Pledge a contribution</a></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{diasporaSupportKinds.map((kind, index) => { const style = tone(kind.tone); const Icon = kind.icon; return <article key={kind.title} className="relative overflow-hidden rounded-[18px] border border-black/8 bg-white p-7 shadow-[0_22px_40px_-26px_rgb(0_0_0/0.3)]"><span className="absolute inset-x-0 top-0 flex h-[3px]"><span className="flex-1 bg-brand-green" /><span className="flex-1 bg-brand-black" /><span className="flex-1 bg-brand-red" /></span><div className="relative"><div className="flex items-center justify-between"><span className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${style.wrap}`}><Icon className="h-5 w-5" /></span><span className={`text-[11px] font-semibold uppercase tracking-[0.32em] ${style.eyebrow}`}>0{index + 1}</span></div><h3 className="mt-6 text-xl font-medium sm:text-2xl">{kind.title}</h3><p className="mt-3 text-sm leading-relaxed text-black/70">{kind.short}</p><ul className="mt-5 space-y-2 text-sm text-brand-black/80">{kind.examples.map((example) => <li key={example} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />{example}</li>)}</ul></div></article>; })}</div><div className="mt-10 grid gap-3 rounded-[16px] border border-black/8 bg-[#f7f7f4] p-5 sm:grid-cols-3"><a href="/home/contact" className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-green hover:text-white"><Mail className="h-4 w-4 text-brand-green group-hover:text-white" /><span><span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">Email</span><span className="text-sm font-medium">Contact the diaspora desk</span></span></a><a href="tel:+2348000652027" className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-red hover:text-white"><Phone className="h-4 w-4 text-brand-red group-hover:text-white" /><span><span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">Phone / WhatsApp</span><span className="text-sm font-medium">+234 (0) 800 OK-2027</span></span></a><a href="/home/get-involved" className="group flex items-center gap-3 rounded-[12px] bg-white p-4 transition hover:bg-brand-black hover:text-white"><HandHeart className="h-4 w-4" /><span><span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-current/70">In Nigeria?</span><span className="text-sm font-medium">Use the Get Involved page</span></span></a></div></div></section>
+        {/* FOUR WAYS TO SERVE --------------------------------------- */}
+        <section
+          aria-labelledby="ways-heading"
+          className="relative overflow-hidden bg-paper py-20 sm:py-24 lg:py-28"
+        >
+          <LogoWatermark />
+          <div className="relative z-10 mx-auto w-[min(100%-2rem,82rem)]">
+            <SectionHeader
+              id="ways-heading"
+              eyebrow="Four ways to serve"
+              heading={
+                <>
+                  Distance is <span className="text-green-deep">not absence.</span>
+                </>
+              }
+              standfirst="Whether you have an hour a week, a network in your city, professional skills or the means to give — there is a direct line from where you are to the Nigeria we all want."
+            />
 
-    <section className="bg-[#f7f7f4] py-16 sm:py-20 lg:py-24"><div className="mx-auto w-[min(100%-1.5rem,72rem)]"><div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0b3d2e] via-brand-black to-[#0b3d2e] p-8 text-white shadow-[0_30px_60px_-30px_rgb(0_0_0/0.55)] sm:p-12"><span className="absolute inset-x-0 top-0 flex h-[3px]"><span className="flex-1 bg-brand-green" /><span className="flex-1 bg-white/40" /><span className="flex-1 bg-brand-red" /></span><div className="relative grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center"><div><div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] ring-1 ring-white/20"><Users className="h-3.5 w-3.5" />Diaspora chapters</div><h2 className="mt-5 text-3xl font-medium sm:text-4xl">Bring the movement to <span className="text-brand-green">your city</span>.</h2><p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">From London to Houston, Toronto to Dubai, Johannesburg to Berlin — Nigerians abroad are gathering under the OK Movement banner. Join the chapter near you, or be the one who starts it.</p><div className="mt-8"><a href="#registration" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-brand-green px-7 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-white hover:text-brand-black"><Users className="h-4 w-4" />Start / join a chapter</a></div></div><div className="rounded-[18px] border border-white/15 bg-white/[0.06] p-6 backdrop-blur"><p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/65">Why chapters matter</p><p className="mt-3 text-sm leading-relaxed text-white/85">A chapter turns scattered goodwill into organised power: one voice to your city&apos;s Nigerian community, one channel for verified updates, and one engine pointing resources exactly where they count back home.</p><div className="mt-6 rounded-[12px] bg-brand-green/15 p-4 ring-1 ring-brand-green/30"><p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-green">First in your city?</p><p className="mt-1.5 text-sm text-white/90">Select <span className="font-semibold">Lead a City Chapter</span> when registering and the diaspora desk will send you a starter kit.</p></div></div></div></div></div></section>
+            <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8 lg:mt-20">
+              {diasporaPillars.map((pillar, index) => {
+                const Icon = pillar.icon;
+                return (
+                  <article
+                    key={pillar.title}
+                    className={`reveal flex flex-col border border-rule bg-paper-raised p-7 shadow-1 sm:p-9 ${
+                      index % 2 === 1 ? "md:mt-12" : ""
+                    }`}
+                    style={{ "--reveal-delay": `${(index % 2) * 120}ms` } as React.CSSProperties}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <Icon aria-hidden="true" className="h-6 w-6 text-green-deep" />
+                      <span
+                        aria-hidden="true"
+                        className="font-display text-sm font-bold tabular-nums text-faint"
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <h3 className="mt-6 max-w-[18ch] font-display text-2xl font-extrabold leading-tight tracking-[-0.025em] text-ink text-balance">
+                      {pillar.title}
+                    </h3>
+                    <p className="mt-4 max-w-[58ch] leading-relaxed text-body text-pretty">
+                      {pillar.body}
+                    </p>
+                    <ul className="mt-6 space-y-2.5 border-t border-rule pt-5 text-sm text-body">
+                      {pillar.bullets.map((bullet) => (
+                        <li key={bullet} className="flex gap-2.5">
+                          <CheckCircle2
+                            aria-hidden="true"
+                            className="mt-0.5 h-4 w-4 shrink-0 text-green-deep"
+                          />
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-    <section className="bg-[#f7f7f4] px-4 py-16 sm:py-20 lg:py-24"><div className="mx-auto grid w-[min(100%-1rem,72rem)] gap-10 lg:grid-cols-[20rem_1fr] lg:gap-16"><div className="lg:sticky lg:top-28 lg:self-start"><TricolorRule /><p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-brand-red">Good to know</p><h2 className="mt-3 text-3xl font-medium sm:text-4xl">Quick answers for the diaspora.</h2><div className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-green"><MessageCircleQuestion className="h-4 w-4" />{diasporaFaqs.length} common questions</div></div><ul className="space-y-3">{diasporaFaqs.map((faq, index) => <li key={faq.q}><details className="group rounded-[14px] border border-black/8 bg-white p-5 shadow-[0_14px_28px_-22px_rgb(0_0_0/0.35)]"><summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-base font-medium [&::-webkit-details-marker]:hidden"><span className="flex gap-3"><span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-green">{String(index + 1).padStart(2, "0")}</span>{faq.q}</span><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-black/10 transition group-open:rotate-45 group-open:bg-brand-green group-open:text-white">+</span></summary><p className="mt-4 text-sm leading-relaxed text-black/65">{faq.a}</p></details></li>)}</ul></div></section>
+        <DiasporaRegistrationSection />
 
-    <section className="relative isolate overflow-hidden bg-brand-green px-4 py-20 text-center text-white sm:py-24"><span className="absolute inset-x-0 top-0 flex h-[3px]"><span className="flex-1 bg-white/40" /><span className="flex-1 bg-brand-black/60" /><span className="flex-1 bg-brand-red" /></span><div className="relative mx-auto w-[min(100%-1rem,52rem)]"><div className="flex items-center justify-center gap-4"><TricolorRule light /><p className="text-[11px] font-semibold uppercase tracking-[0.46em] text-white/85">The assignment</p><TricolorRule light /></div><h2 className="mt-5 text-3xl font-medium sm:text-4xl lg:text-5xl">Wherever you are in the world, Nigeria is counting on you.</h2><p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">Twenty twenty-seven is not a spectator sport. Mobilise your networks, fund the work and help take our country back — one credible vote at a time.</p><div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><a href="#registration" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] bg-brand-red px-8 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-brand-black"><Plane className="h-4 w-4" />Join from abroad</a><a href="/home/contact" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-[10px] border border-white/40 bg-white/10 px-8 text-sm font-semibold uppercase tracking-[0.16em] transition hover:bg-white hover:text-brand-green">Talk to the diaspora desk</a></div></div></section>
-    <HomeFooterSection />
-    {successOpen ? <div role="dialog" aria-modal="true" aria-labelledby="diaspora-success-title" className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"><div className="relative w-full max-w-lg rounded-2xl bg-white p-6 text-center shadow-2xl sm:p-8"><button type="button" onClick={closeSuccess} aria-label="Close" className="absolute right-4 top-4 rounded-full p-2 text-black/60 transition hover:bg-black/5"><X className="h-5 w-5" /></button><span className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-green/10 text-brand-green"><CheckCircle2 className="h-7 w-7" /></span><p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.26em] text-brand-red">Registration confirmed</p><h2 id="diaspora-success-title" className="mt-2 text-2xl font-semibold">Welcome{ name ? `, ${name.split(" ")[0]}` : "" }.</h2><p className="mt-3 text-sm leading-relaxed text-black/65"><Mail className="mr-1 inline h-4 w-4 text-brand-green" /> Your WhatsApp community link is on its way to your email. You can also scan the code to join now.</p>{qrCode ? <img src={qrCode} alt="QR code for the OK Movement Diaspora WhatsApp community" className="mx-auto mt-5 h-48 w-48 rounded-xl border border-black/10 p-2" /> : null}<a href={DIASPORA_WHATSAPP_URL} target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-[10px] bg-brand-green px-5 text-sm font-semibold text-white transition hover:bg-brand-black"><MessageCircle className="h-4 w-4" />Open WhatsApp link</a></div></div> : null}
-    <DiasporaDonateModal open={donateOpen} donorName={name} onClose={() => setDonateOpen(false)} />
-  </main>;
+        {/* SUPPORT -------------------------------------------------- */}
+        <section
+          id="support"
+          aria-labelledby="support-heading"
+          className="relative overflow-hidden bg-paper py-20 sm:py-24 lg:py-28"
+        >
+          <LogoWatermark />
+          <div className="relative z-10 mx-auto w-[min(100%-2rem,82rem)]">
+            <SectionHeader
+              id="support-heading"
+              eyebrow="Support from abroad"
+              heading={
+                <>
+                  Send more than <span className="text-green-deep">money home.</span>
+                </>
+              }
+              standfirst="The diaspora already sustains millions of families back home. Pointed at citizen organising, that same generosity funds voter education, ward-level mobilisation and credible representation."
+            />
+
+            {/* Three kinds, not three steps — named in the margin rather than
+                numbered, so the structure does not imply an order. */}
+            <dl className="mt-14 border-t border-rule lg:mt-20">
+              {diasporaSupportKinds.map((kind) => {
+                const Icon = kind.icon;
+                return (
+                  <div
+                    key={kind.title}
+                    className="reveal grid gap-5 border-b border-rule py-9 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-14"
+                  >
+                    <dt>
+                      <Icon aria-hidden="true" className="h-6 w-6 text-green-deep" />
+                      <span className="mt-4 block font-display text-xl font-extrabold tracking-[-0.025em] text-ink sm:text-2xl">
+                        {kind.title}
+                      </span>
+                    </dt>
+                    <dd>
+                      <p className="max-w-[62ch] leading-relaxed text-body text-pretty">
+                        {kind.short}
+                      </p>
+                      <ul className="mt-5 space-y-2.5 text-sm text-body">
+                        {kind.examples.map((example) => (
+                          <li key={example} className="flex gap-2.5">
+                            <CheckCircle2
+                              aria-hidden="true"
+                              className="mt-0.5 h-4 w-4 shrink-0 text-green-deep"
+                            />
+                            {example}
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+
+            <div className="reveal mt-10 grid gap-3 sm:grid-cols-3">
+              <Link
+                href="/home/contact"
+                className="group flex items-center gap-3.5 border border-rule bg-paper-raised p-5 transition duration-200 hover:-translate-y-0.5 hover:border-green-deep"
+              >
+                <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-green-deep" />
+                <span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+                    Email
+                  </span>
+                  <span className="text-sm font-semibold text-ink">Contact the diaspora desk</span>
+                </span>
+              </Link>
+              <a
+                href="tel:+2348000652027"
+                className="group flex items-center gap-3.5 border border-rule bg-paper-raised p-5 transition duration-200 hover:-translate-y-0.5 hover:border-green-deep"
+              >
+                <Phone aria-hidden="true" className="h-5 w-5 shrink-0 text-brand-red" />
+                <span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+                    Phone / WhatsApp
+                  </span>
+                  <span className="text-sm font-semibold text-ink">+234 (0) 800 OK-2027</span>
+                </span>
+              </a>
+              <Link
+                href="/home/get-involved"
+                className="group flex items-center gap-3.5 border border-rule bg-paper-raised p-5 transition duration-200 hover:-translate-y-0.5 hover:border-green-deep"
+              >
+                <HandHeart aria-hidden="true" className="h-5 w-5 shrink-0 text-ink" />
+                <span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+                    In Nigeria?
+                  </span>
+                  <span className="text-sm font-semibold text-ink">Use the Get Involved page</span>
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* CITY CHAPTERS -------------------------------------------- */}
+        <section
+          aria-labelledby="chapters-heading"
+          className="grain grain-on-ink relative overflow-hidden bg-green-deep py-20 text-white sm:py-24 lg:py-28"
+        >
+          <div className="relative mx-auto grid w-[min(100%-2rem,82rem)] gap-12 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
+            <div>
+              <div className="flex items-center gap-4">
+                <TricolorRule />
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-white/80">
+                  Diaspora chapters
+                </p>
+              </div>
+              <h2
+                id="chapters-heading"
+                className="mt-7 max-w-[16ch] font-display text-display-2 font-extrabold leading-[0.96] tracking-[-0.03em] text-balance"
+              >
+                Bring the movement to your city.
+              </h2>
+              <p className="mt-6 max-w-[58ch] text-lead leading-relaxed text-white/80 text-pretty">
+                From London to Houston, Toronto to Dubai, Johannesburg to Berlin — Nigerians abroad
+                are gathering under the OK Movement banner. Join the chapter near you, or be the one
+                who starts it.
+              </p>
+              <a
+                href="#registration"
+                className="group mt-9 inline-flex min-h-13 items-center gap-2.5 rounded-md bg-white px-7 py-3.5 text-sm font-semibold tracking-wide text-green-deep transition duration-200 hover:-translate-y-0.5 hover:bg-ink hover:text-white active:translate-y-0 active:scale-[0.99]"
+              >
+                Start or join a chapter
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+            </div>
+
+            <div className="border-l-2 border-white/30 pl-7 lg:pl-10">
+              <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-white/70">
+                Why chapters matter
+              </p>
+              <p className="mt-4 max-w-[46ch] leading-relaxed text-white/85 text-pretty">
+                A chapter turns scattered goodwill into organised power: one voice to your
+                city&rsquo;s Nigerian community, one channel for verified updates, and one engine
+                pointing resources exactly where they count back home.
+              </p>
+              <p className="mt-7 border-t border-white/20 pt-6 text-sm leading-relaxed text-white/80">
+                <span className="block font-display text-[11px] font-bold uppercase tracking-[0.28em] text-white">
+                  First in your city?
+                </span>
+                <span className="mt-2 block">
+                  Select <span className="font-semibold text-white">Lead a City Chapter</span> when
+                  registering and the diaspora desk will send you a starter kit.
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ ------------------------------------------------------ */}
+        <section
+          aria-labelledby="faq-heading"
+          className="relative border-t border-rule bg-paper-sunk py-20 sm:py-24 lg:py-28"
+        >
+          <div className="mx-auto grid w-[min(100%-2rem,82rem)] gap-10 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
+            <div className="reveal lg:sticky lg:top-28 lg:self-start">
+              <TricolorRule />
+              <p className="mt-5 font-display text-[11px] font-bold uppercase tracking-[0.28em] text-green-deep">
+                Good to know
+              </p>
+              <h2
+                id="faq-heading"
+                className="mt-4 font-display text-display-3 font-extrabold leading-[0.98] tracking-[-0.025em] text-ink text-balance"
+              >
+                Quick answers for the diaspora.
+              </h2>
+              <p className="mt-5 text-sm text-muted">
+                {diasporaFaqs.length} questions we get most often.
+              </p>
+            </div>
+
+            <ul className="reveal border-t border-rule">
+              {diasporaFaqs.map((faq, index) => (
+                <li key={faq.q}>
+                  <details className="group border-b border-rule">
+                    <summary className="flex cursor-pointer list-none items-start justify-between gap-5 py-5 [&::-webkit-details-marker]:hidden">
+                      <span className="flex gap-4">
+                        <span
+                          aria-hidden="true"
+                          className="mt-0.5 font-display text-xs font-bold tabular-nums text-faint"
+                        >
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="max-w-[46ch] font-display text-lg font-bold leading-snug tracking-[-0.015em] text-ink">
+                          {faq.q}
+                        </span>
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="mt-1 h-5 w-5 shrink-0 text-faint transition-transform duration-200 group-open:rotate-180 group-open:text-green-deep"
+                      />
+                    </summary>
+                    <p className="max-w-[64ch] pb-6 pl-8 leading-relaxed text-body text-pretty">
+                      {faq.a}
+                    </p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* CLOSING CTA ---------------------------------------------- */}
+        <section
+          aria-labelledby="diaspora-cta-heading"
+          className="grain grain-on-ink relative overflow-hidden bg-ink-raised text-white"
+        >
+          <TricolorRule className="absolute inset-x-0 top-0 h-1 w-full" />
+          <div className="relative mx-auto grid w-[min(100%-2rem,82rem)] gap-10 py-20 sm:py-24 lg:grid-cols-[1.4fr_auto] lg:items-end lg:gap-20">
+            <div>
+              <p className="font-display text-[11px] font-bold uppercase tracking-[0.28em] text-green-ink">
+                The assignment
+              </p>
+              <h2
+                id="diaspora-cta-heading"
+                className="mt-4 max-w-[20ch] font-display text-display-2 font-extrabold leading-[0.96] tracking-[-0.03em] text-balance"
+              >
+                Wherever you are, Nigeria is counting on you.
+              </h2>
+              <p className="mt-6 max-w-[56ch] text-lead leading-relaxed text-white/70 text-pretty">
+                Twenty twenty-seven is not a spectator sport. Mobilise your networks, fund the work
+                and help take our country back — one credible vote at a time.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:pb-2">
+              <a
+                href="#registration"
+                className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md bg-brand-green px-8 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-green transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-ink active:translate-y-0 active:scale-[0.99]"
+              >
+                Join from abroad
+                <ArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              </a>
+              <Link
+                href="/home/contact"
+                className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md border border-white/25 px-8 text-sm font-semibold uppercase tracking-[0.12em] text-white transition duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-ink active:translate-y-0"
+              >
+                Talk to the desk
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <HomeFooterSection />
+    </div>
+  );
 }
-

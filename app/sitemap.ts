@@ -18,6 +18,7 @@ const staticEntries: Entry[] = [
   { path: "/home/get-involved", changeFrequency: "weekly", priority: 0.9 },
   { path: "/home/donations", changeFrequency: "weekly", priority: 0.9 },
   { path: "/diaspora", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/diaspora/canada", changeFrequency: "weekly", priority: 0.7 },
   { path: "/home/getyourpvc", changeFrequency: "weekly", priority: 0.9 },
   { path: "/home/electioncalendar", changeFrequency: "weekly", priority: 0.9 },
   { path: "/home/votingprocedures", changeFrequency: "weekly", priority: 0.8 },

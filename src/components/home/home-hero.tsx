@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Handshake, Heart, QrCode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -9,6 +9,10 @@ import type { TestimonialPair } from "@/lib/get-testimonial-pairs";
 import HomeDonationBanner from "./home-donation-banner";
 import HomeFooterSection from "./home-footer-section";
 import HomeOurMovementSection from "./home-our-movement-section";
+import HomePartnershipModal, {
+  PARTNERSHIP_IMAGE,
+  SUPERGROUP_URL,
+} from "./home-partnership-modal";
 import HomePrincipalsSection from "./home-principals-section";
 import HomeSiteHeader from "./home-site-header";
 
@@ -31,6 +35,8 @@ type HeroSlide = {
   image: { src: string; position: string; fit: "contain" | "cover" };
   /** Only the opening slide carries the sunrise wash; it is literally about dawn. */
   dawnWash?: boolean;
+  /** The partnership slide swaps the default CTAs for Join / View announcement. */
+  partnership?: boolean;
 };
 
 const SLIDES: HeroSlide[] = [
@@ -87,12 +93,24 @@ const SLIDES: HeroSlide[] = [
       "Our two principals have aligned with the Nigeria Democratic Congress to form a formidable opposition and drive the new Nigeria we all want.",
     image: { src: ndcImage, position: "right center", fit: "cover" },
   },
-];
-
-const MOMENTUM = [
-  { value: "36", label: "States organised" },
-  { value: "120+", label: "Local chapters" },
-  { value: "25k", label: "Active volunteers" },
+  {
+    id: "smart-ballot",
+    index: "04",
+    eyebrow: "New partnership · Smart Ballot",
+    headlineText: "One network, one movement",
+    headline: (
+      <>
+        <span className="block whitespace-nowrap">One network.</span>
+        <span className="block whitespace-nowrap text-green-deep">
+          One movement.
+        </span>
+      </>
+    ),
+    tagline:
+      "OK Movement and Smart Ballot have joined forces — connecting all 176,846 polling units into one grassroots network.",
+    image: { src: PARTNERSHIP_IMAGE, position: "right top", fit: "cover" },
+    partnership: true,
+  },
 ];
 
 function TricolorRule({ className = "" }: { className?: string }) {
@@ -105,7 +123,41 @@ function TricolorRule({ className = "" }: { className?: string }) {
   );
 }
 
-function HeroActions() {
+function HeroActions({
+  partnership,
+  onViewAnnouncement,
+}: {
+  partnership?: boolean;
+  onViewAnnouncement: () => void;
+}) {
+  if (partnership) {
+    return (
+      <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a
+          href={SUPERGROUP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md bg-green-deep px-7 text-sm font-semibold tracking-wide text-white shadow-green transition duration-200 hover:-translate-y-0.5 hover:bg-ink active:translate-y-0 active:scale-[0.99]"
+        >
+          <Handshake aria-hidden="true" className="h-4 w-4" />
+          Join the SuperChat
+          <ArrowUpRight
+            aria-hidden="true"
+            className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+        </a>
+        <button
+          type="button"
+          onClick={onViewAnnouncement}
+          className="group inline-flex min-h-14 items-center justify-center gap-2.5 rounded-md border border-rule-strong bg-paper-raised px-7 text-sm font-semibold tracking-wide text-ink shadow-1 transition duration-200 hover:-translate-y-0.5 hover:border-green-deep hover:text-green-deep active:translate-y-0 active:scale-[0.99]"
+        >
+          <QrCode aria-hidden="true" className="h-4 w-4" />
+          Scan code to join
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
       <Link
@@ -129,32 +181,6 @@ function HeroActions() {
   );
 }
 
-function Momentum() {
-  return (
-    <dl className="mt-11 grid max-w-xl grid-cols-3 border-t border-rule pt-6">
-      {MOMENTUM.map((item, idx) => (
-        <div
-          key={item.label}
-          className={idx > 0 ? "border-l border-rule pl-5 sm:pl-7" : "pr-5"}
-        >
-          <dt className="sr-only">{item.label}</dt>
-          <dd>
-            <span className="block font-display text-3xl font-bold leading-none tracking-tight text-ink tabular-nums sm:text-[2.5rem]">
-              {item.value}
-            </span>
-            <span
-              aria-hidden="true"
-              className="mt-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-muted"
-            >
-              {item.label}
-            </span>
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 type HomeHeroProps = {
   testimonialPairs: TestimonialPair[];
 };
@@ -163,6 +189,7 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
   // All three slide images sit inside the viewport, so loading="lazy" would not
   // actually defer them. Mount each one only once its slide has been shown.
   const [mountedSlides, setMountedSlides] = useState<number[]>([0]);
@@ -242,14 +269,27 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
                 key={`art-${item.id}`}
                 aria-hidden="true"
                 className={`pointer-events-none absolute inset-y-0 right-0 -z-10 hidden transition-opacity duration-700 ease-out lg:block ${
-                  isPhoto ? "w-[62%]" : "w-[58%]"
+                  item.partnership ? "w-[48%]" : isPhoto ? "w-[62%]" : "w-[58%]"
                 } ${idx === activeSlide ? "opacity-100" : "opacity-0"}`}
                 // Neither artwork is a clean cut-out: the photograph carries its
                 // own background, and the "trimmed" PNGs keep an opaque studio
                 // floor. Both are feathered so they sit on the paper instead of
                 // reading as a pasted rectangle.
                 style={
-                  isPhoto
+                  item.partnership
+                    ? {
+                        // The flier fills its box to the very top, so without a
+                        // top fade its bright edge bleeds up through the
+                        // translucent sticky navbar. Feather the top (and left)
+                        // so it settles onto the paper and clears the header.
+                        maskImage:
+                          "linear-gradient(to right, transparent 0%, black 28%, black 100%), linear-gradient(to bottom, transparent 0%, black 18%, black 100%)",
+                        WebkitMaskImage:
+                          "linear-gradient(to right, transparent 0%, black 28%, black 100%), linear-gradient(to bottom, transparent 0%, black 18%, black 100%)",
+                        maskComposite: "intersect",
+                        WebkitMaskComposite: "source-in",
+                      }
+                    : isPhoto
                     ? {
                         maskImage:
                           "linear-gradient(to right, transparent 0%, black 26%, black 100%)",
@@ -298,7 +338,7 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
                 </span>
               </div>
 
-              <h1 className="mt-7 font-display text-display-1 font-extrabold leading-[0.92] tracking-[-0.035em] text-balance text-ink">
+              <h1 className="mt-7 font-display text-[clamp(2.25rem,1.1rem+5.6vw,5.5rem)] font-extrabold leading-[0.94] tracking-[-0.035em] text-balance text-ink">
                 {slide.headline}
               </h1>
 
@@ -306,29 +346,44 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
                 {slide.tagline}
               </p>
 
-              {/* Mobile art: one shared portrait rather than a per-slide
-                  variant, placed with the headline instead of below the stats. */}
-              <div
-                className="relative mx-auto mt-9 w-[min(100%,20rem)] lg:hidden"
-                // The PNG keeps an opaque studio floor at its base; fading the
-                // bottom edge stops it reading as a pale box on the paper.
-                style={{
-                  maskImage: "linear-gradient(to bottom, black 72%, transparent 97%)",
-                  WebkitMaskImage: "linear-gradient(to bottom, black 72%, transparent 97%)",
-                }}
-              >
-                <Image
-                  src={duoImage}
-                  alt="Peter Obi and Rabiu Kwankwaso"
-                  width={1024}
-                  height={1024}
-                  sizes="320px"
-                  className="h-auto w-full object-contain mix-blend-multiply"
-                />
-              </div>
+              {/* Mobile art: the duo portrait on most slides, but the finished
+                  partnership flier on its own slide — shown whole, not blended. */}
+              {slide.partnership ? (
+                <div className="relative mx-auto mt-9 w-[min(100%,18rem)] lg:hidden">
+                  <Image
+                    src={PARTNERSHIP_IMAGE}
+                    alt="OK Movement has partnered with Smart Ballot"
+                    width={868}
+                    height={1085}
+                    sizes="288px"
+                    className="h-auto w-full rounded-xl object-contain shadow-1"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="relative mx-auto mt-9 w-[min(100%,20rem)] lg:hidden"
+                  // The PNG keeps an opaque studio floor at its base; fading the
+                  // bottom edge stops it reading as a pale box on the paper.
+                  style={{
+                    maskImage: "linear-gradient(to bottom, black 72%, transparent 97%)",
+                    WebkitMaskImage: "linear-gradient(to bottom, black 72%, transparent 97%)",
+                  }}
+                >
+                  <Image
+                    src={duoImage}
+                    alt="Peter Obi and Rabiu Kwankwaso"
+                    width={1024}
+                    height={1024}
+                    sizes="320px"
+                    className="h-auto w-full object-contain mix-blend-multiply"
+                  />
+                </div>
+              )}
 
-              <HeroActions />
-              <Momentum />
+              <HeroActions
+                partnership={slide.partnership}
+                onViewAnnouncement={() => setAnnouncementOpen(true)}
+              />
             </div>
           </div>
 
@@ -375,6 +430,9 @@ export default function HomeHero({ testimonialPairs }: HomeHeroProps) {
         <HomeDonationBanner />
       </main>
       <HomeFooterSection />
+      {announcementOpen ? (
+        <HomePartnershipModal onClose={() => setAnnouncementOpen(false)} />
+      ) : null}
     </>
   );
 }

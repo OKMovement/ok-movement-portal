@@ -182,7 +182,6 @@ export const diasporaNextSteps = [
 
 export const diasporaStats = [
   { value: "17M+", label: "Nigerians abroad", helper: "Every continent" },
-  { value: "$20B+", label: "Sent home yearly", helper: "Diaspora remittances" },
   { value: "6", label: "Continents organising", helper: "One movement" },
   { value: "2027", label: "The assignment", helper: "General election" },
 ];

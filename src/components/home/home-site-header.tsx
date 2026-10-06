@@ -34,14 +34,32 @@ import { SOCIAL_PROFILES } from "@/components/social-profiles";
 
 type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
-type NavItem = {
+type ResourceLink = { label: string; href: string };
+
+/**
+ * One ordered model drives the desktop bar and the drawer, so an entry cannot
+ * end up in a different position in each. An entry with `links` renders as a
+ * menu; one with `href` renders as a plain link.
+ */
+type NavEntry = {
   label: string;
-  href: string;
   icon: NavIcon;
   description: string;
+  href?: string;
+  links?: readonly ResourceLink[];
 };
 
-const navItems: readonly NavItem[] = [
+const campaignMaterialLinks: readonly ResourceLink[] = [
+  { label: "Fliers & Banner Designs", href: "/home/campaign-materials" },
+  { label: "Campaign Videos", href: "/home/campaign-videos" },
+] as const;
+
+const diasporaLinks: readonly ResourceLink[] = [
+  { label: "International", href: "/diaspora" },
+  { label: "Canada", href: "/diaspora/canada" },
+] as const;
+
+const primaryNav: readonly NavEntry[] = [
   {
     label: "Our Movement",
     href: "/home/our-movement",
@@ -56,9 +74,9 @@ const navItems: readonly NavItem[] = [
   },
   {
     label: "Diaspora",
-    href: "/diaspora",
     icon: Globe2,
-    description: "Join Nigerians around the world",
+    description: "Nigerians around the world",
+    links: diasporaLinks,
   },
   {
     label: "Upcoming Events",
@@ -66,13 +84,12 @@ const navItems: readonly NavItem[] = [
     icon: CalendarDays,
     description: "Rallies, town halls & more",
   },
-] as const;
-
-type ResourceLink = { label: string; href: string };
-
-const campaignMaterialLinks: readonly ResourceLink[] = [
-  { label: "Fliers & Banner Designs", href: "/home/campaign-materials" },
-  { label: "Campaign Videos", href: "/home/campaign-videos" },
+  {
+    label: "Campaign materials",
+    icon: Vote,
+    description: "Official designs and videos",
+    links: campaignMaterialLinks,
+  },
 ] as const;
 
 /** Closes a `<details>` menu on Escape or a click outside it. */
@@ -105,7 +122,15 @@ function useDismissable<T extends HTMLDetailsElement>() {
   return ref;
 }
 
-function CampaignMaterialsMenu({ isActive }: { isActive: boolean }) {
+function NavMenu({
+  label,
+  links,
+  isActive,
+}: {
+  label: string;
+  links: readonly ResourceLink[];
+  isActive: boolean;
+}) {
   const ref = useDismissable<HTMLDetailsElement>();
 
   return (
@@ -115,14 +140,14 @@ function CampaignMaterialsMenu({ isActive }: { isActive: boolean }) {
           isActive ? "text-green-deep" : "text-ink hover:text-green-deep"
         }`}
       >
-        Campaign materials
+        {label}
         <ChevronDown
           aria-hidden="true"
           className="h-3.5 w-3.5 transition-transform duration-200 group-open:rotate-180"
         />
       </summary>
       <div className="absolute left-1/2 top-full mt-3 w-72 -translate-x-1/2 overflow-hidden rounded-lg border border-rule bg-paper-raised p-1.5 shadow-3 [z-index:var(--z-overlay)]">
-        {campaignMaterialLinks.map((link) => (
+        {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}
@@ -227,8 +252,7 @@ function NavLink({
 export default function HomeSiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobilePrincipalsOpen, setMobilePrincipalsOpen] = useState(false);
-  const [mobileMaterialsOpen, setMobileMaterialsOpen] = useState(false);
+  const [openDisclosure, setOpenDisclosure] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const drawerRef = useRef<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -240,7 +264,10 @@ export default function HomeSiteHeader() {
   useEffect(() => setMobileOpen(false), [pathname]);
 
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const materialsActive = campaignMaterialLinks.some((link) => isCurrent(link.href));
+  const isEntryActive = (entry: NavEntry) =>
+    entry.href ? isCurrent(entry.href) : (entry.links ?? []).some((link) => isCurrent(link.href));
+  const toggleDisclosure = (label: string) =>
+    setOpenDisclosure((current) => (current === label ? null : label));
 
   // Lock scroll, trap focus inside the drawer, and hand focus back to the
   // trigger on close.
@@ -293,12 +320,20 @@ export default function HomeSiteHeader() {
         <CampaignLogo />
 
         <nav className="hidden items-center gap-x-7 xl:flex" aria-label="Primary">
-          {navItems.map((item) => (
-            <NavLink key={item.href} href={item.href} isActive={isCurrent(item.href)}>
-              {item.label}
-            </NavLink>
-          ))}
-          <CampaignMaterialsMenu isActive={materialsActive} />
+          {primaryNav.map((entry) =>
+            entry.links ? (
+              <NavMenu
+                key={entry.label}
+                label={entry.label}
+                links={entry.links}
+                isActive={isEntryActive(entry)}
+              />
+            ) : (
+              <NavLink key={entry.label} href={entry.href!} isActive={isEntryActive(entry)}>
+                {entry.label}
+              </NavLink>
+            ),
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
@@ -396,13 +431,30 @@ export default function HomeSiteHeader() {
                   </p>
 
                   <ul className="mt-4 divide-y divide-rule border-y border-rule">
-                    {navItems.map((item) => {
-                      const Icon = item.icon;
-                      const active = isCurrent(item.href);
+                    {primaryNav.map((entry) => {
+                      const Icon = entry.icon;
+
+                      if (entry.links) {
+                        return (
+                          <MobileDisclosure
+                            key={entry.label}
+                            id={`mobile-${entry.label.replace(/\s+/g, "-").toLowerCase()}-panel`}
+                            icon={Icon}
+                            title={entry.label}
+                            description={entry.description}
+                            links={entry.links}
+                            isOpen={openDisclosure === entry.label}
+                            onToggle={() => toggleDisclosure(entry.label)}
+                            onNavigate={closeDrawer}
+                          />
+                        );
+                      }
+
+                      const active = isEntryActive(entry);
                       return (
-                        <li key={item.href}>
+                        <li key={entry.label}>
                           <Link
-                            href={item.href}
+                            href={entry.href!}
                             onClick={closeDrawer}
                             aria-current={active ? "page" : undefined}
                             className="group flex items-center gap-3.5 py-3.5 text-ink transition-colors duration-200 active:bg-green-lift"
@@ -418,10 +470,10 @@ export default function HomeSiteHeader() {
                             </span>
                             <span className="flex flex-1 flex-col leading-tight">
                               <span className="text-[15px] font-semibold tracking-tight">
-                                {item.label}
+                                {entry.label}
                               </span>
                               <span className="mt-0.5 text-[12px] text-muted">
-                                {item.description}
+                                {entry.description}
                               </span>
                             </span>
                             <ChevronRight
@@ -434,23 +486,13 @@ export default function HomeSiteHeader() {
                     })}
 
                     <MobileDisclosure
-                      id="mobile-materials-panel"
-                      icon={Vote}
-                      title="Campaign materials"
-                      description="Official designs and videos"
-                      links={campaignMaterialLinks}
-                      isOpen={mobileMaterialsOpen}
-                      onToggle={() => setMobileMaterialsOpen((open) => !open)}
-                      onNavigate={closeDrawer}
-                    />
-                    <MobileDisclosure
                       id="mobile-principals-panel"
                       icon={Users}
                       title="Meet our principals"
                       description="Peter Obi & Rabiu Kwankwaso"
                       links={principalLinks}
-                      isOpen={mobilePrincipalsOpen}
-                      onToggle={() => setMobilePrincipalsOpen((open) => !open)}
+                      isOpen={openDisclosure === "principals"}
+                      onToggle={() => toggleDisclosure("principals")}
                       onNavigate={closeDrawer}
                     />
                   </ul>
