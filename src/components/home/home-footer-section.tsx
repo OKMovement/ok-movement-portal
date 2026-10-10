@@ -11,6 +11,7 @@ const quickLinks = [
   { label: "Meet your principals", href: "/#candidates" },
   { label: "Media gallery", href: "/home/media-gallery" },
   { label: "Get involved", href: "/home/get-involved" },
+  { label: "Make your DP & share", href: "/#share" },
   { label: "Donations", href: "/home/donations" },
   { label: "Upcoming events", href: "/home/upcoming-events" },
   { label: "Contact us", href: "/home/contact" },

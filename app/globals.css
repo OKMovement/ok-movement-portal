@@ -269,6 +269,111 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   Hashtag band on the share section — a decorative, endlessly sliding ticker.
+   -------------------------------------------------------------------------- */
+@keyframes hashtag-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.hashtag-marquee {
+  animation: hashtag-marquee 38s linear infinite;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   Sticker vocabulary for the landing page: chunky outline, hard offset shadow,
+   a press-down hover. Loud on purpose — it is what makes the page feel social.
+   -------------------------------------------------------------------------- */
+.sticker {
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 0 var(--ink);
+}
+
+.sticker-sm {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
+}
+
+.sticker-lg {
+  border: 2px solid var(--ink);
+  box-shadow: 9px 9px 0 0 var(--ink);
+}
+
+.sticker-press {
+  transition:
+    transform var(--dur-fast) var(--ease-out-quint),
+    box-shadow var(--dur-fast) var(--ease-out-quint),
+    background-color var(--dur-fast) var(--ease-out-quint),
+    color var(--dur-fast) var(--ease-out-quint);
+}
+
+.sticker-press:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 0 var(--ink);
+}
+
+.sticker-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--ink);
+}
+
+.dot-grid {
+  background-image: radial-gradient(rgb(11 16 12 / 0.14) 1.25px, transparent 1.25px);
+  background-size: 22px 22px;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(calc(var(--r, 0deg) + 8deg));
+  }
+}
+
+.float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes tick-pop {
+  from {
+    transform: translateY(-30%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.tick-pop {
+  animation: tick-pop 280ms var(--ease-out-quint);
+}
+
+@keyframes confetti-fall {
+  from {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--dx, 0px), 112vh, 0) rotate(var(--rot, 540deg));
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  z-index: var(--z-overlay);
+  pointer-events: none;
+  animation: confetti-fall var(--dur, 2.6s) cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+
+/* --------------------------------------------------------------------------
    Reduced motion — one global guard rather than per-component opt-ins.
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
@@ -276,8 +381,23 @@ body {
     scroll-behavior: auto;
   }
 
-  .answers-marquee {
+  .answers-marquee,
+  .hashtag-marquee {
     animation: none;
+    transform: none;
+  }
+
+  .float-slow,
+  .tick-pop {
+    animation: none;
+  }
+
+  .confetti-piece {
+    display: none;
+  }
+
+  .sticker-press:hover,
+  .sticker-press:active {
     transform: none;
   }
 

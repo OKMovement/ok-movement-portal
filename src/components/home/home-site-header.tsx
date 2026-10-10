@@ -15,7 +15,7 @@ import { createPortal } from "react-dom";
 import {
   ArrowRight,
   ArrowUpRight,
-  CalendarDays,
+  Camera,
   ChevronDown,
   ChevronRight,
   Compass,
@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 
+import { useDaysToVote } from "./election-countdown";
 import { principalLinks } from "./home-data";
 import { SocialIcon } from "@/components/social-icons";
 import { SOCIAL_PROFILES } from "@/components/social-profiles";
@@ -49,14 +50,24 @@ type NavEntry = {
   links?: readonly ResourceLink[];
 };
 
-const campaignMaterialLinks: readonly ResourceLink[] = [
-  { label: "Fliers & Banner Designs", href: "/home/campaign-materials" },
-  { label: "Campaign Videos", href: "/home/campaign-videos" },
+/** Everything a voter needs between now and polling day. */
+const takePartLinks: readonly ResourceLink[] = [
+  { label: "Get your PVC", href: "/home/getyourpvc" },
+  { label: "Voting procedures", href: "/home/votingprocedures" },
+  { label: "Election calendar", href: "/home/electioncalendar" },
+  { label: "Upcoming events", href: "/home/upcoming-events" },
 ] as const;
 
 const diasporaLinks: readonly ResourceLink[] = [
   { label: "International", href: "/diaspora" },
   { label: "Canada", href: "/diaspora/canada" },
+] as const;
+
+/** Make it, post it, print it: the tools for telling other people. */
+const shareLinks: readonly ResourceLink[] = [
+  { label: "Make your DP & pledge card", href: "/#share" },
+  { label: "Fliers & banner designs", href: "/home/campaign-materials" },
+  { label: "Campaign videos", href: "/home/campaign-videos" },
 ] as const;
 
 const primaryNav: readonly NavEntry[] = [
@@ -65,6 +76,12 @@ const primaryNav: readonly NavEntry[] = [
     href: "/home/our-movement",
     icon: Compass,
     description: "Vision, values & the 5 C's",
+  },
+  {
+    label: "Take Part",
+    icon: Vote,
+    description: "PVC, how to vote & the calendar",
+    links: takePartLinks,
   },
   {
     label: "Get Involved",
@@ -79,18 +96,40 @@ const primaryNav: readonly NavEntry[] = [
     links: diasporaLinks,
   },
   {
-    label: "Upcoming Events",
-    href: "/home/upcoming-events",
-    icon: CalendarDays,
-    description: "Rallies, town halls & more",
-  },
-  {
-    label: "Campaign materials",
-    icon: Vote,
-    description: "Official designs and videos",
-    links: campaignMaterialLinks,
+    label: "Share",
+    icon: Camera,
+    description: "Make your DP, fliers & videos",
+    links: shareLinks,
   },
 ] as const;
+
+/**
+ * Days-to-vote pill. It links to the calendar and is the one element that is
+ * the same on every page, so the election is never out of sight.
+ */
+/** `className` must set the display value (e.g. `hidden md:inline-flex`): a base `inline-flex` here would beat `hidden`. */
+function VoteCountdownChip({ className }: { className: string }) {
+  const days = useDaysToVote();
+  const label =
+    days === null ? "Election 2027" : days === 0 ? "Election day" : `${days} days to vote`;
+
+  return (
+    <Link
+      href="/home/electioncalendar"
+      aria-label={
+        days === null
+          ? "Election calendar"
+          : days === 0
+            ? "Election day is here. See the election calendar"
+            : `${days} days until the election. See the election calendar`
+      }
+      className={`sticker-sm sticker-press shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-brand-red px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-white ${className}`}
+    >
+      <span aria-hidden="true" className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+      <span className="tabular-nums">{label}</span>
+    </Link>
+  );
+}
 
 /** Closes a `<details>` menu on Escape or a click outside it. */
 function useDismissable<T extends HTMLDetailsElement>() {
@@ -183,7 +222,7 @@ function CampaignLogo({
       href="/"
       aria-label="OK Movement home"
       onClick={onNavigate}
-      className="group relative z-10 inline-flex items-center gap-4 text-ink"
+      className="group relative z-10 inline-flex items-center gap-3 text-ink sm:gap-4"
     >
       <span
         className={
@@ -212,7 +251,7 @@ function CampaignLogo({
         <span className="whitespace-nowrap font-display text-base font-bold tracking-tight sm:text-xl">
           OK Movement
         </span>
-        <span className="mt-1.5 flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-green-deep">
+        <span className="mt-1.5 flex items-center gap-1.5 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-green-deep max-[359px]:hidden">
           <span aria-hidden="true" className="inline-block h-1 w-1 rounded-full bg-brand-green" />
           Obi · Kwankwaso · 2027
         </span>
@@ -316,7 +355,7 @@ export default function HomeSiteHeader() {
 
   return (
     <header className="sticky top-0 overflow-visible border-b border-rule bg-paper/92 backdrop-blur-md [z-index:var(--z-sticky)]">
-      <div className="flex min-h-[4.5rem] w-full items-center justify-between gap-5 px-4 sm:px-6 lg:px-10 xl:min-h-[5rem] xl:px-12">
+      <div className="flex min-h-[4.5rem] w-full items-center justify-between gap-3 px-4 sm:gap-5 sm:px-6 lg:px-10 xl:min-h-[5rem] xl:px-12">
         <CampaignLogo />
 
         <nav className="hidden items-center gap-x-7 xl:flex" aria-label="Primary">
@@ -337,6 +376,7 @@ export default function HomeSiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
+          <VoteCountdownChip className="hidden 2xl:inline-flex" />
           <div className="hidden items-center gap-0.5 border-r border-rule pr-3 2xl:flex">
             {SOCIAL_PROFILES.map((social) => (
               <a
@@ -356,14 +396,14 @@ export default function HomeSiteHeader() {
           </div>
           <Link
             href="/home/donations"
-            className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border border-rule-strong px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink transition duration-200 hover:border-brand-red hover:text-brand-red active:scale-[0.98]"
+            className="sticker-sm sticker-press group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-white px-5 py-2.5 text-[12px] font-extrabold uppercase tracking-[0.12em] text-ink"
           >
             Donate
             <Heart aria-hidden="true" className="h-3.5 w-3.5 fill-brand-red text-brand-red" />
           </Link>
           <Link
             href="/home/get-involved"
-            className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-green-deep px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-white shadow-green transition duration-200 hover:bg-ink active:scale-[0.98]"
+            className="sticker-sm sticker-press group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-green px-5 py-2.5 text-[12px] font-extrabold uppercase tracking-[0.12em] text-ink"
           >
             Join us
             <ArrowRight
@@ -373,6 +413,9 @@ export default function HomeSiteHeader() {
           </Link>
         </div>
 
+        {/* Below xl the bar has room for the countdown beside the menu button. */}
+        <div className="flex items-center gap-3 xl:hidden">
+          <VoteCountdownChip className="hidden md:inline-flex" />
         <button
           ref={triggerRef}
           type="button"
@@ -384,6 +427,7 @@ export default function HomeSiteHeader() {
         >
           <Menu aria-hidden="true" className="h-6 w-6" />
         </button>
+        </div>
       </div>
 
       <TricolorHairline />
@@ -497,24 +541,30 @@ export default function HomeSiteHeader() {
                     />
                   </ul>
 
-                  <div className="mt-8 border border-rule bg-paper-raised p-5 shadow-1">
-                    <p className="font-display text-lg font-bold leading-snug tracking-tight text-ink text-balance">
-                      Be part of a new dawn in Nigeria.
+                  <div className="sticker mt-8 rounded-2xl bg-[#f7c968] p-5 text-ink">
+                    <p className="font-display text-2xl font-extrabold uppercase leading-tight tracking-tight text-balance">
+                      Nigeria votes January 16.
                     </p>
-                    <p className="mt-2 text-[13px] leading-relaxed text-muted">
-                      Add your voice to a people-powered movement for 2027.
+                    <p className="mt-2 text-[13px] font-medium leading-relaxed text-ink/80">
+                      Check your voter card, join your state team and bring 20.
                     </p>
-                    <Link
-                      href="/home/get-involved"
-                      onClick={closeDrawer}
-                      className="group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-green-deep px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-white transition duration-200 hover:bg-ink active:scale-[0.99]"
-                    >
-                      Join us
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-                      />
-                    </Link>
+                    <div className="mt-4 grid gap-2.5">
+                      <Link
+                        href="/home/getyourpvc"
+                        onClick={closeDrawer}
+                        className="sticker-sm sticker-press inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-brand-green px-5 text-[12px] font-extrabold uppercase tracking-[0.12em] text-ink"
+                      >
+                        Check your PVC
+                      </Link>
+                      <Link
+                        href="/home/get-involved"
+                        onClick={closeDrawer}
+                        className="sticker-sm sticker-press inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-5 text-[12px] font-extrabold uppercase tracking-[0.12em] text-ink"
+                      >
+                        Join us
+                        <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
                   </div>
 
                   <div className="mt-8">
