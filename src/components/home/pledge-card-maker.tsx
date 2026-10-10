@@ -1,10 +1,9 @@
 "use client";
 
-import { Download, Share2 } from "lucide-react";
+import { ChevronDown, Download, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { siteConfig } from "@/lib/seo";
-
 import { nigerianStates } from "./get-involved-data";
 import {
   BRAND,
@@ -259,6 +258,7 @@ export default function PledgeCardMaker() {
           </p>
         </div>
 
+        {/* The two things everyone has to fill in. */}
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label
@@ -302,81 +302,93 @@ export default function PledgeCardMaker() {
           </div>
         </div>
 
-        <fieldset>
-          <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
-            What does your card say?
-          </legend>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {PLEDGE_STYLES.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={style === item.id}
-                onClick={() => setStyle(item.id)}
-                className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition duration-200 hover:-translate-y-0.5 ${
-                  style === item.id
-                    ? "border-green-deep bg-green-deep text-white"
-                    : "border-rule-strong bg-paper-raised text-ink hover:border-green-deep"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+        {/* Everything else has a sensible default, so it stays out of the way. */}
+        <details className="group rounded-lg border border-rule-strong bg-paper-raised">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+            Change the words, the number or the size (optional)
+            <ChevronDown
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform duration-200 group-open:rotate-180"
+            />
+          </summary>
+          <div className="space-y-6 border-t border-rule p-4">
+            <fieldset>
+              <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
+                What does your card say?
+              </legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {PLEDGE_STYLES.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={style === item.id}
+                    onClick={() => setStyle(item.id)}
+                    className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition duration-200 hover:-translate-y-0.5 ${
+                      style === item.id
+                        ? "border-green-deep bg-green-deep text-white"
+                        : "border-rule-strong bg-paper-raised text-ink hover:border-green-deep"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
-        {style === "bring" ? (
-          <fieldset>
-            <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
-              How many voters are you bringing?
-            </legend>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {PLEDGE_COUNTS.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={count === value}
-                  onClick={() => setCount(value)}
-                  className={`min-h-11 min-w-14 rounded-full border px-4 font-display text-base font-extrabold transition duration-200 hover:-translate-y-0.5 ${
-                    count === value
-                      ? "border-brand-red bg-brand-red text-white"
-                      : "border-rule-strong bg-paper-raised text-ink hover:border-brand-red"
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-        ) : null}
+            {style === "bring" ? (
+              <fieldset>
+                <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
+                  How many voters are you bringing?
+                </legend>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {PLEDGE_COUNTS.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={count === value}
+                      onClick={() => setCount(value)}
+                      className={`min-h-11 min-w-14 rounded-full border px-4 font-display text-base font-extrabold transition duration-200 hover:-translate-y-0.5 ${
+                        count === value
+                          ? "border-brand-red bg-brand-red text-white"
+                          : "border-rule-strong bg-paper-raised text-ink hover:border-brand-red"
+                      }`}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
 
-        <fieldset>
-          <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
-            Where will you post it?
-          </legend>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {(
-              [
-                { id: "square", label: "Feed / DP (square)" },
-                { id: "story", label: "WhatsApp status / Story (tall)" },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={format === item.id}
-                onClick={() => setFormat(item.id)}
-                className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition duration-200 hover:-translate-y-0.5 ${
-                  format === item.id
-                    ? "border-green-deep bg-green-deep text-white"
-                    : "border-rule-strong bg-paper-raised text-ink hover:border-green-deep"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+            <fieldset>
+              <legend className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">
+                Where will you post it?
+              </legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(
+                  [
+                    { id: "square", label: "Feed / DP (square)" },
+                    { id: "story", label: "WhatsApp status / Story (tall)" },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={format === item.id}
+                    onClick={() => setFormat(item.id)}
+                    className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition duration-200 hover:-translate-y-0.5 ${
+                      format === item.id
+                        ? "border-green-deep bg-green-deep text-white"
+                        : "border-rule-strong bg-paper-raised text-ink hover:border-green-deep"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           </div>
-        </fieldset>
+        </details>
 
         <div className="flex flex-wrap gap-3">
           <button
